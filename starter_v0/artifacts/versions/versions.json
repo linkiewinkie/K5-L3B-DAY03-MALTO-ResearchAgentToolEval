@@ -1,0 +1,98 @@
+{
+  "default": "current",
+  "versions": [
+    {
+      "version": "v0",
+      "label": "Baseline: prompt/tools starter chưa sửa",
+      "commit": "facfddd",
+      "system_prompt": "artifacts/versions/v0/system_prompt.md",
+      "tools": "artifacts/versions/v0/tools.yaml",
+      "run_file": "runs/v0_B_base_openrouter_20261110T170619040358.json",
+      "model": "openai/gpt-4o-mini",
+      "artifact_version": "v0+peb1c8179815b+te69bc53ed884",
+      "prompt_hash": "eb1c8179815bd79d34de7d326420bb99b3072e6e8ae96464c02d4411f905fc68",
+      "tools_hash": "e69bc53ed8846a5c2192e950c539806a61a6902b718f06d6773db6a42e9b996c",
+      "metrics": {
+        "case_accuracy": 0.65,
+        "tool_routing_accuracy": 0.75,
+        "argument_accuracy": 0.65,
+        "multiturn_accuracy": 1.0,
+        "passed_cases": 13,
+        "total_cases": 20
+      }
+    },
+    {
+      "version": "v1",
+      "label": "Sửa system prompt (bỏ chỉ dẫn xấu)",
+      "commit": "772e614",
+      "system_prompt": "artifacts/versions/v1/system_prompt.md",
+      "tools": "artifacts/versions/v1/tools.yaml",
+      "run_file": "runs/v1_B_base_openrouter_20261110T182732220052.json",
+      "model": "openai/gpt-4o-mini",
+      "artifact_version": "v1+p9b146134d58a+te69bc53ed884",
+      "prompt_hash": "9b146134d58ac72042628d7fb28e5eac1711d152f90f5781289aad620da6a91c",
+      "tools_hash": "e69bc53ed8846a5c2192e950c539806a61a6902b718f06d6773db6a42e9b996c",
+      "metrics": {
+        "case_accuracy": 0.8,
+        "tool_routing_accuracy": 0.8,
+        "argument_accuracy": 0.8,
+        "multiturn_accuracy": 0.8333,
+        "passed_cases": 16,
+        "total_cases": 20
+      }
+    },
+    {
+      "version": "v2",
+      "label": "Sửa system prompt vòng 2",
+      "commit": "7db0972",
+      "system_prompt": "artifacts/versions/v2/system_prompt.md",
+      "tools": "artifacts/versions/v2/tools.yaml",
+      "run_file": "runs/v2_B_base_openrouter_20261110T184712806825.json",
+      "model": "openai/gpt-4o-mini",
+      "artifact_version": "v2+p0d8f978b5d7e+te69bc53ed884",
+      "prompt_hash": "0d8f978b5d7e35e01dcfd0b592fdb12bf4a6931211496055a164648b27f7b988",
+      "tools_hash": "e69bc53ed8846a5c2192e950c539806a61a6902b718f06d6773db6a42e9b996c",
+      "metrics": {
+        "case_accuracy": 0.75,
+        "tool_routing_accuracy": 0.85,
+        "argument_accuracy": 0.75,
+        "multiturn_accuracy": 0.8333,
+        "passed_cases": 15,
+        "total_cases": 20
+      }
+    },
+    {
+      "version": "v3",
+      "label": "Sửa system prompt + tool declaration",
+      "commit": "65bf68f",
+      "system_prompt": "artifacts/versions/v3/system_prompt.md",
+      "tools": "artifacts/versions/v3/tools.yaml",
+      "run_file": "runs/v3_B_base_openrouter_20261110T190626530147.json",
+      "model": "openai/gpt-4o-mini",
+      "artifact_version": "v3+pdeb12896aba6+t29e8522548d5",
+      "prompt_hash": "deb12896aba62bf5d4ecb1580fb554f74002bb780b01394caba6897d62b80d54",
+      "tools_hash": "29e8522548d51869c38f375284a157d70960f250b76c38c45a54a21ca9ce6f55",
+      "metrics": {
+        "case_accuracy": 0.95,
+        "tool_routing_accuracy": 1.0,
+        "argument_accuracy": 0.95,
+        "multiturn_accuracy": 1.0,
+        "passed_cases": 19,
+        "total_cases": 20
+      }
+    },
+    {
+      "version": "current",
+      "label": "Bản tích hợp: prompt v3 + 4 tool mới (artifacts/)",
+      "commit": null,
+      "system_prompt": "artifacts/system_prompt.md",
+      "tools": "artifacts/tools.yaml",
+      "run_file": null,
+      "model": null,
+      "artifact_version": null,
+      "prompt_hash": null,
+      "tools_hash": null,
+      "metrics": null
+    }
+  ]
+}
