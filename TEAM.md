@@ -16,7 +16,7 @@
 |   1 | Nguyễn Xuân Khánh Linh | 2A202603801 | [nxklinh@gmail.com](mailto:nxklinh@gmail.com) | [linkiewinkie](https://github.com/linkiewinkie) | Nhóm trưởng — UI + Group Eval + điều phối |
 |   2 | Đậu Hoàng Minh | 2A202604011 | [26ai.minhdh4@vinuni.edu.vn](mailto:26ai.minhdh4@vinuni.edu.vn) | [justapea25](https://github.com/justapea25) | Backend Integration + Live Chat + Report |
 |   3 | <Họ tên Lên> | <MSSV> | <email> | <github> | Prompt Engineering + tối ưu v1–v3 |
-|   4 | <Họ tên Thu> | <MSSV> | <email> | <github> | Custom Tool + Unit Testing |
+|   4 | Đặng Minh Thu | 2A202604009 | [26ai.thudm@vinuni.edu.vn](mailto:26ai.thudm@vinuni.edu.vn) | [minhthu27](https://github.com/minhthu27) | Custom Tool + Unit Testing |
 
 ## Cá nhân
 
@@ -78,16 +78,23 @@ Ví dụ: `report/team/20241234_NguyenVanAn.md`.
 
 -
 
-## <HoVaTen>-<MSSV> (Thu)
+## DangMinhThu-2A202604009
 
 ### Phần việc phụ trách
 
--
+- Custom Tool + Unit Testing (CP3), branch `minhthu`.
+- Bonus "hơn 3 tool mới" và "test challenge".
 
 ### Đóng góp cụ thể
 
--
+- Viết 4 tool mới: `dedupe`, `filter_results`, `topic_stats`, `reading_list` (mỗi tool có `tool.py`, `TOOL.md`, đăng ký trong `tools/__init__.py`, khai báo trong `artifacts/tools.yaml`).
+- Viết 33 unit test cho 4 tool mới (happy path, input xấu, nhánh lỗi), chạy offline; điền 14 stub TODO của 8 tool có sẵn → `pytest` 138 passed, 0 skipped.
+- Tìm và sửa 2 bug ở tool có sẵn (`limit` âm ở `timeline`/`social_search`; `format` crash khi item không phải dict), kèm test regression.
+- Gửi contract 4 tool cho nhóm trưởng để viết eval case; điền mục B5a và B5 trong group report.
 
 ### Bằng chứng
 
--
+- Tool: `starter_v0/tools/dedupe/`, `filter_results/`, `topic_stats/`, `reading_list/`
+- Test: `starter_v0/tests/test_tools_todo.py`
+- Commit (branch `minhthu`): `83d6d81`, `206140f`, `47c07d7`
+- Báo cáo cá nhân: `report/team/2A202604009_DangMinhThu.md`

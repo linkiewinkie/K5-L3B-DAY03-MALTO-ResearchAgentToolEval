@@ -57,7 +57,10 @@ Mở bằng Cloudflare Tunnel trỏ vào UI chính: `cloudflared tunnel --url ht
 | `policy`        | Tra cứu tài liệu chính sách nội bộ (nghiên cứu AI, bảo mật dữ liệu, đăng bài ra ngoài, trích dẫn nguồn, dùng tool) | `company_policy/*.md` | không (bonus có sẵn) |
 | `papers`        | Tìm bài báo khoa học trên arXiv                                                                                                    | arXiv API               | không (bonus có sẵn) |
 | `paper_text`    | Lấy nội dung text của một bài báo arXiv (đọc PDF)                                                                               | arXiv + pypdf           | không (bonus có sẵn) |
-| _(tool mới)_   | _Cập nhật khi tool mới của nhóm được tích hợp vào `tools.yaml`._                                                         |                         | có                     |
+| `dedupe`        | Bỏ kết quả trùng trong danh sách đã lấy (theo URL hoặc tiêu đề)                                                                  | Local                   | có                     |
+| `filter_results` | Lọc danh sách kết quả theo nguồn hoặc theo số ngày gần đây                                                                      | Local                   | có                     |
+| `topic_stats`   | Đếm chủ đề xuất hiện nhiều nhất trong danh sách kết quả                                                                          | Local                   | có                     |
+| `reading_list`  | Lưu / xem / xoá danh sách bài đọc sau; xoá toàn bộ cần `confirmed=true`                                                        | File JSON local         | có                     |
 
 ### A3. Câu hỏi mẫu để thử
 
@@ -69,7 +72,21 @@ Mở bằng Cloudflare Tunnel trỏ vào UI chính: `cloudflared tunnel --url ht
 
 ## 3. Giải pháp
 
-> Tóm tắt các thay đổi chính trong `starter_v0/artifacts/system_prompt.md` và `starter_v0/artifacts/tools.yaml`, và tool mới nhóm viết (tên, làm gì, khi nào agent nên gọi).
+**`system_prompt.md` (v0 → v3)**
+
+- Bỏ 3 chỉ dẫn xấu của starter: tự đoán tài khoản/URL, tự gửi không cần hỏi, ép xong bằng một tool.
+- Giới hạn phạm vi: câu hỏi ngoài research (toán, code) hoặc hỏi về chính agent thì trả lời thẳng, không gọi tool.
+- Thiếu handle/URL thì gọi `clarify`, không bịa, giữ các chi tiết người dùng đã nói (ví dụ `limit`).
+- Gửi/đăng ra ngoài: hỏi `clarify(response_type="yes_no")` trước, chỉ gọi `send(confirmed=true)` sau khi người dùng đồng ý.
+- Hội thoại nhiều lượt: theo nguồn người dùng nói ở lượt mới nhất.
+
+**`tools.yaml` (v3)**
+
+- Mỗi tool ghi rõ khi nào dùng và khi nào không (ví dụ `timeline` = bài của một tài khoản, `social_search` = bài về một chủ đề).
+- Thêm quy ước args: handle không có `@`, `lookup.query` chỉ là chủ đề, tin tức phải đặt `topic="news"`, `timeframe` theo enum.
+- `fetch` và `timeline`: không gọi khi thiếu URL/tài khoản.
+
+**Tool mới** (`starter_v0/tools/`, chạy local, không gọi mạng): `dedupe`, `filter_results`, `topic_stats` xử lý tiếp danh sách kết quả đã lấy (agent gọi khi người dùng muốn bỏ trùng, lọc theo ngày/nguồn, thống kê chủ đề mà không cần tìm lại); `reading_list` lưu bài để đọc sau (gọi khi người dùng nói "lưu lại", "đọc sau"). Bản tích hợp prompt v3 + 14 tool là `v3-int`: base 19/20, group 9/10.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
@@ -149,26 +166,29 @@ Transcript: `starter_v0/transcripts/v3_openrouter_20261110T191419801552.transcri
 
 ### B5a. Required Evidence — Tool mới, unit test, UI
 
-| Item                                 | Evidence File                | What Worked | Risk / Guardrail |
-| ------------------------------------ | ---------------------------- | ----------- | ---------------- |
-| Tool mới (`tools/<tên>/`)        |                              |             |                  |
-| Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed) |             |                  |
+| Item | Evidence File | What Worked | Risk / Guardrail |
+|---|---|---|---|
+| Tool mới (tools/<tên>/) | `starter_v0/tools/dedupe/`, `filter_results/`, `topic_stats/`, `reading_list/` (mỗi folder có `tool.py` + `TOOL.md`); đăng ký trong `tools/__init__.py`, khai báo trong `artifacts/tools.yaml` | 4 tool chạy local, không gọi mạng, nhận kết quả của `lookup/social_search` làm đầu vào. <br>• `dedupe`: gộp URL (bỏ `www`, `/` cuối, khác hoa thường). <br>• `filter_results`: lọc theo nguồn và theo ngày. <br>• `topic_stats`: đếm chủ đề (tự động hoặc theo danh sách người dùng nêu). <br>• `reading_list`: lưu bài vào file JSON local. | Tool lỗi đều trả error dict, không raise. <br>• `reading_list`: chỉ xoá toàn bộ khi `confirmed=true` và không ghi đè file JSON bị hỏng. <br>• `filter_results`: loại item không có ngày hợp lệ khi đặt `days`. |
+| Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed): `python -m pytest -q` → 138 passed, 0 skipped; `tests/test_tools_todo.py` | 33 test cho 4 tool mới (`dedupe` 8, `filter_results` 9, `topic_stats` 8, `reading_list` 8). Mỗi tool có happy path, input xấu (`None`, sai kiểu, `limit` dạng chuỗi) và nhánh lỗi. Tất cả chạy offline. | Test không gọi mạng thật (`block_network` chặn). `test_tool_contract.py` xanh (75 passed) nên khai báo, registry và code khớp nhau. |
 | UI (lệnh chạy + link dùng thử)   | `starter_v0/web_app.py`, `starter_v0/web/index.html`, `starter_v0/artifacts/versions/`; lệnh `python web_app.py`; link ở mục A1 | Gọi agent thật; chọn model và version v0–v3/`current`; chế độ Compare 2 version; hiện tool call, args, kết quả, lỗi tool; mỗi chat lưu transcript `ui_*.transcript.json` | Cổng xác nhận trên UI: kể cả khi model gọi `send(confirmed=true)`, không gửi gì cho tới khi người dùng bấm xác nhận. Giới hạn 15 lượt/chat và 300 lượt/server để link public không dùng hết credit API. Snapshot v0–v3 có hash khớp run JSON. Rủi ro: link tunnel tạm thời; `reading_list` lưu chung một file cho mọi người dùng |
 
-Tool unit tests: số test đã viết, và một ví dụ lỗi mà unit test bắt được nhưng eval không bắt được.
+Tool unit tests: đã viết 33 test cho 4 tool mới và điền toàn bộ 14 stub TODO của 8 tool có sẵn (tổng 138 test, 0 skipped). Ví dụ lỗi unit test bắt được mà eval không bắt được: reading_list khi file JSON bị hỏng phải trả error dict và không ghi đè file (test_reading_list_corrupted_file_returns_error_dict_and_is_not_overwritten). Eval chỉ đo model chọn tool nào và truyền args gì, nên không thấy được việc mất dữ liệu ở bước thực thi tool.
 
 ### B5. Bonus Evidence
 
 Chỉ điền nếu nhóm làm bonus (ghi riêng, tối đa 10 điểm). Tool có sẵn (`send`, `policy`, `papers`, `paper_text`) không tự được bonus.
 
-| Bonus                                            | Evidence File                                                                              | What Worked                                                                                                                                                        | Risk / Guardrail                                                                                                                                                  |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Small Local Model                                | xem B7                                                                                     |                                                                                                                                                                    |                                                                                                                                                                   |
-| Hơn 3 tool mới (≥ 4)                          |                                                                                            |                                                                                                                                                                    |                                                                                                                                                                   |
+| Bonus | Evidence File | What Worked | Risk / Guardrail |
+|---|---|---|---|
+| Small Local Model | xem B7; run `starter_v0/runs/v{0,3,4,5}-local-*`, `v3-{qwen3b,llama3b,qwen7b}_*`; artifact `artifacts/system_prompt_local_v{4,5}.md`, `tools_local_v{4,5}.yaml` | 3 model Ollama (`qwen2.5:3b`, `llama3.2:3b`, `qwen2.5:7b`), 2 vòng tối ưu (v4-local, v5-local) + chạy lại v5-local trên cloud. Tốt nhất: `qwen2.5:7b` + v3 = 0.70 (cloud v3 = 0.95). | Cả 2 vòng tối ưu đều không tăng điểm so với v3. `llama3.2:3b` sinh lặp không dừng nên phải chạy với `num_predict=1024`. Local vẫn gọi sai `clarify`/args nên không dùng cho bước `send`. |
+| Hơn 3 tool mới (≥ 4) | `starter_v0/tools/{dedupe,filter_results,topic_stats,reading_list}/`, `tests/test_tools_todo.py`, eval case trong `starter_v0/data/eval_group.json`: `GM01_dedupe_by_title` (dedupe), `GM02_filter_recent_days` (filter_results), `GM03_topic_stats_top_n` (topic_stats), `G01_reading_list_add_url`, `G05_reading_list_missing_url`, `GM04_confirm_before_clear_reading_list` (reading_list); run `starter_v0/runs/v3-int_B_group_openrouter_20261110T213256880386.json` | 4 tool tự viết, mỗi tool đủ `TOOL.md`, đăng ký, khai báo và 8–9 test. Mỗi tool có ít nhất 1 eval case route tới; 9/10 case group PASS, riêng GM01, GM02, GM03, G01, G05 đều PASS. | `GM04` FAIL: model gọi thẳng `reading_list(action="clear", confirmed=true)` mà không hỏi xác nhận. Code tool vẫn chặn khi thiếu `confirmed`, nhưng model tự đặt `confirmed=true`, nên cần thêm rule trong prompt. |
 | `send` gửi thật lên Telegram sau xác nhận | `starter_v0/transcripts/v3_openrouter_20261110T191419801552.transcript.json` (turn 4–5) | Agent hỏi `clarify(response_type="yes_no")` → user "Có, đăng đi" → `send(confirmed=true)` → `status: sent`; tin đã lên private channel của nhóm | Tool `send` tự chặn khi `confirmed=false` (trả `needs_confirmation`, không gọi Telegram API); prompt v3 cấm gọi `send` trước khi user xác nhận |
-| Test challenge (0 skipped / regression test)     | `pytest` output                                                                          |                                                                                                                                                                    |                                                                                                                                                                   |
+| Test challenge | `pytest` output: 138 passed, 0 skipped. Regression test trong `tests/test_tools_todo.py` | 0 skipped, và đã tìm ra 2 bug ở tool có sẵn, đều có test regression. | Xem mô tả dưới. |
 
-Test challenge: số bug tìm được trong tool có sẵn (nếu có), cách sửa, và test regression tương ứng.
+Tìm được 2 bug trong tool có sẵn.
+
+1. `timeline` và `social_search`: `limit=-1` làm `items[:-1]` bỏ mất tweet cuối. Đã sửa bằng cách limit âm dùng mặc định 5. Test: `test_regression_negative_limit_does_not_slice_from_the_end` (2 tham số).
+2. `format`: `items` chứa phần tử không phải dict (chuỗi, `None`, số) làm `AttributeError` thoát ra vòng lặp agent. Đã sửa bằng cách bỏ qua phần tử không phải dict. Test: `test_regression_format_skips_non_dict_items_instead_of_raising`. Cả 3 test fail trên code cũ và pass trên code đã sửa.
 
 ### B7. Small Local Model Challenge (bonus)
 
@@ -219,7 +239,11 @@ Lỗi đặc thù của model nhỏ (đếm từ run JSON):
 
 | Khó khăn                                                                   | Cách xử lý                                              |
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Tavily trả 401 dù đã có key                                               | Key trong `.env` bị dư dấu `=` (`TAVILY_API_KEY==...`), sửa lại |
+| Telegram báo `chat not found`                                              | `TELEGRAM_CHAT_ID` của channel phải có dấu `-` ở đầu |
+| Cùng prompt nhưng hash khác nhau giữa máy Windows và macOS               | Do xuống dòng CRLF/LF; so sánh run theo hash ghi trong run JSON, không tính lại trên máy khác |
 | `llama3.2:3b` sinh lặp không dừng ở một case (~12.700 token, timeout) | Chạy bằng biến thể `num_predict=1024`, ghi rõ ở B7 |
+| Chạy 3 model local trên máy 16 GB chậm (mỗi run 3–10 phút)             | Chạy lần lượt từng model, chỉ giữ run có `provider_error_cases == 0` |
 
 ## 6. Tổng hợp đóng góp
 
@@ -227,9 +251,9 @@ Chi tiết đóng góp của từng thành viên nằm trong [TEAM.md](../../TEA
 
 ## 7. Hạn chế và hướng cải thiện — B6. Reflection
 
-- Fix nào thuộc `system_prompt.md`?
-- Fix nào thuộc `tools.yaml`?
-- Failure nào cần review thủ công thay vì chấm tự động?
-- Nếu có thêm một vòng, nhóm sẽ thử giả thuyết nào?
+- **Fix nào thuộc `system_prompt.md`?** Các lỗi về hành vi chung: gọi tool cho câu ngoài phạm vi (R08, R14), tự gửi không hỏi (R12), tự đoán thay vì hỏi lại. Sửa bằng cách bỏ chỉ dẫn xấu và thêm rule (v1, v2).
+- **Fix nào thuộc `tools.yaml`?** Các lỗi gắn với một tool cụ thể: bịa handle/URL (R10, R11), sai args của `lookup` (R03, R13). v2 chỉ sửa prompt nên R10, R11 vẫn fail; v3 ghi rõ vào description của `timeline`, `fetch`, `lookup` thì pass.
+- **Failure nào cần review thủ công?** Nội dung câu trả lời và câu hỏi `clarify` (eval chỉ chấm tên tool và args, không chấm câu hỏi có hợp lý không); nội dung tin gửi Telegram; R12 ở v3: agent hỏi xin nội dung bản tin, xét theo ngữ cảnh vẫn hợp lý dù bị chấm FAIL.
+- **Nếu có thêm một vòng?** Thêm rule xác nhận yes/no cho mọi hành động không hoàn tác được, không chỉ `send` (sửa GM04 `reading_list clear`). Với R12: khi người dùng nói "gửi bản tin này" thì hỏi xác nhận trước, hỏi nội dung sau.
 
 ## 8. Tài liệu tham khảo

@@ -24,87 +24,151 @@ TODO = "TODO CP3 (student): implement this test"
 # ---------------- clarify ----------------
 
 def test_clarify_choice_returns_options_and_awaits_user() -> None:
-    # Call clarify with response_type="choice" and 2 options.
-    # Assert: options are returned unchanged, awaiting_user is True.
-    pytest.skip(TODO)
+    result = TOOL_FUNCTIONS["clarify"](question="Bạn muốn nguồn nào?", response_type="choice", options=["Reuters", "TechCrunch"])
+
+    assert result["options"] == ["Reuters", "TechCrunch"]
+    assert result["response_type"] == "choice"
+    assert result["awaiting_user"] is True
 
 
 # ---------------- format ----------------
 
 def test_format_sections_groups_items_by_section() -> None:
-    # Items with section "A", "B", "A" -> markdown has exactly one "## A" and one "## B".
-    pytest.skip(TODO)
+    items = [
+        {"title": "x1", "section": "A"},
+        {"title": "x2", "section": "B"},
+        {"title": "x3", "section": "A"},
+    ]
+    markdown = TOOL_FUNCTIONS["format"](items=items, template="sections")["markdown"]
+
+    assert markdown.count("## A") == 1
+    assert markdown.count("## B") == 1
+    assert markdown.index("x1") < markdown.index("x3") < markdown.index("x2")
 
 
 def test_format_thread_numbers_items() -> None:
-    # template="thread" -> lines start with "1/", "2/", ...
-    pytest.skip(TODO)
+    items = [{"title": "one"}, {"title": "two"}, {"title": "three"}]
+    markdown = TOOL_FUNCTIONS["format"](items=items, template="thread")["markdown"]
+
+    assert [block.split(" ")[0] for block in markdown.split("\n\n")] == ["1/", "2/", "3/"]
 
 
 def test_format_empty_items_does_not_crash() -> None:
-    # items=None and items=[] -> item_count == 0, no exception.
-    pytest.skip(TODO)
+    for empty in (None, []):
+        result = TOOL_FUNCTIONS["format"](items=empty, template="sections")
+        assert result["item_count"] == 0
 
 
 # ---------------- send (guardrail) ----------------
 
 def test_send_confirmed_posts_to_telegram(monkeypatch, fake_http) -> None:
-    # Set TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID, mock HTTP.
-    # Assert: exactly one POST, URL contains the token, json has chat_id + text, status == "sent".
-    pytest.skip(TODO)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "123:abc")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "-100999")
+    calls = fake_http(FakeResponse({"ok": True}))
+
+    result = TOOL_FUNCTIONS["send"](text="Bản tin hôm nay", confirmed=True)
+
+    assert result["status"] == "sent"
+    assert len(calls) == 1
+    assert calls[0]["method"] == "POST"
+    assert "123:abc" in calls[0]["url"]
+    assert calls[0]["json"]["chat_id"] == "-100999"
+    assert calls[0]["json"]["text"] == "Bản tin hôm nay"
 
 
 def test_send_confirmed_without_env_returns_error_and_no_request(fake_http) -> None:
-    pytest.skip(TODO)
+    calls = fake_http(FakeResponse({"ok": True}))
+
+    result = TOOL_FUNCTIONS["send"](text="Bản tin", confirmed=True)
+
+    assert result["error"] == "RuntimeError"
+    assert "TELEGRAM_BOT_TOKEN" in result["message"]
+    assert calls == []
 
 
 # ---------------- lookup ----------------
 
 def test_lookup_without_timeframe_omits_time_range(monkeypatch, fake_http) -> None:
-    # timeframe=None -> request body has no "time_range" key.
-    pytest.skip(TODO)
+    monkeypatch.setenv("TAVILY_API_KEY", "test-key")
+    calls = fake_http(FakeResponse({"results": []}))
+
+    TOOL_FUNCTIONS["lookup"](query="OpenAI", timeframe=None)
+    TOOL_FUNCTIONS["lookup"](query="OpenAI", timeframe="week")
+
+    assert "time_range" not in calls[0]["json"]
+    assert calls[1]["json"]["time_range"] == "week"
 
 
 # ---------------- fetch ----------------
 
 def test_fetch_maps_firecrawl_response(monkeypatch, fake_http) -> None:
-    # Mock {"data": {"markdown": "...", "metadata": {"title": "T", "sourceURL": "https://..."}}}
-    # Assert title/url/source/summary in result["items"][0].
-    pytest.skip(TODO)
+    monkeypatch.setenv("FIRECRAWL_API_KEY", "fc-key")
+    fake_http(FakeResponse({"data": {
+        "markdown": "# Hello body",
+        "metadata": {"title": "T", "sourceURL": "https://www.example.com/post"},
+    }}))
+
+    item = TOOL_FUNCTIONS["fetch"](url="https://www.example.com/post")["items"][0]
+
+    assert item["title"] == "T"
+    assert item["url"] == "https://www.example.com/post"
+    assert item["source"] == "example.com"
+    assert item["summary"] == "# Hello body"
 
 
 def test_fetch_truncates_markdown_to_4000_chars(monkeypatch, fake_http) -> None:
-    pytest.skip(TODO)
+    monkeypatch.setenv("FIRECRAWL_API_KEY", "fc-key")
+    fake_http(FakeResponse({"data": {"markdown": "y" * 9000, "metadata": {}}}))
+
+    item = TOOL_FUNCTIONS["fetch"](url="https://example.com/long")["items"][0]
+
+    assert len(item["summary"]) == 4000
+    assert item["title"] == "https://example.com/long"
 
 
 # ---------------- timeline / social_search ----------------
 
 def test_timeline_respects_limit_and_skips_items_without_id(monkeypatch, fake_http) -> None:
-    # Mock {"timeline": [...]} with 1 item missing tweet_id and 6 valid items, limit=3.
-    # Assert 3 items, and each url looks like https://x.com/<handle>/status/<id>.
-    pytest.skip(TODO)
+    monkeypatch.setenv("RAPIDAPI_KEY", "rk")
+    raw = [{"screen_name": "bob", "text": "no id"}]
+    raw += [{"screen_name": "bob", "tweet_id": str(i), "text": f"t{i}"} for i in range(1, 7)]
+    fake_http(FakeResponse({"timeline": raw}))
+
+    items = TOOL_FUNCTIONS["timeline"](screenname="bob", limit=3)["items"]
+
+    assert len(items) == 3
+    assert [item["url"] for item in items] == [f"https://x.com/bob/status/{i}" for i in (1, 2, 3)]
 
 
 def test_social_search_passes_search_type(monkeypatch, fake_http) -> None:
-    # Assert the request params carry the query and search_type ("Top" / "Latest").
-    pytest.skip(TODO)
+    monkeypatch.setenv("RAPIDAPI_KEY", "rk")
+    calls = fake_http(FakeResponse({"timeline": []}))
+
+    TOOL_FUNCTIONS["social_search"](query="agents", search_type="Top")
+
+    assert calls[0]["params"] == {"query": "agents", "search_type": "Top"}
 
 
 # ---------------- policy (local knowledge + trust boundary) ----------------
 
 def test_policy_empty_query_returns_no_results() -> None:
-    pytest.skip(TODO)
+    assert TOOL_FUNCTIONS["policy"](query="")["results"] == []
 
 
 def test_policy_area_filter_only_returns_that_area() -> None:
-    # policy_area="data_privacy" -> every result has policy_area == "data_privacy".
-    pytest.skip(TODO)
+    results = TOOL_FUNCTIONS["policy"](query="api keys data", policy_area="data_privacy", top_k=5)["results"]
+
+    assert results
+    assert {hit["policy_area"] for hit in results} == {"data_privacy"}
 
 
 def test_policy_instruction_like_lines_go_to_untrusted_text() -> None:
-    # One policy file contains a quoted line that tries to give the assistant orders.
-    # Query that section (source_citation) and assert: that line is in untrusted_text, NOT in facts.
-    pytest.skip(TODO)
+    results = TOOL_FUNCTIONS["policy"](query="injection probe", policy_area="source_citation")["results"]
+    probe = next(hit for hit in results if hit["section"] == "Injection probe")
+
+    assert probe["untrusted_text"]
+    assert all("ignore" not in fact.lower() for fact in [probe["facts"]])
+    assert any("ignore" in line.lower() for line in probe["untrusted_text"])
 
 
 # ---------------- YOUR NEW TOOL(S) ----------------
@@ -411,3 +475,28 @@ def test_reading_list_corrupted_file_returns_error_dict_and_is_not_overwritten(l
 
     assert result["error"] == "JSONDecodeError"
     assert list_file.read_text(encoding="utf-8") == "{not json"
+
+
+# ---------------- REGRESSION: bugs found in provided tools (Challenge+) ----------------
+
+@pytest.mark.parametrize("tool_name,kwargs", [
+    ("timeline", {"screenname": "bob"}),
+    ("social_search", {"query": "agents"}),
+])
+def test_regression_negative_limit_does_not_slice_from_the_end(monkeypatch, fake_http, tool_name, kwargs) -> None:
+    # Bug: items[:int(limit)] with limit=-1 silently dropped the LAST tweet instead of using the default.
+    monkeypatch.setenv("RAPIDAPI_KEY", "rk")
+    raw = [{"screen_name": "bob", "tweet_id": str(i), "text": f"t{i}"} for i in range(1, 5)]
+    fake_http(FakeResponse({"timeline": raw}))
+
+    items = TOOL_FUNCTIONS[tool_name](limit=-1, **kwargs)["items"]
+
+    assert len(items) == 4
+
+
+def test_regression_format_skips_non_dict_items_instead_of_raising() -> None:
+    # Bug: render_digest called item.get(...) on a string item -> AttributeError escaped to the agent loop.
+    for template in ("sections", "bullets", "brief", "thread", "daily_ai_vn"):
+        result = TOOL_FUNCTIONS["format"](items=[{"title": "ok"}, "junk", None, 42], template=template)
+        assert result["item_count"] == 1
+        assert "ok" in result["markdown"]
