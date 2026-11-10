@@ -32,7 +32,7 @@ và "test challenge".
   - **Commit (branch `minhthu`):**
     - `83d6d81` Add dedupe tool with 7 unit tests (CP3)
     - `206140f` Replace rank/extract_links/summarize_stats with filter_results, topic_stats, reading_list
-    - `<hash>` Fill TODO tests, fix timeline/social_search/format bugs + regression tests
+    - `47c07d7` Fill TODO tests, fix timeline/social_search/format bugs + regression tests
   - **Kết quả pytest:** `python -m pytest -q` → 131 passed, 0 skipped, 0 failed; `pytest tests/test_tool_contract.py` → 75 passed
 
 - AI/công cụ đã dùng và cách tự kiểm tra kết quả:
