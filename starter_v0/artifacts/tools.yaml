@@ -144,3 +144,53 @@ tools:
         key: {type: string, enum: [url, title], default: "url", description: "Trường dùng để so trùng; mặc định url"}
         limit: {type: integer, default: 0, description: "Giữ tối đa N item; 0 là không giới hạn"}
       required: [items]
+
+  - name: rank
+    description: "Sắp xếp danh sách item ĐÃ CÓ theo điểm (score), ngày đăng (date) hoặc tiêu đề (title) và có thể chỉ giữ Top N. Dùng khi người dùng muốn 'mới nhất trước', 'điểm cao nhất', 'top N' từ một danh sách đã có. KHÔNG dùng để tìm kiếm mới (dùng lookup/social_search) và không dùng khi chưa có danh sách item. Item thiếu trường sắp xếp được đặt cuối danh sách."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Danh sách item đã có (object có thể chứa title, url, score, date)"
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              score: {type: number}
+              date: {type: string}
+        by: {type: string, enum: [score, date, title], default: "score", description: "Tiêu chí sắp xếp: score = điểm liên quan, date = ngày đăng, title = tiêu đề A-Z"}
+        order: {type: string, enum: [desc, asc], default: "desc", description: "desc = lớn/mới nhất trước; asc = nhỏ/cũ nhất trước"}
+        limit: {type: integer, default: 0, description: "Giữ Top N sau khi sắp xếp; 0 là giữ tất cả"}
+      required: [items]
+
+  - name: extract_links
+    description: "Trích xuất mọi đường link http/https từ đoạn văn bản người dùng cung cấp, trả về danh sách link và số lượng. Dùng khi người dùng dán một đoạn văn/bài/tin nhắn và muốn lấy các link trong đó. KHÔNG mở hay đọc nội dung link (dùng fetch cho việc đó) và không dùng để tìm link trên web (dùng lookup)."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, default: "", description: "Đoạn văn bản chứa link, giữ nguyên như người dùng cung cấp"}
+        unique: {type: boolean, default: true, description: "true = bỏ link lặp, giữ thứ tự xuất hiện; false = giữ mọi lần xuất hiện"}
+      required: [text]
+
+  - name: summarize_stats
+    description: "Thống kê tổng quan một danh sách item ĐÃ CÓ: tổng số item, số lượng theo từng nguồn và khoảng thời gian từ ngày cũ nhất đến mới nhất. Dùng khi người dùng hỏi 'có bao nhiêu', 'từ những nguồn nào', 'trải dài trong khoảng thời gian nào'. KHÔNG dùng để tóm tắt nội dung bài viết, không dùng để tìm kiếm mới và không dùng khi chưa có danh sách item."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Danh sách item đã có (object có thể chứa source, url, date)"
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              date: {type: string}
+        top_sources: {type: integer, default: 0, description: "Chỉ trả về N nguồn nhiều item nhất; 0 là trả về tất cả"}
+      required: [items]

@@ -163,3 +163,208 @@ def test_dedupe_non_list_items_returns_error_dict() -> None:
     result = dedupe_tool(items="https://a.com")
     assert result["error"] == "TypeError"
 
+
+# ---------------- rank ----------------
+
+rank_tool = TOOL_FUNCTIONS["rank"]
+
+
+# 1. happy path
+def test_rank_by_score_desc_keeps_top_n() -> None:
+    items = [
+        {"title": "low", "score": 0.2},
+        {"title": "high", "score": 0.9},
+        {"title": "mid", "score": 0.5},
+    ]
+    result = rank_tool(items=items, by="score", limit=2)
+
+    assert [i["title"] for i in result["items"]] == ["high", "mid"]
+    assert result["input_count"] == 3
+    assert result["item_count"] == 2
+
+
+def test_rank_by_date_handles_tweet_and_iso_formats_newest_first() -> None:
+    items = [
+        {"title": "tweet", "date": "Thu Nov 05 22:34:04 +0000 2026"},
+        {"title": "iso", "date": "2026-11-08"},
+        {"title": "newest", "date": "Tue Nov 10 10:21:49 +0000 2026"},
+    ]
+    result = rank_tool(items=items, by="date")
+    assert [i["title"] for i in result["items"]] == ["newest", "iso", "tweet"]
+
+
+def test_rank_by_title_ascending_ignores_case() -> None:
+    items = [{"title": "banana"}, {"title": "Apple"}, {"title": "cherry"}]
+    result = rank_tool(items=items, by="title", order="asc")
+    assert [i["title"] for i in result["items"]] == ["Apple", "banana", "cherry"]
+
+
+# 2. input xấu từ model
+def test_rank_items_without_sort_field_go_last_even_in_ascending_order() -> None:
+    items = [{"title": "no score"}, {"title": "b", "score": 2}, {"title": "a", "score": 1}, {"title": "bad", "score": "n/a"}]
+    result = rank_tool(items=items, by="score", order="asc")
+
+    assert [i["title"] for i in result["items"]] == ["a", "b", "no score", "bad"]
+    assert result["unranked"] == 2
+
+
+def test_rank_drops_non_dict_items_and_accepts_limit_as_string() -> None:
+    items = ["junk", {"title": "x", "score": 1}, {"title": "y", "score": 2}, 42]
+    result = rank_tool(items=items, limit="1")
+
+    assert result["skipped"] == 2
+    assert [i["title"] for i in result["items"]] == ["y"]
+
+
+def test_rank_none_items_returns_empty_result() -> None:
+    result = rank_tool(items=None)
+    assert result["item_count"] == 0
+    assert "error" not in result
+
+
+# 3. nhánh lỗi: trả error dict, không raise
+def test_rank_invalid_by_returns_error_dict() -> None:
+    result = rank_tool(items=[{"score": 1}], by="popularity")
+    assert result["error"] == "ValueError"
+    assert "by must be one of" in result["message"]
+
+
+def test_rank_invalid_order_and_negative_limit_return_error_dict() -> None:
+    assert rank_tool(items=[], order="sideways")["error"] == "ValueError"
+    assert rank_tool(items=[], limit=-1)["error"] == "ValueError"
+
+
+def test_rank_non_list_items_returns_error_dict() -> None:
+    assert rank_tool(items="not a list")["error"] == "TypeError"
+
+
+# ---------------- extract_links ----------------
+
+extract_links_tool = TOOL_FUNCTIONS["extract_links"]
+
+
+# 1. happy path
+def test_extract_links_returns_links_in_order_with_count() -> None:
+    text = "Xem https://example.com/a và http://news.org/b/c?x=1 nhé."
+    result = extract_links_tool(text=text)
+
+    assert result["links"] == ["https://example.com/a", "http://news.org/b/c?x=1"]
+    assert result["count"] == 2
+
+
+def test_extract_links_strips_trailing_punctuation_and_markdown_parenthesis() -> None:
+    text = "Đọc (https://example.com/a), rồi [bài này](https://example.com/b)! Cuối: https://example.com/c."
+    result = extract_links_tool(text=text)
+    assert result["links"] == ["https://example.com/a", "https://example.com/b", "https://example.com/c"]
+
+
+def test_extract_links_keeps_balanced_parenthesis_inside_url() -> None:
+    text = "Wiki: https://en.wikipedia.org/wiki/Python_(programming_language)"
+    assert extract_links_tool(text=text)["links"] == ["https://en.wikipedia.org/wiki/Python_(programming_language)"]
+
+
+# 2. input xấu từ model
+def test_extract_links_removes_duplicates_by_default_and_can_keep_them() -> None:
+    text = "https://a.com/x và lại https://a.com/x"
+    default = extract_links_tool(text=text)
+    keep_all = extract_links_tool(text=text, unique=False)
+
+    assert default["count"] == 1 and default["total_found"] == 2
+    assert keep_all["count"] == 2
+
+
+def test_extract_links_empty_none_and_no_link_text_return_zero_without_error() -> None:
+    for text in ("", None, "chỉ có chữ, không có link, ftp://x.com cũng không tính"):
+        result = extract_links_tool(text=text)
+        assert result["count"] == 0
+        assert "error" not in result
+
+
+def test_extract_links_treats_string_false_as_false_for_unique() -> None:
+    text = "https://a.com/x https://a.com/x"
+    assert extract_links_tool(text=text, unique="false")["count"] == 2
+
+
+# 3. nhánh lỗi: trả error dict, không raise
+def test_extract_links_non_string_text_returns_error_dict() -> None:
+    result = extract_links_tool(text=["https://a.com"])
+    assert result["error"] == "TypeError"
+    assert "text must be a string" in result["message"]
+
+
+# ---------------- summarize_stats ----------------
+
+summarize_stats_tool = TOOL_FUNCTIONS["summarize_stats"]
+
+
+# 1. happy path
+def test_summarize_stats_counts_items_per_source_sorted_by_count() -> None:
+    items = [
+        {"source": "bbc.com"}, {"source": "dw.com"}, {"source": "bbc.com"},
+        {"source": "bbc.com"}, {"source": "dw.com"}, {"source": "cnn.com"},
+    ]
+    result = summarize_stats_tool(items=items)
+
+    assert result["total_items"] == 6
+    assert result["source_count"] == 3
+    assert result["sources"] == [
+        {"source": "bbc.com", "count": 3},
+        {"source": "dw.com", "count": 2},
+        {"source": "cnn.com", "count": 1},
+    ]
+
+
+def test_summarize_stats_reports_oldest_newest_and_span_days() -> None:
+    items = [
+        {"source": "a", "date": "2026-11-10"},
+        {"source": "a", "date": "Sun Nov 01 08:00:00 +0000 2026"},
+        {"source": "a", "date": "2026-11-05T12:00:00Z"},
+    ]
+    result = summarize_stats_tool(items=items)
+
+    assert result["oldest"].startswith("2026-11-01T08:00:00")
+    assert result["newest"].startswith("2026-11-10T00:00:00")
+    assert result["span_days"] == 8.67
+
+
+# 2. input xấu từ model
+def test_summarize_stats_handles_missing_source_missing_date_and_junk() -> None:
+    items = [
+        {"url": "https://www.example.com/x"},
+        {"title": "no source no url", "date": "not a date"},
+        "junk",
+        {"source": "  ", "date": "2026-11-02"},
+    ]
+    result = summarize_stats_tool(items=items)
+
+    assert result["total_items"] == 3
+    assert result["skipped"] == 1
+    assert result["undated"] == 2
+    assert {s["source"]: s["count"] for s in result["sources"]} == {"example.com": 1, "unknown": 2}
+
+
+def test_summarize_stats_top_sources_truncates_list_but_keeps_source_count() -> None:
+    items = [{"source": "a"}, {"source": "a"}, {"source": "b"}, {"source": "c"}]
+    result = summarize_stats_tool(items=items, top_sources="1")
+
+    assert result["sources"] == [{"source": "a", "count": 2}]
+    assert result["source_count"] == 3
+
+
+def test_summarize_stats_empty_items_returns_zero_totals_and_no_dates() -> None:
+    result = summarize_stats_tool(items=[])
+    assert result["total_items"] == 0
+    assert result["oldest"] is None and result["newest"] is None and result["span_days"] is None
+    assert "error" not in result
+
+
+# 3. nhánh lỗi: trả error dict, không raise
+def test_summarize_stats_non_list_items_returns_error_dict() -> None:
+    assert summarize_stats_tool(items="abc")["error"] == "TypeError"
+
+
+def test_summarize_stats_negative_top_sources_returns_error_dict() -> None:
+    result = summarize_stats_tool(items=[], top_sources=-2)
+    assert result["error"] == "ValueError"
+    assert "top_sources must be >= 0" in result["message"]
+
