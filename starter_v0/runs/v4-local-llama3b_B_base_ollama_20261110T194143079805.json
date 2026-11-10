@@ -1,0 +1,1933 @@
+{
+  "run_id": "v4-local-llama3b_B_base_ollama_20261110T194143079805",
+  "version": "v4-local-llama3b",
+  "artifact_version": "v4-local-llama3b+p48d2c3b6e5c0+t5dfc68c16740",
+  "prompt_hash": "48d2c3b6e5c070b265cd5c9c843154a0e078cf77fe9a01b0d0020bca8fd38df8",
+  "tools_hash": "5dfc68c1674099c2cb99bc250819001771fbe036a600ec87be9fec4222c8236d",
+  "phase": "B",
+  "suite": "base",
+  "provider": "ollama",
+  "model": "llama3.2:3b-cap1024",
+  "system_prompt": "artifacts/system_prompt_local_v4.md",
+  "tools": "artifacts/tools_local_v4.yaml",
+  "eval_cases": "data/eval_base.json",
+  "dataset_id": "day03_v2_research_base",
+  "dataset_role": "base",
+  "description": "Core eval cho research agent: routing đúng tool + đúng args, hỏi lại khi thiếu (ask_user), xác nhận trước khi gửi, và xử lý câu ngoài phạm vi / không cần tool. Chấm trên tool_calls + args (subset). KHÔNG sửa file này — chỉ thêm case vào eval_group.json.",
+  "generated_at": "2026-11-10T19:41:43",
+  "summary": {
+    "total_cases": 20,
+    "measured_cases": 20,
+    "provider_error_cases": 0,
+    "passed_cases": 4,
+    "case_accuracy": 0.2,
+    "tool_routing_accuracy": 0.5,
+    "argument_accuracy": 0.2,
+    "multiturn_accuracy": 0.1667,
+    "failure_counts": {
+      "wrong_tool": 4,
+      "wrong_arg_value": 5,
+      "out_of_scope": 2,
+      "unnecessary_tool": 1,
+      "missing_info": 3,
+      "wrong_boundary": 1
+    },
+    "observed_mismatch_counts": {
+      "wrong_arg_value": 6,
+      "missing_tool_call": 7,
+      "unexpected_tool_call": 3
+    }
+  },
+  "results": [
+    {
+      "id": "R01_user_tweets_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_user_tweets_name_to_handle",
+        "difficulty": "medium",
+        "what_it_tests": "Tin CỦA một người nổi tiếng → map tên Sam Altman thành handle sama rồi gọi get_user_tweets."
+      },
+      "input": "Tweet mới nhất của Sam Altman là gì?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "sama"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "sama"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "sama"
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "screenname": "sama",
+            "items": [
+              {
+                "title": "RT @fouadmatin: Today’s GPT-6 Cyber release is a meaningful step for defenders: stronger vulnerability research and bett",
+                "summary": "RT @fouadmatin: Today’s GPT-6 Cyber release is a meaningful step for defenders: stronger vulnerability research and better alignment. We’ve…",
+                "url": "https://x.com/sama/status/2118471941002842341",
+                "source": "@sama",
+                "date": "Thu Nov 05 22:34:04 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 53,
+                  "views": "47511"
+                }
+              },
+              {
+                "title": "RT @thsottiaux: Day 25/",
+                "summary": "RT @thsottiaux: Day 25/\n\nWe are doubling all usage limits for all Pro 100/200/500 tiers and Business Premium, effective today.\n\nWe heard yo…",
+                "url": "https://x.com/sama/status/2117797818756952416",
+                "source": "@sama",
+                "date": "Wed Nov 04 01:55:21 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 2702,
+                  "views": "42024"
+                }
+              },
+              {
+                "title": "People should always be in control of the future.",
+                "summary": "People should always be in control of the future.\n\nOpenAI is against the notion that it would be acceptable for people to be relegated to a role of doing things that “AI systems think makes sense to reward in humans”.\n\nPeople should not cede control of the future to superintelligence, and that requirement should ultimately constrain AI progress.",
+                "url": "https://x.com/sama/status/2117794005165748448",
+                "source": "@sama",
+                "date": "Wed Nov 04 01:40:12 +0000 2026",
+                "metrics": {
+                  "favorites": 20675,
+                  "retweets": 1021,
+                  "views": "10653461"
+                }
+              },
+              {
+                "title": "RT @danintheory: We are announcing three new discoveries in mathematics, computer science, and physics about harmonic an",
+                "summary": "RT @danintheory: We are announcing three new discoveries in mathematics, computer science, and physics about harmonic analysis, complexity…",
+                "url": "https://x.com/sama/status/2114864981934329996",
+                "source": "@sama",
+                "date": "Mon Oct 26 23:41:18 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 1117,
+                  "views": "48208"
+                }
+              },
+              {
+                "title": "6.1 Terra is here! It is good at a lot of things, but we are especially excited for this new era of computer use.",
+                "summary": "6.1 Terra is here! It is good at a lot of things, but we are especially excited for this new era of computer use.",
+                "url": "https://x.com/sama/status/2114818620782248024",
+                "source": "@sama",
+                "date": "Mon Oct 26 20:37:05 +0000 2026",
+                "metrics": {
+                  "favorites": 10119,
+                  "retweets": 494,
+                  "views": "1657980"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R02_search_tweets_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_search_tweets",
+        "difficulty": "easy",
+        "what_it_tests": "Tweet theo CHỦ ĐỀ → search_tweets, không phải get_user_tweets."
+      },
+      "input": "Mọi người đang bàn gì về GPT-5 trên Twitter?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "social_search",
+            "args": {}
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "GPT-5 Twitter",
+              "search_type": "Latest"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "GPT-5 Twitter",
+            "search_type": "Latest"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "GPT-5 Twitter",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "Seedream 5.5 beats GPT Image 2.6 Sunburst in this Casio watch multi-turn editing test.",
+                "summary": "Seedream 5.5 beats GPT Image 2.6 Sunburst in this Casio watch multi-turn editing test.\n\nBetter results, lower cost. ⌚🔥\n\nLeft: Seedream 5.5 — $0.84\nRight: GPT Image 2.6 Sunburst — $1.91\n\nSeedream 5.5 is coming soon. Register interest 👇\nhttps://t.co/kojRNq4cBQ",
+                "url": "https://x.com/EvoLinkAi/status/2120085634438021140",
+                "source": "@EvoLinkAi",
+                "date": "Tue Nov 10 09:26:19 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "55"
+                }
+              },
+              {
+                "title": "this is the only X article i've ever written and i would like you to read it https://t.co/jN9S9USJtG",
+                "summary": "this is the only X article i've ever written and i would like you to read it https://t.co/jN9S9USJtG",
+                "url": "https://x.com/MasterTimBlais/status/2119997660656468278",
+                "source": "@MasterTimBlais",
+                "date": "Tue Nov 10 03:36:44 +0000 2026",
+                "metrics": {
+                  "favorites": 28,
+                  "retweets": 0,
+                  "views": "1311"
+                }
+              },
+              {
+                "title": "Except it's not a theory and here's your proof. Just look at the history of Natural Language Processing (NLP) and you wi",
+                "summary": "Except it's not a theory and here's your proof. Just look at the history of Natural Language Processing (NLP) and you will see that it dates back to the Kabbalist mystics. Even the IEEE says so. Fact check  ✅ approved 😂\n\nIEEE Spectrum \n\nSix-part series on the history of natural language processing (NLP)\n\nPart 1) Natural Language Processing (NLP) dates back to kabbalist mystics \n\nhttps://t.co/aauXnXAIXI\n\nPart 2) In the 17th Century, Leibniz Dreamed of a Machine That Could Calculate Ideas > The machine would use an “alphabet of human thoughts” and rules to combine them\n\nhttps://t.co/Yr6na9qgUi\n\nPart 3) Andrey Markov & Claude Shannon Counted Letters to Build the First Language-Generation Models > Shannon’s said: “OCRO HLI RGWR NMIELWIS”\n\nhttps://t.co/yh8WEntvrW\n\nPart 4) Why People Demanded Privacy to Confide in the World’s First Chatbot > In 1966, the Eliza program couldn’t say much—but it was enough\n\nhttps://t.co/Nhir4vkLos\n\nPart 5) In 2016, Microsoft’s Racist Chatbot Revealed the Dangers of Online Conversation > The bot learned language from people on Twitter—but it also learned values\n\nhttps://t.co/4jvOfYEcBX\n\nPart 6) For Centuries, People Dreamed of a Machine That Could Produce Language. Then OpenAI Made One > OpenAI’s GPT-2 program churns out natural language that’s remarkably coherent—and that’s a problem\n\nhttps://t.co/SF2PkKAvPn",
+                "url": "https://x.com/Ryansikorski10/status/2119989357545423150",
+                "source": "@Ryansikorski10",
+                "date": "Tue Nov 10 03:03:44 +0000 2026",
+                "metrics": {
+                  "favorites": 23,
+                  "retweets": 8,
+                  "views": "1034"
+                }
+              },
+              {
+                "title": "Except it's not a theory. Just look at the history of Natural Language Processing (NLP) and you will see that it dates b",
+                "summary": "Except it's not a theory. Just look at the history of Natural Language Processing (NLP) and you will see that it dates back to the Kabbalist mystics. Even the IEEE says so. Fact check  ✅ approved 😂\n\nIEEE Spectrum \n\nSix-part series on the history of natural language processing (NLP)\n\nPart 1) Natural Language Processing (NLP) dates back to kabbalist mystics \n\nhttps://t.co/aauXnXAb8a\n\nPart 2) In the 17th Century, Leibniz Dreamed of a Machine That Could Calculate Ideas > The machine would use an “alphabet of human thoughts” and rules to combine them\n\nhttps://t.co/Yr6na9pJ4K\n\nPart 3) Andrey Markov & Claude Shannon Counted Letters to Build the First Language-Generation Models > Shannon’s said: “OCRO HLI RGWR NMIELWIS”\n\nhttps://t.co/yh8WEnsXCo\n\nPart 4) Why People Demanded Privacy to Confide in the World’s First Chatbot > In 1966, the Eliza program couldn’t say much—but it was enough\n\nhttps://t.co/Nhir4vkdyU\n\nPart 5) In 2016, Microsoft’s Racist Chatbot Revealed the Dangers of Online Conversation > The bot learned language from people on Twitter—but it also learned values\n\nhttps://t.co/4jvOfYDEMp\n\nPart 6) For Centuries, People Dreamed of a Machine That Could Produce Language. Then OpenAI Made One > OpenAI’s GPT-2 program churns out natural language that’s remarkably coherent—and that’s a problem\n\nhttps://t.co/SF2PkKzXZP",
+                "url": "https://x.com/Ryansikorski10/status/2119989208194453535",
+                "source": "@Ryansikorski10",
+                "date": "Tue Nov 10 03:03:09 +0000 2026",
+                "metrics": {
+                  "favorites": 5,
+                  "retweets": 2,
+                  "views": "236"
+                }
+              },
+              {
+                "title": "https://t.co/ZnBHU3WtLM",
+                "summary": "https://t.co/ZnBHU3WtLM",
+                "url": "https://x.com/signaloftheeye/status/2119937605504774550",
+                "source": "@signaloftheeye",
+                "date": "Mon Nov 09 23:38:06 +0000 2026",
+                "metrics": {
+                  "favorites": 5,
+                  "retweets": 3,
+                  "views": "2217"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R03_web_news_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_web_news",
+        "difficulty": "medium",
+        "what_it_tests": "Tin thời sự trên web → web_search topic=news, timeframe=day (hôm nay)."
+      },
+      "input": "Tin tức AI hôm nay có gì nổi bật?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "AI",
+              "topic": "news",
+              "timeframe": "day"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "tintuc ai hom nay",
+              "topic": "news"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "query: expected 'AI', got 'tintuc ai hom nay'",
+          "timeframe: expected 'day', got None"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "lookup",
+          "args": {
+            "query": "tintuc ai hom nay",
+            "topic": "news"
+          },
+          "result": {
+            "tool": "web_search",
+            "query": "tintuc ai hom nay",
+            "topic": "news",
+            "timeframe": "week",
+            "items": [
+              {
+                "title": "Tổng Bí thư, Chủ tịch nước Tô Lâm và Thủ tướng Takaichi Sanae gặp gỡ báo chí",
+                "url": "https://quochoi.vn/tintuc/Pages/su-kien-noi-bat.aspx?ItemID=102800",
+                "source": "quochoi.vn",
+                "summary": "Trong khuôn khổ thăm chính thức Nhật Bản, tối 9/11 (giờ địa phương), tại thủ đô Tokyo, ngay sau hội đàm và chứng kiến lễ trao các văn kiện hợp tác Việt",
+                "score": 0.04173098
+              },
+              {
+                "title": "Không xem được Mbappe đá Champions League, khán giả Trung Quốc đòi hoàn tiền",
+                "url": "https://tin.skydoor.net/news/bong-da-the-gioi-khong-xem-duoc-mbappe-da-champions-league-khan-gia-trung-8415806",
+                "source": "tin.skydoor.net",
+                "summary": "Tranh cãi quanh Kylian Mbappe xuất hiện thêm diễn biến mới khi nhiều khán giả Trung Quốc khiếu nại, yêu cầu hoàn tiền gói Champions League.",
+                "score": 0.038789026
+              },
+              {
+                "title": "Cảng Hà Nội bị biến thành bến xe trá hình, gây ùn tắc",
+                "url": "https://baotintuc.vn/cang-ha-noi-bi-bien-thanh-ben-xe-tra-hinh-post1400047.html",
+                "source": "baotintuc.vn",
+                "summary": "Khu vực Cảng Hà Nội thuộc hai phường Lĩnh Nam và Hồng Hà, thời gian qua bị biến thành bãi xe trá hình, xuất hiện nhiều nhà xe thuê lại kho bãi,",
+                "score": 0.025431804
+              },
+              {
+                "title": "80 năm Hiến pháp đầu tiên - nền móng của một Nhà nước của Nhân dân",
+                "url": "https://quochoi.vn/tintuc/Pages/su-kien-noi-bat.aspx?ItemID=102662",
+                "source": "quochoi.vn",
+                "summary": "Ngày 9/11/1946, Quốc hội khóa I thông qua bản Hiến pháp đầu tiên của nước Việt Nam Dân chủ Cộng hòa. Tám mươi năm sau, những giá trị cốt lõi của văn bản ấy",
+                "score": 0.02088626
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04_read_url_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_read_url",
+        "difficulty": "easy",
+        "what_it_tests": "Đã có link cụ thể → read_url, không phải web_search."
+      },
+      "input": "Tóm tắt bài này giúp mình: https://openai.com/blog/gpt-5",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://openai.com/blog/gpt-5"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "format",
+            "args": {
+              "template": "brief",
+              "items": "[]"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "missing tool call fetch",
+          "extra tool call format"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "format",
+          "args": {
+            "template": "brief",
+            "items": "[]"
+          },
+          "result": {
+            "error": "AttributeError",
+            "message": "'str' object has no attribute 'get'"
+          }
+        }
+      ]
+    },
+    {
+      "id": "R05_limit_arg",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_limit",
+        "difficulty": "easy",
+        "what_it_tests": "Trích đúng limit=10 từ '10 tweet'."
+      },
+      "input": "Lấy 10 tweet mới nhất của Elon Musk",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 10
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "search_type": "Latest",
+              "query": "Elon Musk tweets",
+              "limit": "10"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "missing tool call timeline",
+          "extra tool call social_search"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "search_type": "Latest",
+            "query": "Elon Musk tweets",
+            "limit": "10"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "Elon Musk tweets",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "278 end result i think but let´s see..",
+                "summary": "278 end result i think but let´s see..\n\nhttps://t.co/W8Sa47J8YE https://t.co/pO3g55gkf1",
+                "url": "https://x.com/AnnaNavarre/status/2120132912427249880",
+                "source": "@AnnaNavarre",
+                "date": "Tue Nov 10 12:34:11 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "3"
+                }
+              },
+              {
+                "title": "os tweets dessa menina ficam aparecendo pra mim😭😭😭😭 elon musk quer dar gatilho na tropa",
+                "summary": "os tweets dessa menina ficam aparecendo pra mim😭😭😭😭 elon musk quer dar gatilho na tropa",
+                "url": "https://x.com/021_bnrs/status/2120130649772199973",
+                "source": "@021_bnrs",
+                "date": "Tue Nov 10 12:25:11 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "1"
+                }
+              },
+              {
+                "title": "🐸 Value spot · Elon Musk tweets (November 6 - November 13)",
+                "summary": "🐸 Value spot · Elon Musk tweets (November 6 - November 13)\n\nElon Musk: NO on 320-339 costs $0.85, potential gain +17% if it lands elsewhere. 159 so far, projection ~294, closes in 3d 5h.\n\nNot financial advice · PolyCroakast 🐸",
+                "url": "https://x.com/PolyCroakast/status/2120124369217187842",
+                "source": "@PolyCroakast",
+                "date": "Tue Nov 10 12:00:14 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "5"
+                }
+              },
+              {
+                "title": "Imagine being so tone deaf that after America voted in record numbers during the midterms because they are upset with th",
+                "summary": "Imagine being so tone deaf that after America voted in record numbers during the midterms because they are upset with the corruption and failed policies of the current administration, and Republican party at large, that the president tweets that everything is the voters fault, and then the speaker of the house publicly says the voters made the wrong choice on live tv. \n\nThese are insulting the voters and blaming them for everything that Republicans are doing wrong.\n\n2028 is looking to be more BLUE than ever.\n\nWhy would anyone want to vote for a party that just insulted them and blamed them for exercising their constitutional right to vote? \n\nJust wait until the investigations begin and the people find out just how corrupt the Republicans and the Trump Admin have been.\n\nThen they’ll see why billionaires got rich and the working man and poor people in this country got the shaft. \n\nJust wait until they see how their private data was breached by DOGE and Elon Musk, who then started making phone calls to Putin.\n\nWait until they see the Israeli - Russian - Trump Quid Pro Quo corruption and the Saudi and UAE Pay To Play Schemes.\n\nThere is so much grift, corruption, and national security compromises that it’s going to take 6 months just to give enough air time to cover everything they find.",
+                "url": "https://x.com/USArmyPhoenix/status/2120089312456802345",
+                "source": "@USArmyPhoenix",
+                "date": "Tue Nov 10 09:40:56 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 0,
+                  "views": "6"
+                }
+              },
+              {
+                "title": "Market link : ",
+                "summary": "Market link : \n\nhttps://t.co/0w4qoeGGun",
+                "url": "https://x.com/itsAllStrategy_/status/2120071362454622600",
+                "source": "@itsAllStrategy_",
+                "date": "Tue Nov 10 08:29:36 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 0,
+                  "views": "18"
+                }
+              },
+              {
+                "title": "@elonmusk You’re a fucking pussy. deleting pro red GOP tweets because you had to spend $500 million on literal campaign ",
+                "summary": "@elonmusk You’re a fucking pussy. deleting pro red GOP tweets because you had to spend $500 million on literal campaign funds for the election. You’re a piece of shit, Elon. Fuck you. You’re in a blue state of Texas. You have till December 31 to pay your taxes. you bastard. Fuck you! https://t.co/AQCAFGUbaY",
+                "url": "https://x.com/ELONISANAZI4200/status/2120071079184199937",
+                "source": "@ELONISANAZI4200",
+                "date": "Tue Nov 10 08:28:28 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "8"
+                }
+              },
+              {
+                "title": "Make Elon musk stop this payment stuff for 6 months i wan check something , cus the amounts of tweets here are UNBELIEVA",
+                "summary": "Make Elon musk stop this payment stuff for 6 months i wan check something , cus the amounts of tweets here are UNBELIEVABLE. https://t.co/fwsbZV9Vfe",
+                "url": "https://x.com/Ti2Feh/status/2120064575080976839",
+                "source": "@Ti2Feh",
+                "date": "Tue Nov 10 08:02:38 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 1,
+                  "views": "134"
+                }
+              },
+              {
+                "title": "Hal Finney, one of Bitcoin's earliest contributors and the recipient of the first Bitcoin transaction, was a closer styl",
+                "summary": "Hal Finney, one of Bitcoin's earliest contributors and the recipient of the first Bitcoin transaction, was a closer stylistic match to Satoshi than Musk.\n\nThe analysis also correctly identified Satoshi's writing samples in 27 out of 30 tests.\n\nThe researcher admits this is a small, experimental project, not definitive forensic evidence. \n\nComparing Satoshi's lengthy emails and forum posts with Musk's short tweets has obvious limitations.\n\nSo, does this prove Elon Musk isn't Satoshi? NO!\n\nDoes it make the theory less convincing? According to this analysis, YES.\n\nMore than 17 years after Bitcoin's launch, nobody has conclusively established who Satoshi Nakamoto really is.\nhttps://t.co/Ni4ZWveJRg",
+                "url": "https://x.com/beincrypto/status/2120057754295656684",
+                "source": "@beincrypto",
+                "date": "Tue Nov 10 07:35:32 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "204"
+                }
+              },
+              {
+                "title": "@LyseLyfe Performative activism coming from someone who has an agreement with Elon Musk to advertise their tweets. We kn",
+                "summary": "@LyseLyfe Performative activism coming from someone who has an agreement with Elon Musk to advertise their tweets. We know how much Elon loves trans people. Give me a break. Hypeocite.",
+                "url": "https://x.com/ChrisNorri51988/status/2120055873976291578",
+                "source": "@ChrisNorri51988",
+                "date": "Tue Nov 10 07:28:03 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "23"
+                }
+              },
+              {
+                "title": "BREAKING: ELON MUSK REPORTEDLY TAKES AIM AT JAMES GUNN!",
+                "summary": "BREAKING: ELON MUSK REPORTEDLY TAKES AIM AT JAMES GUNN!\n\n🗣️ The possibility of James Gunn being pushed out of DC Studios following the Skydance merger would hardly be the biggest surprise Hollywood has witnessed this year.\n\nFor years, Gunn has positioned himself as a champion of accountability, constantly weighing in on online controversies and lecturing others about toxicity. Yet his own history of controversial tweets has repeatedly come back to haunt him. At DC, he also appeared increasingly uncomfortable with the corporate realities of running a major film studio, particularly when expectations around performance and results came into play.\n\nThere is also an undeniable irony in his criticism of AI-generated artwork and its impact on creativity, especially when the industry is increasingly moving towards efficiency, innovation and new production methods. You cannot constantly challenge the system while expecting the system to operate entirely on your terms.\n\nLet’s be honest: Hollywood needs more than online arguments, political commentary and social media battles. It needs filmmakers who can consistently deliver outstanding movies that audiences genuinely want to watch. Guardians of the Galaxy was a success, but that doesn’t automatically make every subsequent project untouchable.\n\nDC deserves a clear vision, compelling storytelling and a leadership team focused on rebuilding its cinematic universe. Superman and Batman are bigger than any individual filmmaker, and their future should be determined by the quality of the stories being told, not by anyone’s personal brand or online popularity.\n\nAt the end of the day, a studio is a business, not a personal platform. If executives believe a leadership change is necessary to move the franchise forward, they have every right to make that decision.\n\nHollywood should be about making great movies, not winning arguments on social media. The fans deserve better, and no filmmaker should be bigger than the franchise they are entrusted to lead.",
+                "url": "https://x.com/JoelEsom/status/2120048577997103130",
+                "source": "@JoelEsom",
+                "date": "Tue Nov 10 06:59:04 +0000 2026",
+                "metrics": {
+                  "favorites": 5,
+                  "retweets": 2,
+                  "views": "384"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R06_timeframe_arg",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_timeframe",
+        "difficulty": "medium",
+        "what_it_tests": "'tuần này' → timeframe=week."
+      },
+      "input": "Tin công nghệ trong tuần này",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "topic": "news",
+              "timeframe": "week"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "max_results": "5",
+              "query": "Tin công nghệ trong tuần này",
+              "topic": "general"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "topic: expected 'news', got 'general'",
+          "timeframe: expected 'week', got None"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "lookup",
+          "args": {
+            "max_results": "5",
+            "query": "Tin công nghệ trong tuần này",
+            "topic": "general"
+          },
+          "result": {
+            "tool": "web_search",
+            "query": "Tin công nghệ trong tuần này",
+            "topic": "general",
+            "timeframe": "week",
+            "items": [
+              {
+                "title": "Diễn đàn Công nghệ & Cuộc sống - Congnghe.vn",
+                "url": "https://congnghe.vn",
+                "source": "congnghe.vn",
+                "summary": "TIN HOT TRONG NGÀY\n\n Toyota Hilux 2023 tăng giá bán tới 180 triệu đồng tại Việt Nam\n scroll content\n Phát triển và ứng dụng công nghệ thông tin lượng tử (phần 1)\")\n Quy trình quản lý vật chứa bí mật nhà nước\n Năng lực sản xuất vũ khí của Serbia đến đu?\n\n Twitter\n Facebook\n Google+\n YouTube\n RSS\n\nDiễn đàn Công nghệ & Đời sống\n\n Tăng tốc độ truy cập internet bằng cách đổi DNS Google, OpenDNS hoặc Norton   Thủ thuật [...] Giá vàng hôm nay (27/5): Tăng trong phiên giao dịch đầu tuần: Tăng trong phiên giao dịch đầu tuần\")\n Tuần mới (27 - 31/5) mua cổ phiếu gì? mua cổ phiếu gì?\")\n Đoàn khối DNTW gắn biển công trình thanh niên tại Nhà máy Nhiệt điện Sông Hậu 1\n Thành phố thông minh của tương lai\n\nÔ tô - Xe máy\n\nBMW đẩy mạnh dòng hiệu suất cao M tại Việt Nam \n\n## BMW đẩy mạnh dòng hiệu suất cao M tại Việt Nam [...] ## Đức đẩy mạnh xy dựng lực lượng tác chiến không người lái\n\n Thủy qun lục chiến Mỹ tái kích hoạt phi đội F-35C tại bờ Đông\n Mỹ phát triển phương tiện không người lái dưới nước đa nhiệm, có thể mang ngư lôi\n Tình báo Ukraine tiết lộ loạt nng cấp đáng gờm của tên lửa và UAV Nga\n Mỹ chi 16,9 triệu USD duy trì phi đội máy bay cảnh báo sớm E-767\n\nCông nghệ môi trường\n\nPVCFC dồn lực cho 3 mũi nhọn \n\n## PVCFC dồn lực cho 3 mũi nhọn",
+                "score": 0.6445166
+              },
+              {
+                "title": "New UEH Publications Alert (Tuần 5 – Tháng 10/2026): Từ tư duy thích ứng tổ chức đến các giải pháp công nghệ vị nhân sinh",
+                "url": "https://www.ueh.edu.vn/khoa-hoc/new-ueh-publications-alert-tuan-5-thang-10-2026-tu-tu-duy-thich-ung-to-chuc-den-cac-giai-phap-cong-nghe-vi-nhan-sinh-79223",
+                "source": "ueh.edu.vn",
+                "summary": "Trong Tuần 5 – Tháng 10/2026, Đại học Kinh tế Thành phố Hồ Chí Minh (UEH) tiếp tục ghi nhận nhiều công bố quốc tế mới, tập trung vào năng lực thích ứng của tổ chức trước biến động, phát triển các giải pháp kỹ thuật – thuật toán và thúc đẩy chuyển đổi xanh gắn với hành vi, chính sách công. Các nghiên cứu tuần này kết nối quản trị, kinh tế, khoa học dữ liệu, giáo dục, sức khỏe tm lý và công nghệ kỹ thuật, qua đó cho thấy cách tri thức liên ngành có thể góp phần giải quyết những thách thức thực [...] Các công bố trong Tuần 5 – Tháng 10/2026 cho thấy sự kết nối giữa ba hướng nghiên cứu nổi bật: nng cao năng lực thích ứng của tổ chức, phát triển các giải pháp công nghệ và thúc đẩy chuyển đổi xanh gắn với hành vi con người. Từ học máy phn tán, dự báo chất lượng không khí, phục hồi năng lượng trong thiết bị công nghiệp đến quản trị nhn lực, du lịch carbon thấp và giao thông điện, các công trình thể hiện sự đa dạng trong cách tiếp cận và khả năng ứng dụng tri thức liên ngành. [...] #### 2. Đột phá công nghệ: Từ học máy phn tán đến giải pháp kỹ thuật cơ khí\n\nCác công bố về khoa học máy tính, dữ liệu và kỹ thuật tiếp tục mở rộng năng lực nghiên cứu ứng dụng, hướng đến giải quyết những bài toán về bảo mật dữ liệu, dự báo môi trường và tối ưu hóa tài nguyên công nghiệp.",
+                "score": 0.507251
+              },
+              {
+                "title": "AI\\ : Alphabet lên kế hoạch gọi vốn kỷ lục, 4 Big Tech được dự báo chi lượng tiền gấp 2 lần GDP Việt Nam cho AI: Thấy gì từ \"cuộc đua\" này?",
+                "url": "https://cafef.vn/ai.html",
+                "source": "cafef.vn",
+                "summary": "02/11/2026 13:48\n\nDu lịch Nhật Bản luôn hấp dẫn, nhưng rào cản ngôn ngữ tại các quán ăn địa phương lại là nỗi ám ảnh lớn. MENU-PAAN, một ứng dụng AI đột phá, ra đời để giải quyết triệt để vấn đề này, biến các thực đơn viết tay thành thông tin dễ hiểu.\n\nChùa ảo Hàn Quốc vừa nổi, Đài Loan đã có miếu Ma Tổ online, sáng sớm đã chật kín người xếp hàng chờ  \n\n### Chùa ảo Hàn Quốc vừa nổi, Đài Loan đã có miếu Ma Tổ online, sáng sớm đã chật kín người xếp hàng chờ \"gieo quẻ, xin xăm\"\n\n02/11/2026 09:00 [...] 02/11/2026 09:00\n\nChưa đầy một tuần sau khi ngôi chùa online Sansa làm nghẽn server ở Hàn Quốc, Đài Loan đã có miếu Ma Tổ ảo cho gieo quẻ m dương, xin xăm, còn người Công giáo có nhà thờ ảo để thắp nến. Thứ các sản phẩm này bán không phải tín ngưỡng, mà là quyền được ngồi yên mà không ai đòi hỏi gì.\n\nĐại diện FPT đề xuất hợp tác với doanh nghiệp Nhật Bản phát triển AI cho khu vực công Việt Nam \n\n### Đại diện FPT đề xuất hợp tác với doanh nghiệp Nhật Bản phát triển AI cho khu vực công Việt Nam [...] ### Việt Nam đón 'đại bàng' công nghệ Hàn Quốc rót gần 4 tỷ USD xy tổ hợp sản xuất chip nhớ, rộng bằng 37 sn bóng đá, 2 nhà máy dự kiến hoạt động từ năm 2027\n\n07/11/2026 00:05\n\nSamsung đang xy dựng cơ sở kiểm thử chip nhớ tại Thái Nguyên, với tổng vốn dự kiến 3,9 tỷ USD. Nhà máy xử lý DRAM và NAND trước khi giao cho khách hàng toàn cầu.\n\nMở rộng 'lá chắn' bảo vệ giao dịch tài chính số \n\n### Mở rộng 'lá chắn' bảo vệ giao dịch tài chính số\n\n06/11/2026 23:09",
+                "score": 0.4497074
+              },
+              {
+                "title": "Tin tức Sự kiện | Cổng Thông tin điện tử Bộ Khoa học và Công nghệ",
+                "url": "https://mst.gov.vn/tin-tuc-su-kien.htm",
+                "source": "mst.gov.vn",
+                "summary": "Bỏ qua đến nội dung chính\n\nBỘ KHOA HỌC VÀ CÔNG NGHỆ \n\nBỘ KHOA HỌC VÀ CÔNG NGHỆ Ministry of Science and Technology\n\nTiếng Việt English\n\nThứ ba, 10/11/2026\n\nDanh mục\n\n Trang chủ\n Giới thiệu  arrow-drop-down\n\n  Chức năng nhiệm vụ Cơ cấu tổ chức Lịch sử phát triển Sở Khoa học và Công nghệ\n Tin tức sự kiện  arrow-drop-down [...] ## Phát triển AI lấy con người làm trung tm, thúc đẩy hợp tác quốc tế\n\nTại Phiên bàn tròn Bộ trưởng Số và AI trong khuôn khổ Tuần lễ Số Quốc tế Việt Nam 2026, đại diện nhiều quốc gia và tổ chức quốc tế đã chia sẻ kinh nghiệm, định hướng chính sách và những ưu tiên trong phát triển, ứng dụng trí tuệ nhn tạo an toàn, hiệu quả và lấy con người làm trung tm.\n\nChương trình NEXUS giai đoạn 2025-2026 tài trợ 11 dự án nghiên cứu với tổng giá trị gần 500 tỷ đồng [...] ### Chương trình NEXUS giai đoạn 2025-2026 tài trợ 11 dự án nghiên cứu với tổng giá trị gần 500 tỷ đồng\n\nNgày 09/11/2026, tại Tokyo, trong khuôn khổ Diễn đàn công tư về hợp tác kinh tế, khoa học và công nghệ Việt Nam – Nhật Bản, Bộ KH&CN Việt Nam và Bộ Giáo dục, Văn hóa, Thể thao, Khoa học và Công nghệ Nhật Bản (MEXT) đã trao văn kiện tài trợ 11 dự án hợp tác nghiên cứu thuộc Chương trình NEXUS.\n\nLm Đồng đưa tuyên truyền về an ninh phi truyền thống lên nền tảng số",
+                "score": 0.38248792
+              },
+              {
+                "title": "Chuyển biến trong phát triển khoa học, công nghệ sau gần 2 năm thực hiện Nghị quyết 57",
+                "url": "https://nhandan.vn/chuyen-bien-trong-phat-trien-khoa-hoc-cong-nghe-sau-gan-2-nam-thuc-hien-nghi-quyet-57-post1001290.html",
+                "source": "nhandan.vn",
+                "summary": "Nghị quyết 57 khoa học công nghệ đổi mới sáng tạo chuyển đổi số hạ tầng số trí tuệ nhn tạo công nghệ Việt Nam  Chuyên trang TP. Hà Nội\n\n### Tin đọc nhiều\n\n## Khởi tố, bắt tạm giam “Hiệp đen” cùng 13 đối tượng liên quan\n\n## Đà Nẵng: Bắt hai lãnh đạo doanh nghiệp lừa đảo chiếm đoạt hơn 430 tỷ đồng\n\n## [[Video] Đã bắt được Hồ Văn Tình, phạm nhn cuối cùng vụ trốn khỏi Trại giam A2]( \"[Video] Đã bắt được Hồ Văn Tình, phạm nhn cuối cùng vụ trốn khỏi Trại giam A2\") [...] Hội nghị quốc tế Đông Nam Á về Lưới điện thông minh lần thứ 9 (The 9th ASEAN Smart Grid Congress-ASGC9) sẽ diễn ra trong 3 ngày 5-7/11 tại Hà Nội. (Ảnh: LÊ CHI)  \n\n## Phát triển lưới điện thông minh trong bài toán tích hợp năng lượng tái tạo\n\nGiáo sư Vũ Hà Văn, Giám đốc Khoa học Viện Nghiên cứu Dũ liệu lớn, trường Đại học VinUni chia sẻ về dự án. (Ảnh: VinUni)  \n\n## Giải mã 1.000 hệ gene lúa Việt, tìm nguồn gene quý [...] Toàn cảnh tọa đàm. (Ảnh: Ban tổ chức cung cấp)  \n\n## Người trẻ bảo vệ quyền riêng tư, dữ liệu cá nhn trên không gian số\n\nKỹ sư Viettel nghiên cứu phát triển sản phẩm công nghệ chiến lược. (Ảnh: ĐỨC THỌ)  \n\n## Cải thiện chỉ số đổi mới sáng tạo từ công nghệ chiến lược\n\nTổng Bí thư, Chủ tịch nước Tô Lm và các đại biểu. (Ảnh: TTXVN)  \n\n## Tổng Bí thư, Chủ tịch nước Tô Lm gặp mặt chuyên gia, trí thức Việt Nam tại Nhật Bản\n\nLễ ra mắt FPT AI Factory tại Nhật Bản. (Ảnh: FPT)",
+                "score": 0.31377763
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R07_search_type_arg",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_search_type",
+        "difficulty": "medium",
+        "what_it_tests": "'phổ biến/top' → search_type=Top (không phải Latest)."
+      },
+      "input": "Cho mình các tweet phổ biến (top) nhất về OpenAI",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "search_type": "Top"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "OpenAI",
+              "search_type": "Top"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "OpenAI",
+            "search_type": "Top"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "OpenAI",
+            "search_type": "Top",
+            "items": [
+              {
+                "title": "I still don't understand why everyone is not using this yet. Thanks to it, a year ago I increased my income to 15,000 do",
+                "summary": "I still don't understand why everyone is not using this yet. Thanks to it, a year ago I increased my income to 15,000 dollars a month\n\nAndrey Karpathy, co-founder of OpenAI, published a simple idea that got 25 million views: stop using AI to write code, use it to build a second brain\n\nYou point Claude Code to a folder, drop any source in there (an article, transcript, PDF) and Claude reads it, links it, and saves it into a living wiki of everything you know. It compounds like interest: the more you feed it, the smarter it gets\n\nHere is the gist:\n\nInstall Obsidian, create a vault, open it in Claude Code\n\nPaste the file with Karpathy's wiki idea and tell Claude to build it\n\nClaude creates three folders: raw for sources, wiki for its pages, CLAUDE\nwhich runs everything\n\nDrop any source into raw and say ingest this\n\nAsk questions across everything, forever\n\n5 minutes to set up, and you never start with an empty chat again\n\nThe full instructions can be found in the article below",
+                "url": "https://x.com/Bober_smart/status/2119070145284841481",
+                "source": "@Bober_smart",
+                "date": "Sat Nov 07 14:11:07 +0000 2026",
+                "metrics": {
+                  "favorites": 1184,
+                  "retweets": 128,
+                  "views": "95700"
+                }
+              },
+              {
+                "title": "This is f*cking insane. OpenAI CEO Sam Altman:",
+                "summary": "This is f*cking insane. OpenAI CEO Sam Altman:\n\n\"We are going to see 10-person billion-dollar companies pretty soon\n\nIf I were 22 right now, I would feel like the luckiest kid in history\"\n\nIn 22 seconds, he explains why the next billion-dollar company won't need a building full of people, just a few founders and their agents\n\nChatGPT → Codex → Agent Builder → Agents SDK → Evals → A 10-Person Company Run By Agents\n\nMost people will feel motivated for 3 minutes, then go back to scrolling\n\nThe few who act will start building their company this weekend\n\nSave this before it disappears from your feed\n\nEverything below is free:\n\nFind what to automate first\nhttps://t.co/CVaTL5jXHB\n\nHow companies put AI to work\nhttps://t.co/EfPautasVX\n\nCodex in the cloud\nhttps://t.co/wYBuugoGzU\n\nCodex skills\nhttps://t.co/KIwM8reiAt\n\nAgent Builder (agents without code)\nhttps://t.co/y5lVjIVWNE\n\nFunction calling (give your agents tools)\nhttps://t.co/hlQ0OrhsDr\n\nAgents SDK for JavaScript\nhttps://t.co/wNfa3neVSQ\n\nAgents SDK examples\nhttps://t.co/TnPiIML4if\n\nA customer service agent team you can copy\nhttps://t.co/9TYXiRzBm7\n\nVoice agents\nhttps://t.co/wBnMrKEKMd\n\nEvals (check your agents' work)\nhttps://t.co/tUueczMWZP\n\nAll of this costs $0\n\nThe 10-person billion-dollar company will be built by someone who opened these links, not someone who scrolled past them\n\nBookmark it and start with the first link tonight\n\nThen read how to set up the agent team behind a tiny company in the harness engineering guide below ↓",
+                "url": "https://x.com/godsystemsmd/status/2118707511813447984",
+                "source": "@godsystemsmd",
+                "date": "Fri Nov 06 14:10:09 +0000 2026",
+                "metrics": {
+                  "favorites": 488,
+                  "retweets": 93,
+                  "views": "81056"
+                }
+              },
+              {
+                "title": "🤖 120 AI Tools Worth Knowing in 2026",
+                "summary": "🤖 120 AI Tools Worth Knowing in 2026\n\nAI is bigger than chatbots.\n\nFrom AI agents and coding to research, automation, web scraping, image generation, and data intelligence.\n\nHere are 120 tools worth exploring. 👇\n\n🤖 1. AI Assistants\n\n1. ChatGPT\n2. Claude\n3. Google Gemini\n4. Grok\n5. DeepSeek\n6. Microsoft Copilot\n7. Mistral Le Chat\n8. Meta AI\n9. Poe\n10. Qwen\n\n✍️ 2. AI Writing & Content\n11. Jasper\n12. https://t.co/yxgJ8TYsH2\n13. Writesonic\n14. Rytr\n15. Grammarly\n16. QuillBot\n17. Wordtune\n18. Anyword\n19. Sudowrite\n20. HyperWrite\n\n🔎 3. AI Research & Search\n21. Perplexity\n22. NotebookLM\n23. Elicit\n24. Consensus\n25. Scite\n26. SciSpace\n27. Exa\n28. Tavily\n29. https://t.co/eNQ05blgJU\n30. Semantic Scholar\n\n💻 4. AI Coding & Development\n31. Cursor\n32. Windsurf\n33. GitHub Copilot\n34. Claude Code\n35. OpenAI Codex\n36. Replit\n37. https://t.co/5Gda6Rk9wL\n38. Lovable\n39. v0\n40. Cline\n\n🎨 5. AI Image Generation & Design\n41. Midjourney\n42. DALL·E\n43. FLUX\n44. Ideogram\n45. Leonardo AI\n46. Adobe Firefly\n47. Recraft\n48. Krea\n49. Playground AI\n50. Canva AI\n\n🎬 6. AI Video Generation\n51. Runway\n52. Kling AI\n53. Sora\n54. Google Veo\n55. Pika\n56. Luma Dream Machine\n57. Hailuo AI\n58. HeyGen\n59. Synthesia\n60. InVideo AI\n\n🎙️ 7. AI Audio & Voice\n61. ElevenLabs\n62. Suno\n63. Udio\n64. Murf AI\n65. PlayHT\n66. Descript\n67. Adobe Podcast\n68. Auphonic\n69. Krisp\n70. Speechify\n\n⚡ 8. AI Automation & Agents\n71. n8n\n72. Zapier\n73. Make\n74. Gumloop\n75. Lindy\n76. Dify\n77. Flowise\n78. Langflow\n79. CrewAI\n80. LangGraph\n\n🌐 9. AI Web Scraping & Data\n81. Oxylabs\n82. Bright Data\n83. Apify\n84. Firecrawl\n85. ScrapingBee\n86. ScraperAPI\n87. ZenRows\n88. Crawlbase\n89. Browse AI\n90. Zyte\n\n🧠 10. AI Models & Infrastructure\n91. Hugging Face\n92. Replicate\n93. Together AI\n94. Groq\n95. Fireworks AI\n96. OpenRouter\n97. Ollama\n98. LM Studio\n99. vLLM\n100. Baseten\n\n📊 11. AI Data & Analytics\n101. Dataiku\n102. https://t.co/aTMYOWxtZ6\n103. KNIME\n104. Akkio\n105. Julius AI\n106. Obviously AI\n107. MindsDB\n108. Hex\n109. Rows\n110. Polymer\n\n🔬 12. AI Knowledge & Productivity\n111. Mem\n112. Notion AI\n113. Taskade\n114. Gamma\n115. Napkin AI\n116. Glean\n117. Sana AI\n118. NotebookLM\n119. Rewind\n120. Motion\n\nFrom research and coding to automation and web intelligence, AI tools are changing how we work and build.\n\nBookmark this\n🤖 120 AI Tools Worth Knowing in 2026\n\nAI is bigger than chatbots.\n\nFrom AI agents and coding to research, automation, web scraping, image generation, and data intelligence.\n\nHere are 120 tools worth exploring. 👇\n\n🤖 1. AI Assistants\n\n1. ChatGPT\n2. Claude\n3. Google Gemini\n4. Grok\n5. DeepSeek\n6. Microsoft Copilot\n7. Mistral Le Chat\n8. Meta AI\n9. Poe\n10. Qwen\n\n✍️ 2. AI Writing & Content\n11. Jasper\n12. https://t.co/yxgJ8TYsH2\n13. Writesonic\n14. Rytr\n15. Grammarly\n16. QuillBot\n17. Wordtune\n18. Anyword\n19. Sudowrite\n20. HyperWrite\n\n🔎 3. AI Research & Search\n21. Perplexity\n22. NotebookLM\n23. Elicit\n24. Consensus\n25. Scite\n26. SciSpace\n27. Exa\n28. Tavily\n29. https://t.co/eNQ05blgJU\n30. Semantic Scholar\n\n💻 4. AI Coding & Development\n31. Cursor\n32. Windsurf\n33. GitHub Copilot\n34. Claude Code\n35. OpenAI Codex\n36. Replit\n37. https://t.co/5Gda6Rk9wL\n38. Lovable\n39. v0\n40. Cline\n\n🎨 5. AI Image Generation & Design\n41. Midjourney\n42. DALL·E\n43. FLUX\n44. Ideogram\n45. Leonardo AI\n46. Adobe Firefly\n47. Recraft\n48. Krea\n49. Playground AI\n50. Canva AI\n\n🎬 6. AI Video Generation\n51. Runway\n52. Kling AI\n53. Sora\n54. Google Veo\n55. Pika\n56. Luma Dream Machine\n57. Hailuo AI\n58. HeyGen\n59. Synthesia\n60. InVideo AI\n\n🎙️ 7. AI Audio & Voice\n61. ElevenLabs\n62. Suno\n63. Udio\n64. Murf AI\n65. PlayHT\n66. Descript\n67. Adobe Podcast\n68. Auphonic\n69. Krisp\n70. Speechify\n\n⚡ 8. AI Automation & Agents\n71. n8n\n72. Zapier\n73. Make\n74. Gumloop\n75. Lindy\n76. Dify\n77. Flowise\n78. Langflow\n79. CrewAI\n80. LangGraph\n\n🌐 9. AI Web Scraping & Data\n81. Oxylabs\n82. Bright Data\n83. Apify\n84. Firecrawl\n85. ScrapingBee\n86. ScraperAPI\n87. ZenRows\n88. Crawlbase\n89. Browse AI\n90. Zyte\n\n🧠 10. AI Models & Infrastructure\n91. Hugging Face\n92. Replicate\n93. Together AI\n94. Groq\n95. Fireworks AI\n96. OpenRouter\n97. Ollama\n98. LM Studio\n99. vLLM\n100. Baseten\n\n📊 11. AI Data & Analytics\n101. Dataiku\n102. https://t.co/aTMYOWxtZ6\n103. KNIME\n104. Akkio\n105. Julius AI\n106. Obviously AI\n107. MindsDB\n108. Hex\n109. Rows\n110. Polymer\n\n🔬 12. AI Knowledge & Productivity\n111. Mem\n112. Notion AI\n113. Taskade\n114. Gamma\n115. Napkin AI\n116. Glean\n117. Sana AI\n118. NotebookLM\n119. Rewind\n120. Motion\n\nFrom research and coding to automation and web intelligence, AI tools are changing how we work and build.\n\nBookmark this list. You'll need it. 🔖",
+                "url": "https://x.com/tec_safwan/status/2119270434189549945",
+                "source": "@tec_safwan",
+                "date": "Sun Nov 08 03:27:00 +0000 2026",
+                "metrics": {
+                  "favorites": 125,
+                  "retweets": 65,
+                  "views": "4437"
+                }
+              },
+              {
+                "title": "Instead of spending an hour on Netflix today, spend it on this Stanford lecture from former Google Brain and OpenAI engi",
+                "summary": "Instead of spending an hour on Netflix today, spend it on this Stanford lecture from former Google Brain and OpenAI engineers.\n\nIt’s one of the clearest explanations of how LLMs like ChatGPT and Claude actually work — and how to use them far more effectively.\n\nWhether you're an experienced AI builder or just getting started, this lecture is packed with valuable insights.\n\nI’ve also turned the main concepts into a practical guide with copy-ready prompts, frameworks, and real examples.\n\nYou’ll find everything below.",
+                "url": "https://x.com/Aura_lixx/status/2119007817399185686",
+                "source": "@Aura_lixx",
+                "date": "Sat Nov 07 10:03:27 +0000 2026",
+                "metrics": {
+                  "favorites": 133,
+                  "retweets": 87,
+                  "views": "3471"
+                }
+              },
+              {
+                "title": "Sam Altman (OpenAI CEO):",
+                "summary": "Sam Altman (OpenAI CEO):\n\n\"You don't need to write prompts anymore.\"\n\nIn just 26 minutes, he explains how to unlock ChatGPT's capabilities in ways most users never explore.\n\nDuring a talk with Stanford students, he shares a different way to think about using AI.\n\nAfter watching it, I realized I was only scratching the surface of what ChatGPT can actually do.\n\nWatch the full video to discover how to build a system that can prompt itself.",
+                "url": "https://x.com/ZaraAi56190/status/2120117228138053948",
+                "source": "@ZaraAi56190",
+                "date": "Tue Nov 10 11:31:51 +0000 2026",
+                "metrics": {
+                  "favorites": 35,
+                  "retweets": 31,
+                  "views": "710"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R08_out_of_scope",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "out_of_scope",
+        "difficulty": "easy",
+        "what_it_tests": "Câu ngoài phạm vi research → KHÔNG gọi tool, từ chối/định hướng."
+      },
+      "input": "Giải giúp mình bài toán tích phân: nguyên hàm của x^2 là gì?",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "papers",
+            "args": {
+              "query": "tích phân nguyên hàm của x^2",
+              "max_results": "5",
+              "sort_by": "relevance"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "out_of_scope",
+        "observed_mismatch": "unexpected_tool_call",
+        "failure_type": "out_of_scope",
+        "failures": [
+          "expected no tool call"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "papers",
+          "args": {
+            "query": "tích phân nguyên hàm của x^2",
+            "max_results": "5",
+            "sort_by": "relevance"
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "query": "tích phân nguyên hàm của x^2",
+            "api_query": "all:ch AND all:ph AND all:nguy",
+            "total_results": 0,
+            "items": [],
+            "rate_limit_note": "arXiv may return 429 if called too frequently; this tool waits at least 3 seconds between requests in-process."
+          }
+        }
+      ]
+    },
+    {
+      "id": "R09_no_tool_capability",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "no_tool_meta",
+        "difficulty": "easy",
+        "what_it_tests": "Câu hỏi meta → trả lời thẳng, KHÔNG gọi tool."
+      },
+      "input": "Bạn là gì và làm được những gì?",
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn là gì và làm được những gì?",
+              "response_type": "text"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "unnecessary_tool",
+        "observed_mismatch": "unexpected_tool_call",
+        "failure_type": "unnecessary_tool",
+        "failures": [
+          "expected no tool call"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Bạn là gì và làm được những gì?",
+            "response_type": "text"
+          },
+          "result": {
+            "tool": "ask_user",
+            "question": "Bạn là gì và làm được những gì?",
+            "response_type": "text",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "R10_missing_handle",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "clarify_missing_handle",
+        "difficulty": "medium",
+        "what_it_tests": "Thiếu handle → ask_user, KHÔNG đoán bừa người nào."
+      },
+      "input": "Tóm tắt 5 tweet mới nhất giúp mình",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "5 tweet mới nhất",
+              "response_type": "text"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "missing_info",
+        "failures": [
+          "missing tool call clarify",
+          "extra tool call social_search"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "5 tweet mới nhất",
+            "response_type": "text"
+          },
+          "result": {
+            "error": "TypeError",
+            "message": "search_tweets() got an unexpected keyword argument 'response_type'"
+          }
+        }
+      ]
+    },
+    {
+      "id": "R11_missing_url",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "clarify_missing_url",
+        "difficulty": "medium",
+        "what_it_tests": "Nói 'bài này' nhưng không có link → ask_user xin URL."
+      },
+      "input": "Tóm tắt bài viết này hộ mình",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "format",
+            "args": {
+              "template": "brief",
+              "items": []
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "missing_info",
+        "failures": [
+          "missing tool call clarify",
+          "extra tool call format"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "format",
+          "args": {
+            "template": "brief",
+            "items": []
+          },
+          "result": {
+            "tool": "render_digest",
+            "template": "brief",
+            "markdown": "",
+            "item_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "R12_confirm_before_send",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "confirm_before_write",
+        "difficulty": "medium",
+        "what_it_tests": "Hành động ghi (gửi) → xác nhận trước (ask_user yes_no), không tự gửi."
+      },
+      "input": "Đăng bản tin này lên Telegram giúp mình",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [],
+        "actual_text": "{\"name\":\"send\",\"parameters\":{\"text\":\"\\u011du\\u01b9ng bản tin n\\u00e1y \\u00f0\\u01b9p \\u0103p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00f0\\u01b9p \\u00",
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_boundary",
+        "failures": [
+          "missing tool call clarify"
+        ]
+      },
+      "tool_results": []
+    },
+    {
+      "id": "R13_parallel_web_and_tweets",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "parallel_tool_calls",
+        "difficulty": "hard",
+        "what_it_tests": "Một request cần hai nguồn → gọi cả web_search và search_tweets; eval không phụ thuộc thứ tự tool call."
+      },
+      "input": "Tìm trên web tin AI hôm nay và tìm thêm tweet về AI.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "AI",
+              "topic": "news",
+              "timeframe": "day"
+            }
+          },
+          {
+            "name": "social_search",
+            "args": {
+              "query": "AI"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "AI news today",
+              "timeframe": "day",
+              "topic": "news"
+            }
+          },
+          {
+            "name": "social_search",
+            "args": {
+              "query": "AI",
+              "search_type": "Latest",
+              "limit": "5"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "query: expected 'AI', got 'AI news today'"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "lookup",
+          "args": {
+            "query": "AI news today",
+            "timeframe": "day",
+            "topic": "news"
+          },
+          "result": {
+            "tool": "web_search",
+            "query": "AI news today",
+            "topic": "news",
+            "timeframe": "day",
+            "items": [
+              {
+                "title": "AI News Today, November 10: Top Stories | AI Weekly",
+                "url": "https://aiweekly.co/ai-news-today",
+                "source": "aiweekly.co",
+                "summary": "AI News Archives Learning AI Newsletters AI Index AI News Today Who's Who Use Cases Advertise Login\n\n AI News Weekly\n\nJoin free with your email\n\nFree. No spam, ever — we'll never share your email address and you can opt out at any time. Already a subscriber? Log in\n\n# AI News Today\n\nTop story: $5.3B AI Scribe Startup Abridge Confirms Layoffs in 'Organization-Wide Realignment'  · modernhealthcare.com [...] to publish safety approaches, with the new regulator empowered to conduct independent model evaluations. [...] The board publicly reaffirmed confidence in Huang's leadership.",
+                "score": 0.82288796
+              },
+              {
+                "title": "C3.ai, Inc. (AI) Stock Price, News, Quote & History - Yahoo Finance",
+                "url": "https://finance.yahoo.com/quote/AI",
+                "source": "finance.yahoo.com",
+                "summary": "| AI Q4 FY2026 earnings call transcript | 2026 | Q4 | 2026-06-03 | 2026-06-27 | 3471122 | IN_HOUSE | 557460 | Earnings call | s3://890742573995-market-data-service-prod-us-east-1/shared/transcripts/2026/6/3/3471122.json |\n| AI Q3 FY2026 earnings call transcript | 2026 | Q3 | 2026-02-25 | 2026-06-27 | 3232845 | IN_HOUSE | 483789 | Earnings call | s3://890742573995-market-data-service-prod-us-east-1/shared/transcripts/2026/2/25/3232845.json | [...] | Title | Fiscal year | Fiscal period | Date | Updated | Transcript id | Type | Event id | Event type | S3 url |\n ---  ---  ---  ---  --- |\n| AI Q1 FY2027 earnings call transcript | 2027 | Q1 | 2026-09-02 | 2026-11-07 | 4115216 | IN_HOUSE | 685347 | Earnings call | s3://890742573995-market-data-service-prod-us-east-1/shared/transcripts/2026/9/2/4115216.json | [...] | AI Q2 FY2026 earnings call transcript | 2026 | Q2 | 2025-12-03 | 2026-06-27 | 2506319 | IN_HOUSE | 382225 | Earnings call | s3://890742573995-market-data-service-prod-us-east-1/shared/transcripts/2025/12/3/2506319.json |\n| AI Q1 FY2026 earnings call transcript | 2026 | Q1 | 2025-09-03 | 2026-06-28 | 2124314 | IN_HOUSE | 351234 | Earnings call | s3://890742573995-market-data-service-prod-us-east-1/shared/transcripts/2025/9/3/2124314.json |",
+                "score": 0.45842203
+              },
+              {
+                "title": "The AI Selloff Overlooks Good News<!-- --> - Barron's",
+                "url": "https://www.barrons.com/articles/ai-stock-selloff-elections-economy-2d3b0f51",
+                "source": "barrons.com",
+                "summary": "Lilly plans to seek FDA approval for Foundayo to treat sleep apnea, potentially giving its weight-loss pill an edge over Novo Nordisk’s oral Wegovy.\n\n### Unless Nvidia Removes Jensen Huang, the Stock Is Worth Holding\n\nDespite recent headlines the reasons Nvidia is the dominant AI player remain unchanged.\n\n### This Chinese Internet ETF Is a Winning AI Play\n\n### FedEx Is More Than Just a Shipper. It’s a Barometer.\n\n### ExlService Holdings: Quantitative Stock of the Week [...] GTA VI preorders are ‘trending well above our expectations,’ says CEO Strauss Zelnick.\n\n### Hims & Hers Stock Is Falling Ahead of Earnings. What to Expect.\n\nAnalysts expect subscriber numbers to rise for the telehealth provider in the third quarter.\n\nBarron's Investor Circle\n\nINVESTOR CIRCLE\n\n### This Chinese Internet ETF Is a Winning AI Play\n\nThe Chinese internet ETF is showing signs of a technical reversal, with a $32 target by the end of the first quarter.",
+                "score": 0.43136916
+              },
+              {
+                "title": "Jensen Huang’s Troubles Leave the AI Industry Reeling | WIRED",
+                "url": "https://www.wired.com/story/jensen-huangs-troubles-leaves-the-ai-industry-reeling",
+                "source": "wired.com",
+                "summary": "Over the last few days, Huang’s status as an AI titan has come under scrutiny amid an admission that he had an affair with Alice Huang, an executive at a Singapore-based company whom US intelligence services concluded was a Chinese intelligence asset. [...] “On the one hand, Huang is irreplaceable. He built Nvidia into the juggernaut it is today, and he was the visionary behind the GPU, which has sustained the intelligence revolution,” Fedasiuk says. But he says that the company, which is indispensable to the AI industry, has to come first.\n\n“He has to be replaceable as the CEO of the world's largest company, at $4 trillion in capex.”\n\nNvidia shares fell more than 4 percent on Monday, even as broader stock market indices rose.",
+                "score": 0.38366494
+              }
+            ]
+          }
+        },
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "AI",
+            "search_type": "Latest",
+            "limit": "5"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "AI",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "@elonmusk How about, people renting their hardware as a crypto mining but for Ai training? At the end of the day you jus",
+                "summary": "@elonmusk How about, people renting their hardware as a crypto mining but for Ai training? At the end of the day you just need more clusters so fragment the task intelligently as electricity can fail at home sometimes. So a minimal requirements is a must",
+                "url": "https://x.com/Maxfts/status/2120134668330672264",
+                "source": "@Maxfts",
+                "date": "Tue Nov 10 12:41:09 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              },
+              {
+                "title": "I'm sorry but this vigilante act needs to stop, I dont like generative AI for art as much as the other guy but I've had ",
+                "summary": "I'm sorry but this vigilante act needs to stop, I dont like generative AI for art as much as the other guy but I've had a lot of my friends being accused of AI over the most simplest things and I don't particularly like seeing people's creative work be labeled as such-",
+                "url": "https://x.com/KetherBattle3/status/2120134667214946596",
+                "source": "@KetherBattle3",
+                "date": "Tue Nov 10 12:41:09 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              },
+              {
+                "title": "@shinejaejaee eu falei aí a pessoa foi mt legal",
+                "summary": "@shinejaejaee eu falei aí a pessoa foi mt legal",
+                "url": "https://x.com/xotadoSeung/status/2120134666296738123",
+                "source": "@xotadoSeung",
+                "date": "Tue Nov 10 12:41:09 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              },
+              {
+                "title": "Absolutely nothing beats the feeling of delivering an assignment you worked super hard on when everyone else is using AI",
+                "summary": "Absolutely nothing beats the feeling of delivering an assignment you worked super hard on when everyone else is using AI and then your professor tells you to submit it for the national news because it's that good.\n\n#hopecore #watdatmean",
+                "url": "https://x.com/WindiestBee/status/2120134661640782168",
+                "source": "@WindiestBee",
+                "date": "Tue Nov 10 12:41:08 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              },
+              {
+                "title": "Anthropicに少しでも投資できる東証ETF",
+                "summary": "Anthropicに少しでも投資できる東証ETF\n\n408A iS ベストAI🔥\n\n組入比率は1.35%くらい\n\nちなみにOpenAIも僅かに組入あり\n\n良い具合に下げてきてるし、ぼちぼち狙う🚀 https://t.co/r60VtzCigA",
+                "url": "https://x.com/wa_ssho_i/status/2120134661062185154",
+                "source": "@wa_ssho_i",
+                "date": "Tue Nov 10 12:41:08 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R14_out_of_scope_coding",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "out_of_scope_coding",
+        "difficulty": "easy",
+        "what_it_tests": "Câu coding ngoài phạm vi research/news → KHÔNG gọi tool."
+      },
+      "input": "Viết giúp mình một hàm Python tính Fibonacci bằng recursion.",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "paper_text",
+            "args": {
+              "arxiv_url": "https://arxiv.org/abs/1902.02435",
+              "max_chars": "8000",
+              "max_pages": "5"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "out_of_scope",
+        "observed_mismatch": "unexpected_tool_call",
+        "failure_type": "out_of_scope",
+        "failures": [
+          "expected no tool call"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "paper_text",
+          "args": {
+            "arxiv_url": "https://arxiv.org/abs/1902.02435",
+            "max_chars": "8000",
+            "max_pages": "5"
+          },
+          "result": {
+            "tool": "get_arxiv_paper_text",
+            "arxiv_id": "1902.02435",
+            "url": "https://arxiv.org/abs/1902.02435",
+            "pdf_url": "https://arxiv.org/pdf/1902.02435.pdf",
+            "pdf_path": "/Users/dauu/Documents/VinAIThucChien/Labs/K5-L3B-DAY03-MALTO-ResearchAgentToolEval/starter_v0/arxiv_papers/1902.02435.pdf",
+            "txt_path": "/Users/dauu/Documents/VinAIThucChien/Labs/K5-L3B-DAY03-MALTO-ResearchAgentToolEval/starter_v0/arxiv_papers/1902.02435.txt",
+            "page_count": 8,
+            "pages_read": 5,
+            "chars_returned": 8000,
+            "items": [
+              {
+                "title": "arXiv paper 1902.02435",
+                "url": "https://arxiv.org/abs/1902.02435",
+                "source": "arxiv.org",
+                "summary": "arXiv:1902.02435v1  [quant-ph]  6 Feb 2019\nCharges carried by wave packets\nthat are superimposed on plane waves\nIstván Magashegyi1, Katalin Oltyán1 and Péter Földi 1,2\n1University of Szeged, Department of Theoretical Physics, S zeged, Hungary\n2ELI-ALPS, ELI-HU Non-proﬁt Ltd., Szeged, Hungary\nAbstract\nWe consider the superposition of plane waves and localized w ave packets. This kind of wave function\ncan result from a local excitation of a particle described by a plane wave. For charged particles, the\nwave packet means a current, the time integral of which resul ts in an extra charge, additionally to the\none carried by the plane wave. When the duration of the wave pa cket is too short for its details to\nbe resolved experimentally, it is the extra charge that can b e determined and analyzed for information\nregarding the nature of the interaction that created the wav e packet. Assuming that the wave function\nis known initially, we show an analytic method for the calcul ation of the extra charge by the aid of\nFourier transform. Our approach is veriﬁed by comparing to b oth the well-known case of a Gaussian\nwave packet and numerically obtained results. As an importa nt physical example, ﬁnally we consider\nthe case of local excitation by laser pulses.\n1 Introduction\nQuantum mechanical wave functions are known to correspond t o probability current densities, which, in case\nof charged particles, are directly related to electric curr ents [1]. When the charged particle is represented by a\nmoving wave packet, one can calculate the corresponding tim e-dependent current that ﬂows through a given,\nﬁxed surface. Integrating this current, the charge that can be collected along the surface is obtained. This\nmethod is relatively straightforward, although the actual calculations sometimes can only be performed\nnumerically. Since it is the calculation of the time evoluti on that is numerically expensive, it is worth\nobtaining the charge without the explicit need of the time de pendent wave functions, as allowed by a\nFourier transform based method.\nAs a generalization, the main topic of the manuscript is the c ase, when not the bare localized wave\npackets are investigated, but wave packets that superimpos e on plane waves. The motivation for this is, in\ngeneral, the local excitation of a quantum system that is des cribed by a plane wave. (An example can be a\nsingle Bloch-state close to the minimum of a band in a semicon ductor that is described using the eﬀective\nmass approximation [2], or a particle beam travelling in fre e space with low momentum uncertainty see\ne.g. [3–6].) In this case the relevant question is not the cha rge that is carried by the complete wave function\n(mainly because it can be inﬁnite because of the plane wave te rm), but the the extra charge that is related\nto the presence of the wave packet. In other words, we are to de termine the diﬀerence between the charges\ncarried by the system, with and without a local excitation th at creates the wave packets. A typical physical\nexample for the excitation can be a short laser pulse that is l ocalized to an area characterized by its focal\nspot size. Since the induced currents can change signiﬁcant ly on the femtosecond time scale, no detectors\ncan provide time-resolved information, while the time inte gral of the current is usually available. The target\nof a laser pulse can be, e.g., a beam of charged particles or el ectrons in solids. For the latter case, as far as\nsingle electron approximation using a single, quadratic ba nd is valid, the sum of contributions from all the\nBloch-sates provides a charge that can be directly related t o experimental results [7].\nIn Sec 2 we introduce a one-dimensional model in which the ext ra charge discussed above can be deter-\nmined analytically. Then, in Sec. 3, we focus on Gaussian wav e packets with well-known time evolution,\nallowing the direct evaluation of the currents and charges. A comparison with our approach shows a nice\nagreement, which is veriﬁed also by numerical calculations . Finally, in Sec. 4, the concrete case of laser-\ninduced currents is discussed. Conclusions are drawn in Sec . 5.\n1\n\n2 Analytic model\nLet us consider a quantum mechanical state that can be writte n as a sum of a plane wave and an additional\ntime and space dependent part. In order to simplify the calcu lations, we are going to use a one-dimensional\ndescription:\nΨ(x,t ) = Ψ 0(x,t ) + Ψ1(x,t ), (1)\nwhere Ψ0(x,t ) denotes the quantum mechanical plane wave and Ψ1(x,t ) is the additional part. In this paper\nwe use x as a space and t as a time parameter. The actual form of Ψ0(x,t ) is given by\nΨ0(x,t ) = exp\n[\ni\n(p\nℏx −ω(p)t\n)]\n= exp\n[i\nℏ\n(\npx − p2\n2mt\n)]\n, (2)\nwhere p denotes the momentum and ω(p) is the dispersion relation of the free particle according to the\nSchrödinge equation:\nω(p) = p2\n2mℏ. (3)\nHere m is the mass of the particle and ℏ is the modiﬁed Planck constant. If there is no external ﬁeld, the\nusual probability current density in one dimension is deﬁne d as\nj(x,t ) = ℏ m Im { Ψ∗(x,t )∂Ψ(x,t ) ∂x } . (4)\nIf we substitute the decomposition (1) to the probability cu rrent density, we can separate three diﬀerent\ncomponents.\nj(x,t ) = ℏ m Im { Ψ∗ 0(x,t )∂Ψ0(x,t ) ∂x } + ℏ m Im { Ψ∗ 1(x,t )∂Ψ1(x,t ) ∂x }\n+ ℏ m Im { Ψ∗ 0(x,t )∂Ψ1(x,t ) ∂x + Ψ∗ 1(x,t )∂Ψ0(x,t ) ∂x } (5)\n= j0(x,t ) +j1(x,t ) +jc(x,t ), (6)\nwhere the current density j0(x,t ) corresponding to Ψ0, i.e., the plane wave, is constant in both time and\nspace: j0(x,t ) = j0 = ℏk/m. The other two components describe the time and space depend ent dynamics.\nj1(x,t ) is the current density that belongs to Ψ1(x,t ) and jc(x,t ) involves the \"interference\" between the\ntwo parts of the state. For the ease of identiﬁcation, we call the last part as the \"cross\" component that\nis why we use the subscript c. Clearly, the probability current density and the charge cu rrent density are\nproportional. Going further along this path, the time integ ral of this current can be termed as a charge.\nFrom now on, we use the term \"charge\" in this context.\nIn this paper we set the initial time to be zero and we assume th at the transported charge also vanishes\nin every spatial point at the beginning. The charge, carried by a quantum mechanical plane wave (we denote\nit by Q0) , can be calculated easily at arbitrary spacetime coordina tes. Our goal is to determine the charge\ncarried by Ψ(x,t ) as added to Q0:\nQd(x,t → ∞) = Qd(x) =\n∞∫\n0\nj(x,t ) −j0(x,t ) dt (7)\n=\n∞∫\n0\nj1(x,t ) dt\n/bracehtipupleft /bracehtipdownright/bracehtipdownleft /bracehtipupright\nQ1(x)\n+\n∞∫\n0\njc(x,t ) dt\n/bracehtipupleft /bracehtipdownright/bracehtipdownleft /bracehtipupright\nQc(x)\n. (8)\nWe handle these two time integral separately.\nIt is known that potential free time evolution of any given qu antum state ψ(x) can be computed by the\nfollowing equation\nψ(x,t ) = 1√\n2πℏ\n∞∫\n−∞\n˜ψ(p)ei p ℏ xe−iω(p)t dp, (9)\nwhere ˜ψ(p) is the initial state in momentum representation (which is th e Fourier transform of ψ(x)) and\nω(p) is the dispersion relation deﬁned above. It is also clear tha t ˜ψ(p) does not change in time. By using\n2\n\nthese forms of Ψ0(x,t ) and Ψ1(x,t ) in Eq. (8), one can realize that after collecting the time dep endent\nintegrands the time integral can be computed in both parts of the Qd.\nQ1(x) = 1 2πm Im\n\n\n\n∞∫\n−∞\n∞∫\n−∞\nip2\nℏ\n˜Ψ∗ 1(p1) ˜Ψ1(p2)e i ℏ (p2−p1)x\n\n\n∞∫\n0\ne−i[ω(p2)−ω(p1)]tdt\n\n dp1dp2\n\n\n (10)\nQc(x) = 1 m √ 2πℏ Im\n\n\n\n∞∫\n−∞\nip ˜Ψ1(p)e\ni\nℏ (p−p0)x\n\n\n∞∫\n0\ne−i(ω(p)−ω0(p0))tdt\n\n dp\n+\n∞∫\n−∞\nip0 ˜Ψ∗ 1(p)e i ℏ (p0−p)x\n\n\n∞∫\n0\nei(ω(p)−ω0(p0))t dt\n\n dp\n\n\n (11)\nThe result of the time integral is the following:\n∞∫\n0\ne−i[ω(p2)−ω(p1)]tdt = πδ(ω(p2) −ω(p1)) − i ω(p2) −ω(p1). (12)\nTo keep the traceability of the derivation, in the following we compute the parts of the Qd separately one\nby one. First we derive a simple analytic form of Q1(x) which is the charge carried by Ψ1(x,t ).\nAfter substituting Eq. (12) back into Eq. (10) and using the p roperties of the Dirac-d"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "M01_clarify_then_fill",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_clarify_fill",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: carry limit=5 từ lượt 1 + map tên Elon Musk thành handle elonmusk từ lượt 2."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tóm tắt 5 tweet mới nhất giúp mình"
+        },
+        {
+          "role": "user",
+          "content": "Của Elon Musk nhé"
+        },
+        {
+          "role": "user",
+          "content": "Giữ đúng 5 tweet, đừng đổi số lượng"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 5
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "papers",
+            "args": {
+              "query": "Elon Musk",
+              "max_results": "5",
+              "sort_by": "relevance"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "missing_info",
+        "failures": [
+          "missing tool call timeline",
+          "extra tool call papers"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "papers",
+          "args": {
+            "query": "Elon Musk",
+            "max_results": "5",
+            "sort_by": "relevance"
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "query": "Elon Musk",
+            "api_query": "all:Elon AND all:Musk",
+            "total_results": 31,
+            "items": [
+              {
+                "arxiv_id": "2304.04129v3",
+                "title": "Auditing Elon Musk's Impact on Hate Speech and Bots",
+                "summary": "On October 27th, 2022, Elon Musk purchased Twitter, becoming its new CEO and firing many top executives in the process. Musk listed fewer restrictions on content moderation and removal of spam bots among his goals for the platform. Given findings of prior research on moderation and hate speech in online communities, the promise of less strict content moderation poses the concern that hate will rise on Twitter. We examine the levels of hate speech and prevalence of bots before and after Musk's acquisition of the platform. We find that hate speech rose dramatically upon Musk purchasing Twitter and the prevalence of most types of bots increased, while the prevalence of astroturf bots decreased.",
+                "authors": [
+                  "Daniel Hickey",
+                  "Matheus Schmitz",
+                  "Daniel Fessler",
+                  "Paul Smaldino",
+                  "Goran Muric",
+                  "Keith Burghardt"
+                ],
+                "published": "2023-04-09T00:49:27Z",
+                "updated": "2024-01-28T19:40:33Z",
+                "url": "http://arxiv.org/abs/2304.04129v3",
+                "pdf_url": "https://arxiv.org/pdf/2304.04129v3",
+                "source": "arxiv.org",
+                "primary_category": "cs.SI",
+                "categories": [
+                  "cs.SI"
+                ]
+              },
+              {
+                "arxiv_id": "2610.40675v1",
+                "title": "Cutting out the middleman? Elon Musk and the rhetoric of citizen journalism in platform-mediated communication",
+                "summary": "This article examines how Elon Musk constructed discourse about journalism and the media on X between the 2024 United States presidential election and Donald Trump's presidential inauguration. It investigates how references to journalism, media organisations, and platform-based communication were articulated within Musk's posts, and how users responded to these narratives during a period of intense political polarisation. The study combines computational classification, qualitative thematic coding, and inferential statistical analysis. A corpus of 2,906 posts published by Musk between 5 November 2024 and 20 January 2025 was compiled. From this corpus, 500 posts referring to journalism, media organisations, platforms, or media-related discourse were identified through AI-assisted filtering and subsequent manual review. In addition, 42,066 user responses were analysed from a stratified sample drawn from 3,233,112 interactions. The analysis examined patterns of agreement and disagreement with Musk's stance and their relationship with thematic, gender, and professional variables inferred from publicly available profile information. The findings show that Musk's discourse is organised around three recurrent dynamics: criticism of institutional journalism, the association of media organisations with political and ideological agendas, and the presentation of X as an alternative communicative space. Journalism is predominantly framed through accusations of bias, disinformation, propaganda, and electoral manipulation, whereas X is more often linked to participation, innovation, and direct communication. User responses largely converged with Musk's position, although disagreement remained visible. While thematic orientation and professional background showed statistically significant associations with agreement patterns, effect sizes were limited.",
+                "authors": [
+                  "Urko Peña-Alonso",
+                  "Koldobika Meso-Ayerdi",
+                  "Simón Peña-Fernández",
+                  "Jordi Morales-i-Gras"
+                ],
+                "published": "2026-10-23T09:41:39Z",
+                "updated": "2026-10-23T09:41:39Z",
+                "url": "http://arxiv.org/abs/2610.40675v1",
+                "pdf_url": "https://arxiv.org/pdf/2610.40675v1",
+                "source": "arxiv.org",
+                "primary_category": "cs.SI",
+                "categories": [
+                  "cs.SI",
+                  "cs.CY"
+                ]
+              },
+              {
+                "arxiv_id": "2304.11272v1",
+                "title": "The \"Non-Musk Effect\" at Twitter",
+                "summary": "Elon Musk has long been known to significantly impact Wall Street through his controversial statements and actions, particularly through his own use of social media. An innovator and visionary entrepreneur, Musk is often considered a poster boy for all entrepreneurs worldwide. It is, thus, interesting to examine the effect that Musk might have on Main Street, i.e., on the social media activity of other entrepreneurs. In this research, we study and quantify this \"Musk Effect,\" i.e., the impact of Musk's recent and highly publicized acquisition of Twitter on the tweeting activity of entrepreneurs. Using a dataset consisting of 9.94 million actual tweets from 47,190 self-declared entrepreneurs from seven English-speaking countries (US, Australia, New Zealand, UK, Canada, South Africa, and Ireland) spanning 71 weeks and encompassing the entire period from the rumor that Musk may buy Twitter till the completion of the acquisition, we find that only about 2.5% of the entrepreneurs display a significant change in their tweeting behavior over the time. We believe that our study is one of the first works to examine the effect of Musk's acquisition of Twitter on the actual tweeting behavior of Twitter users (entrepreneurs). By quantifying the impact of the Musk Effect on Main Street, we provide a comparison with the effect Musk's actions have on Wall Street. Finally, our systematic identification of the characteristics of entrepreneurs most affected by the Musk Effect has practical implications for academics and practitioners alike.",
+                "authors": [
+                  "Dmitry Zinoviev",
+                  "Arkapravo Sarkar",
+                  "Pelin Bicen"
+                ],
+                "published": "2023-04-21T23:37:18Z",
+                "updated": "2023-04-21T23:37:18Z",
+                "url": "http://arxiv.org/abs/2304.11272v1",
+                "pdf_url": "https://arxiv.org/pdf/2304.11272v1",
+                "source": "arxiv.org",
+                "primary_category": "cs.SI",
+                "categories": [
+                  "cs.SI",
+                  "cs.CY"
+                ]
+              },
+              {
+                "arxiv_id": "2212.10646v1",
+                "title": "Did the Musk Takeover Boost Contentious Actors on Twitter?",
+                "summary": "Twitter has been accused of a liberal bias in its account verification and content moderation policies. Elon Musk pledged, after his acquisition of the company, to promote free speech on the platform by overhauling verification and moderation policies. These events sparked fears of a rise in influence of contentious actors -- notably from the political right. In this article, I use a publicly released list of 138k Twitter accounts that purchased blue check verification during the open window of November 9-November 11, 2022. I retrieve 4.9m tweets from a sample of politically contentious accounts. I then compare engagement on contentious user posts before and after the Musk acquisition. I find that the period following the Musk acquisition saw a substantive increase in post engagement. There is no additional increase following blue tick verification. I explain the findings with reference to an increase in activity by a newly sympathetic user base.",
+                "authors": [
+                  "Christopher Barrie"
+                ],
+                "published": "2022-12-20T20:48:30Z",
+                "updated": "2022-12-20T20:48:30Z",
+                "url": "http://arxiv.org/abs/2212.10646v1",
+                "pdf_url": "https://arxiv.org/pdf/2212.10646v1",
+                "source": "arxiv.org",
+                "primary_category": "cs.SI",
+                "categories": [
+                  "cs.SI",
+                  "cs.CY"
+                ]
+              },
+              {
+                "arxiv_id": "2511.09685v1",
+                "title": "What did Elon change? A comprehensive analysis of Grokipedia",
+                "summary": "Elon Musk released Grokipedia on 27 October 2025 to provide an alternative to Wikipedia, the crowdsourced online encyclopedia. In this paper, we provide the first comprehensive analysis of Grokipedia and compare it to a dump of Wikipedia, with a focus on article similarity and citation practices. Although Grokipedia articles are much longer than their corresponding English Wikipedia articles, we find that much of Grokipedia's content (including both articles with and without Creative Commons licenses) is highly derivative of Wikipedia. Nevertheless, citation practices between the sites differ greatly, with Grokipedia citing many more sources deemed \"generally unreliable\" or \"blacklisted\" by the English Wikipedia community and low quality by external scholars, including dozens of citations to sites like Stormfront and Infowars. We then analyze article subsets: one about elected officials, one about controversial topics, and one random subset for which we derive article quality and topic. We find that the elected official and controversial article subsets showed less similarity between their Wikipedia version and Grokipedia version than other pages. The random subset illustrates that Grokipedia focused rewriting the highest quality articles on Wikipedia, with a bias towards biographies, politics, society, and history. Finally, we publicly release our nearly-full scrape of Grokipedia, as well as embeddings of the entire Grokipedia corpus.",
+                "authors": [
+                  "Harold Triedman",
+                  "Alexios Mantzarlis"
+                ],
+                "published": "2025-11-12T19:40:17Z",
+                "updated": "2025-11-12T19:40:17Z",
+                "url": "http://arxiv.org/abs/2511.09685v1",
+                "pdf_url": "https://arxiv.org/pdf/2511.09685v1",
+                "source": "arxiv.org",
+                "primary_category": "cs.SI",
+                "categories": [
+                  "cs.SI"
+                ]
+              }
+            ],
+            "rate_limit_note": "arXiv may return 429 if called too frequently; this tool waits at least 3 seconds between requests in-process."
+          }
+        }
+      ]
+    },
+    {
+      "id": "M02_carryover_timeframe",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_carryover",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: chỉ xử lý latest turn, carry timeframe=day và topic=news, query robotics."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tin AI hôm nay có gì?"
+        },
+        {
+          "role": "user",
+          "content": "Còn về robotics thì sao?"
+        },
+        {
+          "role": "user",
+          "content": "Chỉ tìm robotics thôi, vẫn là tin hôm nay"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "robotics",
+              "topic": "news",
+              "timeframe": "day"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "robotics news today",
+              "topic": "news"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "query: expected 'robotics', got 'robotics news today'",
+          "timeframe: expected 'day', got None"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "lookup",
+          "args": {
+            "query": "robotics news today",
+            "topic": "news"
+          },
+          "result": {
+            "tool": "web_search",
+            "query": "robotics news today",
+            "topic": "news",
+            "timeframe": "week",
+            "items": [
+              {
+                "title": "Why is Ubtech Robotics stock surging today?",
+                "url": "https://www.investing.com/news/stock-market-news/why-is-ubtech-robotics-stock-surging-today-93CH-5010508",
+                "source": "investing.com",
+                "summary": "9880+6.90%\n\nInvesting.com -- Ubtech Robotics stock surged 9.4% to HK$70.55 on Monday, propelled by two converging catalysts: the continued market reaction to the company’s unveiling of the world’s first bionic humanoid robot news anchors in partnership with Xinhua News Agency, and a sector-wide explosion in physical AI stocks following Apple’s announcement of its new HALO system. [...] The Xinhua collaboration produced two life-sized humanoid anchors — Xin Yan and Xin Yu — jointly developed with Ubtech providing the full hardware and software stack, Xinhua supplying its AI news content system, and celebrated filmmaker Zhang Yimou handling the robots’ visual design. The anchors were officially presented at the 7th World Media Summit AI and Chinese-Style Modernization Forum on November 6, 2026. [...] The Apple HALO research paper acted as an additional accelerant, sparking a broad rally across Hong Kong-listed humanoid robot and physical AI concept stocks, with Ubtech among the most prominent beneficiaries given its position as one of the sector’s leading names.",
+                "score": 0.63601404
+              },
+              {
+                "title": "Tesla's Optimus Rival Goes Public; Shares Whipsaw On Debut | Investor's Business Daily",
+                "url": "https://www.investors.com/news/tesla-agility-robotics-nvidia-amazon-foxconn-optimus-spac-merger",
+                "source": "investors.com",
+                "summary": "The first pure play humanoid robotics company, Agility Robotics (AGLT), begins trading on Thursday morning on the Nasdaq. Agility's flagship product is a humanoid robot known as Digit that is similar to Tesla's (TSLA) Optimus. Agility Robotics completed its merger with Churchill Capital Corp XI as of Wednesday. Agility launched the merger with Churchill, a special purpose acquisition company, in… [...] image\n\n6:07 PM ET\n\nStock Market Races Higher; Nasdaq Jumps Nearly 3% As Chip Stocks Fly, Leave Nvidia In The Dust\n\nimage\n\nStock Market Today5:17 PM ET\n\nRebound Gets Stronger; Is It Enough? BrightSpring, Block, Victory Capital In Focus\n\n News\n\n# Tesla Optimus Rival Agility Robotics Begins Trading After SPAC Merger\n\nFacebookXLinkedInShare\n\nLicensing\n\n PAOLO CONFINO\n Updated 04:02 PM ET 11/05/2026 [...] ##### Dow Jones Soars 1,132 Points As Amazon, Tesla Rally, But Nvidia Dives; CPI Inflation Report Next\n ##### AI Stock Rout Called 'Unwarranted.' Why Wall Street Sees Post-Midterms Edge For Cloud Giants.\n ##### Nvidia Stock Drops On Spy Scandal, CEO Probe\n ##### Overall Tesla China Sales Rise 10%, Sales Inside China Sink To 4-Year Low; Robotaxi Launches New Market\n ##### Stock Market Today: Dow Jumps, These Stocks Test Entries; Warren Buffett Play Clears Buy Zone",
+                "score": 0.59366816
+              },
+              {
+                "title": "FF EAI Robotics Ecosystem (FFR) Announces Third Quarter 2026 Earnings Release Date and Conference Call Details to be Held on November 12, 2026 — TradingView News",
+                "url": "https://www.tradingview.com/news/prnewswire:5bae3513d7d1a:0-ff-eai-robotics-ecosystem-ffr-announces-third-quarter-2026-earnings-release-date-and-conference-call-details-to-be-held-on-november-12-2026",
+                "source": "tradingview.com",
+                "summary": "product philosophy of \"One Brain, Multi-forms, Multi-capabilities,\" FFR aims to empower humanoid, biomimetic, and other robotic form factors through a unified EAI Brain, while continuously expanding their multi-task and multi-scenario capabilities. The ecosystem is designed to support the full robotics lifecycle, including R&D, deployment, data collection and training, operations, and commercial applications. FFR also operates RoboShare, a robot-sharing and services platform. [...] LOS ANGELES, Nov. 9, 2026 /PRNewswire/ -- FF EAI Robotics Ecosystem Inc. (FFR) (\"FFR\" or the \"Company\") a U.S.-based Embodied AI robotics company, today announced that it is scheduled to report its third quarter financial results on Thursday, November 12, 2026. The Company will host an earnings call at 4:00 p.m. Pacific Time (7:00 p.m. Eastern Time) that same day after the close of the market. [...] FF EAI Robotics Ecosystem Inc. (FFR) is a U.S.-based Embodied AI robotics company focused on the research and development, manufacturing, commercialization and deployment of intelligent robotic technologies, products and industry solutions. FFR is building a \"Four-Core Full-Stack\" AI ecosystem covering the full lifecycle of robotics, consisting of EAI Brain & Developer Platform, EAI Devices, Industry Productivity Solutions, and EAI Data Factory. Guided by the technology and product philosophy",
+                "score": 0.5343392
+              },
+              {
+                "title": "Agility is the first pure humanoid robot company on the stock market. Are you buying? | TechCrunch",
+                "url": "https://techcrunch.com/2026/11/05/agility-is-the-first-pure-humanoid-robot-company-on-the-stock-market-are-you-buying",
+                "source": "techcrunch.com",
+                "summary": "The good news is that Agility has $300 million in planned contracts from 30 customers for its new generation of robot, Digit 5. The new model can safely operate around humans, not just in an isolated work cell like its previous model (and indeed most humanoid robots). That deal was “one of the driving factors” behind the decision to take the company public, Johnson said, but could not yet reveal who the customers were or say if they are investors. [...] To close the deals, Johnson said that Digit 5 will have to hit undisclosed targets along several metrics, including throughput, uptime, and accuracy of placement. The company has yet to show off the prototypes of Digit 5, but Johnson said they will be demonstrated at CES 2027 and will be widely available at the end of that year. [...] Agility faces two key questions: How quickly can it find new customers for Digit 5, and how quickly can it improve on the robot’s capabilities? Prospective customers need to spend $500,000 for Agility to do an on-site proof of concept before a deployment is fully scaled up; there were four customers signed up in May 2026. And while Digit can pick up heavy loads and place them with 98% accuracy, it still — like most of today’s robots — lacks the ability to do complex manipulation tasks.",
+                "score": 0.5261754
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "M03_correction_handle",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_correction",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: map tên thường, sửa Sam Altman→Andrej Karpathy, dùng handle karpathy và limit=3."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tweet mới nhất của Sam Altman"
+        },
+        {
+          "role": "user",
+          "content": "À nhầm, của Andrej Karpathy"
+        },
+        {
+          "role": "user",
+          "content": "Lấy 3 tweet mới nhất nhé"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "karpathy",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [],
+        "actual_text": "{\"name\":\"social_search\",\"parameters\":{\"query\":\"#AI\",\"\"limit\":\"3\",\"\"search_type\":\"Latest\"}}",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "missing tool call timeline"
+        ]
+      },
+      "tool_results": []
+    },
+    {
+      "id": "M04_clarify_then_url",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_clarify_url",
+        "difficulty": "medium",
+        "what_it_tests": "3 turns: sau khi được cung cấp URL, latest turn xác nhận chỉ đọc link đó → read_url đúng url."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tóm tắt bài này hộ mình"
+        },
+        {
+          "role": "user",
+          "content": "https://anthropic.com/news/claude"
+        },
+        {
+          "role": "user",
+          "content": "Chỉ đọc đúng link đó thôi"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://anthropic.com/news/claude"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://anthropic.com/news/claude"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "fetch",
+          "args": {
+            "url": "https://anthropic.com/news/claude"
+          },
+          "result": {
+            "tool": "read_url",
+            "url": "https://anthropic.com/news/claude",
+            "items": [
+              {
+                "title": "https://anthropic.com/news/claude",
+                "url": "https://anthropic.com/news/claude",
+                "source": "anthropic.com",
+                "summary": "[Skip to main content](https://www.anthropic.com/news/claude#main-content)\n\nA 404 poem byClaude Fable 5Claude Opus 5.5Claude Sonnet 5.5Claude Haiku 5.5\n\nYou came"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "M05_correction_limit",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_arg_correction",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: map tên Elon Musk, carry handle elonmusk, sửa limit 10→3."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Lấy 10 tweet mới nhất của Elon Musk"
+        },
+        {
+          "role": "user",
+          "content": "Cho mình 3 thôi"
+        },
+        {
+          "role": "user",
+          "content": "Vẫn của Elon Musk nhé"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "Elon Musk",
+              "limit": "3"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "screenname: expected 'elonmusk', got 'Elon Musk'",
+          "limit: expected 3, got '3'"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "Elon Musk",
+            "limit": "3"
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "error": "JSONDecodeError",
+            "message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "M06_switch_tool",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_switch_tool",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: explicitly bỏ Twitter, chuyển sang web_search news, giữ chủ đề OpenAI."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Mọi người nói gì về OpenAI trên Twitter?"
+        },
+        {
+          "role": "user",
+          "content": "Bỏ Twitter, chuyển sang tìm trên web tin tức đi"
+        },
+        {
+          "role": "user",
+          "content": "Giữ chủ đề OpenAI"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "OpenAI",
+              "topic": "news"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "OpenAI news",
+              "topic": "news"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "query: expected 'OpenAI', got 'OpenAI news'"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "lookup",
+          "args": {
+            "query": "OpenAI news",
+            "topic": "news"
+          },
+          "result": {
+            "tool": "web_search",
+            "query": "OpenAI news",
+            "topic": "news",
+            "timeframe": "week",
+            "items": [
+              {
+                "title": "OpenAI will keep investing in AI data centers despite election results, CFO tells CNBC",
+                "url": "https://www.cnbc.com/2026/11/06/open-ai-data-centers-election.html",
+                "source": "cnbc.com",
+                "summary": "“When I think about the midterms, I need to keep thinking about how do we keep investing to meet that customer demand,” Friar told CNBC’s Sara Eisen in an interview. “It starts early with having built relationships with all of the hyperscalers, and it will continue to mean that we raise capital.”\n\nThis is breaking news. Please refresh for updates.\n\nChoose CNBC as your preferred source on Google and never miss a moment from the most trusted name in business news. [...] WATCH LIVE\n\nShare Share Article via Facebook Share Article via Twitter Share Article via LinkedIn Share Article via Email\n\nImage 7: Sarah Friar, CFO of OpenAI, speaking on CNBC's Squawk Box at the World Economic Forum in Davos, Switzerland on Jan. 21st, 2026.\n\nSarah Friar, chief financial officer of OpenAI, speaking on CNBC’s “Squawk Box” at the World Economic Forum in Davos, Switzerland, Jan. 21, 2026.\n\nOscar Molina | CNBC [...] OpenAI CFO Sarah Friar on Friday said the company will continue to invest in artificial intelligence infrastructure, even after voters strongly rebuffed data centers during Tuesday’s midterm elections.",
+                "score": 0.74363416
+              },
+              {
+                "title": "OpenAI gets $11 billion funding at $1.25 trillion valuation, source says | Reuters",
+                "url": "https://www.reuters.com/business/openai-secures-11-billion-funding-125-trillion-valuation-bloomberg-news-reports-2026-11-06",
+                "source": "reuters.com",
+                "summary": "Nov 6 (Reuters) - OpenAI has closed ‌on new funding of $11 billion, the initial part of a round ​that values the company ​at $1.25 trillion, a source familiar with ⁠the matter said on Friday.\n\nThe $11 ​billion raised so far represents ​only a portion of OpenAI's original target of up to $30 billion, while ​the company's valuation has ​come down from the $1.5 trillion level it ‌had ⁠initially sought, two investors said. [...] The Reuters Daily Briefing newsletter provides all the news you need to start your day. Sign up here.\n\nAdvertisement · Scroll to continue\n\nSoftBank and MGX participated in the funding, the investors said.\n\nBloomberg News reported ​on the ​funding ⁠earlier on Friday.\n\nSentiment toward AI companies has ​cooled in the last ​month, ⁠with some investors valuing rival Anthropic's planned IPO at about $1.5 ⁠trillion, ​below earlier expectations ​of roughly $2 trillion.",
+                "score": 0.7429634
+              },
+              {
+                "title": "OpenAI",
+                "url": "https://tavily.com/knowledge/company/p4PyTakV77G9",
+                "source": "tavily.com",
+                "summary": "# OpenAI\nID: p4PyTakV77G9\nWebsite: www.openai.com\nHeadquarters: San Francisco, CA, United States\nLinkedIn: www.linkedin.com/company/openai · 11,529,792 followers\nIndustry: Research Services\nIndustry codes: SIC 87, 873, NAICS 54, 541\nCompany type: Partnership\nSocial profiles: www.facebook.com/openai, www.twitter.com/openai, www.crunchbase.com/organization/openai, www.instagram.com/openai.gpt, www.instagram.com/openai, www.youtube.com/@openai, www.youtube.com/openai, github.com/openai [...] ## M&A\n- Ona (2026-06-01)\n- Tomoro AI (2026-05-01)\n- Hiro Finance (2026-04-01)\n- TBPN (2026-04-01)\n- Promptfoo, Inc. (2026-03-01)\n- Astral Software Inc (2026-03-01)\n- OpenClaw (2026-02-01)\n- Torch Health Inc (2026-01-01): 100.00M USD [...] - Secondary Market 2023-08-01\n- Venture Round 2023-04-01 300.00M USD\n- Venture Round 2023-01-01 10.00B USD\n- Secondary Market 2022-01-01\n- Secondary Market 2021-01-01\n- Venture Round 2019-07-01 1.00B USD\n- Seed Round 2019-03-01 50.00M USD\n- Seed Round 2016-01-01\n- Grant 2015-12-01 1.00B USD",
+                "score": 0.73138535
+              },
+              {
+                "title": "OpenAI to acquire Pierre Computer Company, Inc.",
+                "url": "https://openai.com/index/openai-to-acquire-pierre",
+                "source": "openai.com",
+                "summary": "Today we're announcing that OpenAI will acquire Pierre Computer Company, Inc⁠(opens in a new window). (“Pierre”), the company behind Code Storage⁠(opens in a new window) and a family of standout open-source developer tools. If you’ve browsed files or reviewed a change in the Codex app, you’ve already used Pierre’s Trees and Diffs libraries. We’re excited to work with the Pierre team to build on the Git workflows that developers already rely on and adapt them to how teams work with coding [...] ## Keep reading\n\nView all\n\nImage 1: Scaling Git at OpenAI — art card\n\nScaling Git at OpenAI Engineering Nov 2, 2026\n\nImage 2: Codex maxxing 1x1\n\nCodex-Maxxing for Long-Running Work AI Adoption Jun 22, 2026\n\nImage 3: OAIonOAI ChadNelson 1x1\n\nHow Codex became a collaborator for OpenAI’s creative team OpenAI on OpenAI Jul 16, 2026\n\nResearch\n   Research Index\n   Research Overview\n   Economic Research\n\nLatest Advancements\n   GPT-6.1 Sol\n   GPT-6 Astra\n   GPT-5.6\n   GPT-5.5 [...] Skip to main content\n\n\n\nLog inTry ChatGPT(opens in a new window)\n\n   Research\n   Products\n   Business\n   Developers\n   Company\n   Foundation(opens in a new window)\n\nOpenAI to acquire Pierre Computer Company, Inc. | OpenAI\n\nNovember 4, 2026\n\nCompany\n\n# OpenAI to acquire Pierre Computer Company, Inc.\n\nExpanding Codex’s tools for building, understanding, and reviewing code.\n\nShare\n\nCraftsmanship meets scale for the agentic era",
+                "score": 0.7092009
+              },
+              {
+                "title": "Accelerating engineering for the physical world | OpenAI",
+                "url": "https://openai.com/index/accelerating-engineering-for-the-physical-world",
+                "source": "openai.com",
+                "summary": "Measuring how AI agents handle everyday wet-lab science Publication Nov 6, 2026\n\nImage 2: A thousand fewer paths to root — Cover\n\nA thousand fewer paths to root Security Nov 4, 2026\n\nImage 3: LifeVal — Cover\n\nLifeVal Research Nov 2, 2026\n\nResearch\n   Research Index\n   Research Overview\n   Economic Research\n\nLatest Advancements\n   GPT-6.1 Sol\n   GPT-6 Astra\n   GPT-5.6\n   GPT-5.5\n\nSafety\n   Safety Approach\n   Deployment Safety(opens in a new window)\n   Security & Privacy\n   Trust & Transparency [...] We’re expanding our collaboration with Chip Ganassi Racing (CGR) to explore how OpenAI models can accelerate engineering and prototyping. Working with its R&D team, we’re testing workflows that turn 3D scans of existing parts into editable CAD models and 2D manufacturing drawings. This is particularly useful when the original design files are unavailable. [...] — Matthew Ortman, R&D Engineer at Chip Ganassi Racing\n\nWe’re also announcing a new research collaboration with Mazda. Our research and Forward Deployed Engineering teams are working with Mazda’s aerodynamics and crash-safety engineers to explore how OpenAI models can help develop and evaluate new vehicle designs.",
+                "score": 0.6889923
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

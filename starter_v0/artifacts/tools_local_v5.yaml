@@ -1,0 +1,109 @@
+# v5-local: compact declarations for small local models (same tools/args as v3, shorter text).
+tools:
+  - name: clarify
+    description: "Ask the user a question and wait. Use when an account, URL or content is missing, or to confirm before send."
+    parameters:
+      type: object
+      properties:
+        question: {type: string, default: "", description: "Short question"}
+        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "text = missing info; yes_no = confirm send"}
+        options: {type: array, default: [], items: {type: string}, description: "Only for choice"}
+      required: [question, response_type]
+
+  - name: timeline
+    description: "Recent posts BY one known X/Twitter account."
+    parameters:
+      type: object
+      properties:
+        screenname: {type: string, default: "", description: "Real handle without @, no spaces"}
+        limit: {type: integer, default: 5, description: "Number of posts"}
+      required: [screenname]
+
+  - name: social_search
+    description: "X/Twitter posts ABOUT a topic or keyword."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Topic keywords"}
+        search_type: {type: string, enum: [Latest, Top], default: "Latest", description: "Top = popular; Latest = newest"}
+        limit: {type: integer, default: 5, description: "Number of posts"}
+      required: [query]
+
+  - name: lookup
+    description: "Web search. Use topic=news for news."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Subject only"}
+        topic: {type: string, enum: [general, news], default: "general", description: "news for news requests"}
+        timeframe: {type: string, enum: [day, week, month, year], default: "week", description: "today=day, this week=week"}
+        max_results: {type: integer, default: 5, description: "Number of results"}
+      required: [query]
+
+  - name: fetch
+    description: "Read a URL the user gave."
+    parameters:
+      type: object
+      properties:
+        url: {type: string, default: "", description: "Exact URL from the user"}
+      required: [url]
+
+  - name: format
+    description: "Format items already found into a digest."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Items from earlier tool results"
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+              section: {type: string}
+        template: {type: string, enum: [brief, sections, bullets, thread, daily_ai_vn], default: "sections", description: "Output style"}
+        headline: {type: string, default: "", description: "Title"}
+      required: [items, template]
+
+  - name: send
+    description: "Post text to Telegram. Only after the user said yes to a clarify yes_no question."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, default: "", description: "Approved content"}
+        confirmed: {type: boolean, default: false, description: "true only after user confirmed"}
+      required: [text, confirmed]
+
+  - name: policy
+    description: "Search internal company policies."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Policy question"}
+        policy_area: {type: string, enum: [all, ai_research, source_citation, data_privacy, external_publishing, tool_usage], default: "all", description: "Area, or all"}
+        top_k: {type: integer, default: 3, description: "Number of excerpts"}
+      required: [query]
+
+  - name: papers
+    description: "Search arXiv research papers."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Research topic"}
+        max_results: {type: integer, default: 5, description: "Number of papers"}
+        sort_by: {type: string, enum: [relevance, lastUpdatedDate, submittedDate], default: "relevance", description: "submittedDate = newest"}
+      required: [query]
+
+  - name: paper_text
+    description: "Read the text of one arXiv paper."
+    parameters:
+      type: object
+      properties:
+        arxiv_url: {type: string, default: "", description: "arXiv ID or URL"}
+        max_pages: {type: integer, default: 5, description: "Max pages"}
+        max_chars: {type: integer, default: 8000, description: "Max characters"}
+      required: [arxiv_url]

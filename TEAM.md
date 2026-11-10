@@ -9,10 +9,10 @@
 
 ## Thành viên
 
-| STT | Họ tên          | MSSV        | Email                                                          | GitHub | Vai trò |
-| --: | ----------------- | ----------- | -------------------------------------------------------------- | ------ | -------- |
-|   1 |                   |             |                                                                |        |          |
-|   2 | Đậu Hoàng Minh | 2A202604011 | [26ai.minhdh4@vinuni.edu.vn](mailto:26ai.minhdh4@vinuni.edu.vn) |        |          |
+| STT | Họ tên          | MSSV        | Email                                                          | GitHub     | Vai trò                                  |
+| --: | ----------------- | ----------- | -------------------------------------------------------------- | ---------- | ----------------------------------------- |
+|   1 |                   |             |                                                                |            |                                           |
+|   2 | Đậu Hoàng Minh | 2A202604011 | [26ai.minhdh4@vinuni.edu.vn](mailto:26ai.minhdh4@vinuni.edu.vn) | justapea25 | Backend Integration + Live Chat + Report  |
 
 ## Cá nhân
 
