@@ -9,10 +9,10 @@
 
 ## Thành viên
 
-| STT | Họ tên | MSSV | Email | GitHub | Vai trò |
-| --: | ------ | ---- | ----- | ------ | ------- |
-|   1 |        |      |       |        |         |
-|   2 |        |      |       |        |         |
+| STT | Họ tên          | MSSV        | Email                                                          | GitHub | Vai trò |
+| --: | ----------------- | ----------- | -------------------------------------------------------------- | ------ | -------- |
+|   1 |                   |             |                                                                |        |          |
+|   2 | Đậu Hoàng Minh | 2A202604011 | [26ai.minhdh4@vinuni.edu.vn](mailto:26ai.minhdh4@vinuni.edu.vn) |        |          |
 
 ## Cá nhân
 
@@ -30,12 +30,6 @@ Sao chép mục dưới đây cho từng thành viên.
 
 ### Phần việc phụ trách
 
--
-
 ### Đóng góp cụ thể
 
--
-
 ### Bằng chứng
-
--

@@ -1,3 +1,5 @@
+[26ai.minhdh4@vinuni.edu.vn](mailto:26ai.minhdh4@vinuni.edu.vn)
+
 # Báo cáo nhóm
 
 Báo cáo chính nằm tại:
