@@ -43,32 +43,29 @@ và "test challenge".
 ## 5. Tự đánh giá
 
 **Làm tốt**
-- Bốn tool mới cùng giải một bài toán: sau khi `lookup`/`social_search` trả về danh sách kết quả thô, người dùng cần làm sạch, lọc, phân tích và lưu lại. Starter chưa có tool nào làm các bước này.
 
-  | Tool | Giá trị thực tế | Starter thiếu gì |
-  |---|---|---|
-  | `dedupe` | Khi gộp nhiều nguồn, cùng một bài hay xuất hiện nhiều lần. Tool loại trùng theo URL (bỏ `www`, `/` cuối, không phân biệt hoa thường) hoặc theo tiêu đề, trước khi `format` ra bản tin. | `format` chỉ định dạng, không loại trùng. |
-  | `filter_results` | Người dùng thường yêu cầu "chỉ lấy tin từ Reuters" hoặc "trong 7 ngày gần đây". Tool lọc danh sách đã có theo nguồn và theo ngày, không cần gọi lại API. | `lookup` chỉ có `timeframe` khi tìm, không lọc được kết quả đã có theo nguồn. |
-  | `topic_stats` | Thay vì đọc từng bài, người dùng hỏi "chủ đề nào được nhắc nhiều nhất". Tool trả số bài, tỉ lệ, nguồn tiêu biểu cho mỗi chủ đề, hoặc đếm đúng các chủ đề người dùng nêu. | Không có tool nào tổng hợp thống kê trên nhiều bài. |
-  | `reading_list` | Lưu bài "đọc sau", xem lại và xoá, bền qua nhiều lượt chat (file JSON local). Đây là tool duy nhất có tác dụng phụ ghi file, nên `clear` bắt buộc `confirmed=true`. | Starter không có bộ nhớ lưu bài cho người dùng. |
+- Bốn tool mới giải quyết các nhu cầu còn thiếu sau khi tìm kiếm: làm sạch, lọc, thống kê và lưu kết quả.
 
-- Bốn tool nối thành một chuỗi: `lookup` → `dedupe` → `filter_results` → `topic_stats` → `format`, còn `reading_list` lưu lại bài người dùng chọn. Mỗi tool có thể dùng độc lập.
-- Mỗi tool có `tool.py`, `TOOL.md`, đăng ký trong `TOOL_FUNCTIONS`, khai báo trong `tools.yaml`. `test_tool_contract.py` xanh (75 passed), nên tên và tham số khớp giữa các lớp.
-- Test đủ ba loại theo yêu cầu CP3: happy path, input xấu từ model (`None`, sai kiểu, `limit` dạng chuỗi), và nhánh lỗi. Tổng 33 test cho 4 tool (8–9 test/tool), chạy offline.
-- Tool trả error dict thay vì raise, và `reading_list` không ghi đè file JSON bị hỏng.
-- Điền xong 14 stub TODO; `pytest` đạt 138 passed, 0 skipped, 0 failed.
-- Tìm 2 bug trong tool có sẵn (`limit` âm trong `timeline`/`social_search` làm mất tweet cuối; `format` crash khi item không phải dict), đã sửa và có test regression. Các test này fail trên code cũ và pass sau khi sửa.
+| Tool | Giá trị thực tế | Starter thiếu gì |
+|---|---|---|
+| `dedupe` | Loại bài trùng khi tổng hợp từ nhiều nguồn. | `format` chỉ định dạng, không loại trùng. |
+| `filter_results` | Lọc kết quả đã có theo nguồn và thời gian mà không cần gọi lại API. | `lookup` chưa hỗ trợ lọc kết quả đã trả về theo nguồn. |
+| `topic_stats` | Thống kê số lượng, tỉ lệ và nguồn theo chủ đề. | Chưa có công cụ thống kê trên nhiều bài. |
+| `reading_list` | Lưu, xem lại và xoá bài viết qua nhiều lượt chat. | Chưa có cơ chế lưu bài đọc sau. |
 
-**Hạn chế**
-- `dedupe` chỉ so khớp theo URL hoặc tiêu đề đã chuẩn hoá, nên không nhận ra hai bài cùng nội dung nhưng khác URL và khác tiêu đề.
-- `topic_stats` đếm theo từ khoá (mỗi bài một phiếu), không hiểu ngữ nghĩa. Hai cách diễn đạt khác nhau của cùng một chủ đề có thể bị tách thành hai chủ đề.
-- `filter_results` loại item không có ngày hợp lệ khi đặt `days`. Hành vi này có chủ ý nhưng nếu nguồn không trả ngày thì kết quả có thể ít hơn người dùng mong đợi.
-- `reading_list` lưu file local cho một người dùng; chưa xử lý nhiều tiến trình ghi cùng lúc và chưa có test cho trường hợp này.
-- Bộ test chỉ kiểm tra bằng dữ liệu giả lập; chưa kiểm tra với kết quả thật từ `lookup`/`social_search`.
-- Với `timeline` và `social_search`, tôi mới xử lý `limit` âm; các giá trị biên khác (`limit=0` quay về mặc định 5, `top_k`, `max_results` âm) chưa được đánh giá là đúng hay sai, nên chưa có test.
+- Các tool có thể kết hợp thành quy trình `lookup` → `dedupe` → `filter_results` → `topic_stats` → `format`; `reading_list` hỗ trợ lưu lại những bài được chọn.
+- Hoàn thiện đầy đủ cấu trúc và contract cho 4 tool; viết 33 unit test, điền 14 stub TODO và sửa 2 bug ở tool có sẵn. Kết quả kiểm thử đạt 138 passed, 0 skipped, 0 failed.
+- Các lỗi được kiểm chứng bằng regression test: test fail trên code cũ và pass sau khi sửa.
+
+**Hướng cải thiện tiếp theo**
+
+- Nâng cấp `dedupe` để nhận diện nội dung trùng lặp dù khác URL hoặc tiêu đề.
+- Cải thiện `topic_stats` bằng cách nhóm các từ khoá gần nghĩa.
+- Kiểm thử thêm với dữ liệu thực từ `lookup` và `social_search`.
 
 **Bài học**
-- Unit test đo code của tool có chạy đúng không. Nhiều lỗi chỉ lộ ra khi gửi input biên mà model hay gửi, như `limit` âm, số dạng chuỗi, hoặc phần tử không phải dict trong danh sách.
-- Tool nên trả error dict thay vì raise, để lỗi không thoát ra vòng lặp agent. Hai bug tìm được ở tool có sẵn đều thuộc nhóm lỗi này.
-- Với tool có tác dụng phụ (`reading_list`), phần nguy hiểm (`clear`) phải được chặn ngay trong code bằng `confirmed`, chứ không chỉ dựa vào mô tả.
-- Nên đọc test mẫu (`test_tools_examples.py`) và `conftest.py` trước khi viết test, vì các fixture `fake_http` và `block_network` giúp test nhanh, ổn định và không tốn API.
+
+- Unit test không chỉ kiểm tra luồng chạy bình thường mà còn cần bao phủ input biên và dữ liệu không đúng định dạng.
+- Tool nên xử lý lỗi có kiểm soát và trả về thông báo phù hợp để không làm gián đoạn vòng lặp agent.
+- Với tool có tác dụng phụ như `reading_list`, các thao tác nguy hiểm cần được kiểm soát ngay trong code, không chỉ dựa vào mô tả.
+- Cần đọc test mẫu và fixture có sẵn trước khi triển khai để tận dụng cơ chế kiểm thử ổn định, tránh phụ thuộc API thật.
