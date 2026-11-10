@@ -1,11 +1,12 @@
 ---
 name: reading_list
 track: core
-kind: local_knowledge
+kind: action
 requires_env: []
 inputs: [action, url, title, note, confirmed]
 outputs: [status, entry, entries, count]
 side_effect: local_file_write
+requires_confirmation: true   # only for action=clear (deletes the whole list)
 ---
 # reading_list
 
