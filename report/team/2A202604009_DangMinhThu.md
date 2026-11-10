@@ -17,7 +17,7 @@ và "test challenge".
 - Viết 4 tool mới: dedupe, filter_results, topic_stats, reading_list (tool.py, TOOL.md,
   đăng ký trong tools/__init__.py, khai báo trong artifacts/tools.yaml).
 - Viết 33 unit test cho 4 tool mới (happy path / input xấu / nhánh lỗi), offline.
-- Điền 14 stub test TODO của 8 tool có sẵn → pytest 131 passed, 0 skipped.
+- Điền 14 stub test TODO của 8 tool có sẵn → pytest 138 passed, 0 skipped.
 - Tìm và sửa 2 bug ở tool có sẵn (limit âm trong timeline/social_search; format crash khi
   item không phải dict), kèm test regression.
 - Gửi contract 4 tool cho nhóm trưởng để viết eval case.
@@ -33,7 +33,7 @@ và "test challenge".
     - `83d6d81` Add dedupe tool with 7 unit tests (CP3)
     - `206140f` Replace rank/extract_links/summarize_stats with filter_results, topic_stats, reading_list
     - `47c07d7` Fill TODO tests, fix timeline/social_search/format bugs + regression tests
-  - **Kết quả pytest:** `python -m pytest -q` → 131 passed, 0 skipped, 0 failed; `pytest tests/test_tool_contract.py` → 75 passed
+  - **Kết quả pytest:** `python -m pytest -q` → 138 passed, 0 skipped, 0 failed; `pytest tests/test_tool_contract.py` → 75 passed
 
 - AI/công cụ đã dùng và cách tự kiểm tra kết quả:
   - Sử dụng Claude Code như công cụ hỗ trợ viết unit test, rà soát code và phát hiện các trường hợp lỗi tiềm ẩn. Các đề xuất từ AI đều được tôi xem xét, đối chiếu và kiểm tra lại trước khi chấp nhận; việc đánh giá và xác nhận kết quả cuối cùng do tôi thực hiện.
@@ -56,7 +56,7 @@ và "test challenge".
 - Mỗi tool có `tool.py`, `TOOL.md`, đăng ký trong `TOOL_FUNCTIONS`, khai báo trong `tools.yaml`. `test_tool_contract.py` xanh (75 passed), nên tên và tham số khớp giữa các lớp.
 - Test đủ ba loại theo yêu cầu CP3: happy path, input xấu từ model (`None`, sai kiểu, `limit` dạng chuỗi), và nhánh lỗi. Tổng 33 test cho 4 tool (8–9 test/tool), chạy offline.
 - Tool trả error dict thay vì raise, và `reading_list` không ghi đè file JSON bị hỏng.
-- Điền xong 14 stub TODO; `pytest` đạt 131 passed, 0 skipped, 0 failed.
+- Điền xong 14 stub TODO; `pytest` đạt 138 passed, 0 skipped, 0 failed.
 - Tìm 2 bug trong tool có sẵn (`limit` âm trong `timeline`/`social_search` làm mất tweet cuối; `format` crash khi item không phải dict), đã sửa và có test regression. Các test này fail trên code cũ và pass sau khi sửa.
 
 **Hạn chế**
