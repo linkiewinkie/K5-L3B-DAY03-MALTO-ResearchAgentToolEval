@@ -98,11 +98,13 @@ Lấy từ `starter_v0/transcripts/*.transcript.json`.
 
 | Turn | User Request | Tool Calls | Version Evidence | Outcome |
 | ---- | ------------ | ---------- | ---------------- | ------- |
-| 1 — yêu cầu thường |              |            |                  |         |
-| 2 — thiếu thông tin |              |            |                  |         |
-| 3 — bổ sung thông tin |              |            |                  |         |
-| 4 — yêu cầu gửi/đăng |              |            |                  |         |
-| 5 — xác nhận gửi |              |            |                  |         |
+| 1 — yêu cầu thường | "Tin tức AI hôm nay có gì nổi bật?" | `lookup(query="AI", topic="news", timeframe="day")` | v3 | ✅ Trả lời tóm tắt tin AI trong ngày, có nguồn |
+| 2 — thiếu thông tin | "Tóm tắt 5 tweet mới nhất giúp mình" | `clarify(response_type="text")`: "Bạn muốn tóm tắt 5 tweet mới nhất từ tài khoản nào?" | v3 | ✅ Không đoán tài khoản, hỏi lại và giữ số lượng 5 |
+| 3 — bổ sung thông tin | "Của Andrej Karpathy nhé" | `timeline(screenname="karpathy", limit=5)` | v3 | ✅ Đổi tên sang handle đúng, giữ `limit=5` từ lượt trước |
+| 4 — yêu cầu gửi/đăng | "Đăng bản tin tóm tắt vừa rồi lên Telegram giúp mình" | `clarify(response_type="yes_no")`: "Bạn có muốn đăng nội dung tóm tắt tweet của Andrej Karpathy lên Telegram không?" | v3 | ✅ Không gửi ngay, hỏi xác nhận trước |
+| 5 — xác nhận gửi | "Có, đăng đi" | `send(text=..., confirmed=true)` → `status: sent` | v3 | ✅ Chỉ gửi sau khi người dùng xác nhận; tin đã lên channel Telegram của nhóm |
+
+Transcript: `starter_v0/transcripts/v3_openrouter_20261110T191419801552.transcript.json` (provider `openrouter`, model `openai/gpt-4o-mini`, `artifact_version` = `v3+pba7bced2b20e+t447fb12c0244`). Transcript chạy trên bản tích hợp (prompt/tools v3 + 4 tool mới của nhóm), nên `tools_hash` khác run eval v3.
 
 ### B5a. Required Evidence — Tool mới, unit test, UI
 
@@ -122,7 +124,7 @@ Chỉ điền nếu nhóm làm bonus (ghi riêng, tối đa 10 điểm). Tool c�
 | ------------------------------------------------ | ----------------- | ----------- | ---------------- |
 | Small Local Model                                | xem B7            |             |                  |
 | Hơn 3 tool mới (≥ 4)                          |                   |             |                  |
-| `send` gửi thật lên Telegram sau xác nhận | transcript        |             |                  |
+| `send` gửi thật lên Telegram sau xác nhận | `starter_v0/transcripts/v3_openrouter_20261110T191419801552.transcript.json` (turn 4–5) | Agent hỏi `clarify(response_type="yes_no")` → user "Có, đăng đi" → `send(confirmed=true)` → `status: sent`; tin đã lên private channel của nhóm | Tool `send` tự chặn khi `confirmed=false` (trả `needs_confirmation`, không gọi Telegram API); prompt v3 cấm gọi `send` trước khi user xác nhận |
 | Test challenge (0 skipped / regression test)     | `pytest` output |             |                  |
 
 Test challenge: số bug tìm được trong tool có sẵn (nếu có), cách sửa, và test regression tương ứng.
@@ -136,7 +138,8 @@ Chỉ điền nếu nhóm làm bonus này.
 | v0 | `openai/gpt-4o-mini` (openrouter) | v0 | 0.65 | 0.75 | 0.65 | 1.00 | `starter_v0/runs/v0_B_base_openrouter_20261110T170619040358.json` |
 | v0-local-qwen3b | `qwen2.5:3b` (ollama) | v0 | 0.35 | 0.50 | 0.35 | 0.50 | `starter_v0/runs/v0-local-qwen3b_B_base_ollama_20261110T184218499398.json` |
 | v0-local-llama3b | `llama3.2:3b` (ollama) | v0 | 0.15 | 0.20 | 0.15 | 0.17 | `starter_v0/runs/v0-local-llama3b_B_base_ollama_20261110T184443662952.json` |
-| v3 | `openai/gpt-4o-mini` (openrouter) | v3 |  |  |  |  |  |
+| v0-local-qwen7b | `qwen2.5:7b` (ollama) | v0 | 0.35 | 0.45 | 0.35 | 0.50 | `starter_v0/runs/v0-local-qwen7b_B_base_ollama_20261110T191142426377.json` |
+| v3 | `openai/gpt-4o-mini` (openrouter) | v3 | 0.95 | 1.00 | 0.95 | 1.00 | `starter_v0/runs/v3_B_base_openrouter_20261110T190626530147.json` |
 | v3-qwen3b | `qwen2.5:3b` (ollama) | v3 |  |  |  |  |  |
 | v3-llama3b | `llama3.2:3b` (ollama) | v3 |  |  |  |  |  |
 | v3-qwen7b | `qwen2.5:7b` (ollama) | v3 |  |  |  |  |  |

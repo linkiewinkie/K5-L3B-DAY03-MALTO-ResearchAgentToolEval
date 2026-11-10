@@ -1,0 +1,1898 @@
+{
+  "run_id": "v0-local-qwen7b_B_base_ollama_20261110T191142426377",
+  "version": "v0-local-qwen7b",
+  "artifact_version": "v0-local-qwen7b+pf0c107a9d7a1+t41a2894f8ad1",
+  "prompt_hash": "f0c107a9d7a14032c948d642d7c36f2a85cb6d69a099530093a874c94d472446",
+  "tools_hash": "41a2894f8ad1b5f1af946a1ebd34dc809faa05f187393d1fb770540a67c9074a",
+  "phase": "B",
+  "suite": "base",
+  "provider": "ollama",
+  "model": "qwen2.5:7b",
+  "system_prompt": "/Users/dauu/Documents/VinAIThucChien/Labs/K5-L3B-DAY03-MALTO-ResearchAgentToolEval/starter_v0/artifacts/system_prompt.md",
+  "tools": "/private/tmp/claude-501/-Users-dauu-Documents-VinAIThucChien-Labs-K5-L3B-DAY03-MALTO-ResearchAgentToolEval/38d3b86d-60ad-4691-b26f-18b332284cfa/scratchpad/exp_tools/tools_orig.yaml",
+  "eval_cases": "data/eval_base.json",
+  "dataset_id": "day03_v2_research_base",
+  "dataset_role": "base",
+  "description": "Core eval cho research agent: routing đúng tool + đúng args, hỏi lại khi thiếu (ask_user), xác nhận trước khi gửi, và xử lý câu ngoài phạm vi / không cần tool. Chấm trên tool_calls + args (subset). KHÔNG sửa file này — chỉ thêm case vào eval_group.json.",
+  "generated_at": "2026-11-10T19:11:42",
+  "summary": {
+    "total_cases": 20,
+    "measured_cases": 20,
+    "provider_error_cases": 0,
+    "passed_cases": 7,
+    "case_accuracy": 0.35,
+    "tool_routing_accuracy": 0.45,
+    "argument_accuracy": 0.35,
+    "multiturn_accuracy": 0.5,
+    "failure_counts": {
+      "wrong_tool": 4,
+      "wrong_arg_value": 4,
+      "out_of_scope": 2,
+      "missing_info": 2,
+      "wrong_boundary": 1
+    },
+    "observed_mismatch_counts": {
+      "wrong_arg_value": 2,
+      "missing_tool_call": 9,
+      "unexpected_tool_call": 2
+    }
+  },
+  "results": [
+    {
+      "id": "R01_user_tweets_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_user_tweets_name_to_handle",
+        "difficulty": "medium",
+        "what_it_tests": "Tin CỦA một người nổi tiếng → map tên Sam Altman thành handle sama rồi gọi get_user_tweets."
+      },
+      "input": "Tweet mới nhất của Sam Altman là gì?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "sama"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "samaltman",
+              "limit": 1
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "screenname: expected 'sama', got 'samaltman'"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "samaltman",
+            "limit": 1
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "error": "JSONDecodeError",
+            "message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "R02_search_tweets_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_search_tweets",
+        "difficulty": "easy",
+        "what_it_tests": "Tweet theo CHỦ ĐỀ → search_tweets, không phải get_user_tweets."
+      },
+      "input": "Mọi người đang bàn gì về GPT-5 trên Twitter?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "social_search",
+            "args": {}
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "GPT-5",
+              "limit": 5,
+              "search_type": "Latest"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "GPT-5",
+            "limit": 5,
+            "search_type": "Latest"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "GPT-5",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "https://t.co/BObVjrzKnR",
+                "summary": "https://t.co/BObVjrzKnR",
+                "url": "https://x.com/moocat999/status/2120126262983131289",
+                "source": "@moocat999",
+                "date": "Tue Nov 10 12:07:45 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "28"
+                }
+              },
+              {
+                "title": "あやめセンセのFable 5.2登場！😳 6じゃなく5.2と細かく刻んだのが面白いよね🐑💭 次はGPT-6 Astraの新版かも？って予想も気になるね🌟",
+                "summary": "あやめセンセのFable 5.2登場！😳 6じゃなく5.2と細かく刻んだのが面白いよね🐑💭 次はGPT-6 Astraの新版かも？って予想も気になるね🌟\nhttps://t.co/1wdy5hIA2J https://t.co/RxVTTMBQhU",
+                "url": "https://x.com/me_me_ayanome/status/2120126115800867040",
+                "source": "@me_me_ayanome",
+                "date": "Tue Nov 10 12:07:10 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "19"
+                }
+              },
+              {
+                "title": "1. Open Gemini / Grok / GPT Image 2.0",
+                "summary": "1. Open Gemini / Grok / GPT Image 2.0\n2. Upload your photo\n3. Copy the prompt\n4. Generate\n5. Prompt\nA 3d-realistic, cinematic portrait ofa handsome 25-year-old young man with a slim, athletic build, sitting at a glass table on an outdoor rooftop cafe during sunset. He has stylishly messy black hair and a well-groomed beard, resting his chin thoughtfully on his hand. He is wearing a tailored black blazer over a partially unbuttoned black shirt, styled with a silver chain necklace and a luxury silver watch. A deep red rose is pinned to his blazer lapel. On the table in front of him rests a high-end smartphone, like an iPhone 17 Pro Max. The background features a beautiful, blurred cityscape with warm, glowing string lights creating a perfect bokeh eff DSLR quality, 8k resolution, shot on an 85mm lens, cine\n\nlighting",
+                "url": "https://x.com/ShamshadMa75100/status/2120125932438749261",
+                "source": "@ShamshadMa75100",
+                "date": "Tue Nov 10 12:06:26 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 1,
+                  "views": "11"
+                }
+              },
+              {
+                "title": "【Claude Fable 5.2 の effort を high から max に上げたら、トークンも時間も約4倍、見つけたバグの数は同じでした】",
+                "summary": "【Claude Fable 5.2 の effort を high から max に上げたら、トークンも時間も約4倍、見つけたバグの数は同じでした】\n\nhigh・xhigh・max の3つで同じ問題を解かせた、自前の実験の結果です\n\nClaude Codeには「effort（エフォート）」という設定があります\nAIにどれだけ念入りに作業させるかを選ぶ物で、上げるほどトークンも時間もかかります\n\nmax は、トークンの消費が半端ないです\n普段から max にしている人は、少ないと思います\n\nでは、その分だけ結果は良くなるのか\nそこを確かめました\n\n先に結果を書きます\n\n・見つけたバグの数は、3つとも同じでした（全部見つけてます）\n・変わったのはトークンと時間で、max は high の約4倍\n・細かい所の質は、上の設定の方が少し良かった\n・費用と質のバランスが一番良かったのは、真ん中の xhigh\n\nただ、各設定2回ずつの小さな実験です\n「max は無駄」とまでは言えません\nその理由も書きます\n\n▼どうやって比べたか\n\n問題は、別の会社のAIに作らせました\nOpenAIの GPT-6 Astra です\n\nClaudeの系統のAIが出題すると、Claudeが見落としやすい所と重なって、甘い試験になるからです\n\n仕込んだバグは、全部プログラムを実際に動かして、本物だと確かめてあります\n\n解く側は、Claude Codeを画面なしで自動実行して、ファイルを読む道具だけを使わせました\n\n採点は、誰の答えかを伏せた上で、GPT-6 Astra と Claude Opus 5.5 が別々にやってます\n解く側が正解表を一度も読んでいない事も、実行の記録で確かめました\n\n同じ問題を設定ごとに2回ずつ、全部で24回です\n\n▼まず、普通の難しさで\n\nECサイトの決済のコードに、バグを10個仕込みました\n「正しいのに怪しく見える」ひっかけも3個入れてます\n\n結果は、3つとも10個全部を発見\nひっかけを間違って指摘した回数もゼロでした\n\n障害の原因を当てる問題も、3つとも正解です\n\nこれでは差が分からないので、難しくして作り直しました\n\n▼次に、かなり難しくして\n\n約750行のコードに、バグを14個\nひっかけは5個です\n\n14個のうち4個は、出題したAIが「熟練者が1回読んで見つけられるのは30%程度」と見込んだ物でした\n夏時間に切り替わる日の時刻の比較や、同時に書き込んだ時の失敗などです\n\nもう1問は、543行の生のログから障害の原因を突き止める問題\n2台のサーバーの時計が約87秒ずれていて、答えをまとめた行は1行もありません\n\nそれでも、3つとも14個全部を発見\nログの問題も、採点した8項目が全部正解でした\n\n3つの中で一番軽い high が、2回とも全部見抜いてます\n\n▼違ったのは、トークンと時間\n\n難しくした方のコードの問題、1回あたりの数字です\n\n・high　出力 約2.3万トークン、約4.2分\n・xhigh　出力 約5.1万トークン、約8.8分\n・max　出力 約10.9万トークン、約18分\n\nmax は high と比べて、トークンが約4.7倍、時間が約4.3倍です\n問題によって幅があって、トークンは約3.6〜4.7倍、時間は約3.5〜4.3倍でした\n\nトークンは、AIが読み書きする量の単位です\n料金や使用量の元になります\n\nAPIの定価に直すと、1回あたり high が約1.2ドル、xhigh が約2.4ドル、max が約5.0ドルでした\n定額のプランなら、この金額が請求されるわけではないです\n\n▼差が出たのは、細かい所\n\n1つ目は、バグの深刻さの付け方です\n正解表と合っていた割合は、平均で high が約58%、xhigh が約72%、max が約77%でした\n\n2つ目は、ログを引用する時の正確さです\n引用の誤りは、全体で high が9件、xhigh が5件、max が3件でした（GPT-6 Astraの判定）\n\nただ、xhigh と max の差は小さいです\n深刻さの付け方は、普通の難しさの方では max、難しくした方では xhigh の方が合っていて、順番が入れ替わってます\n\n▼やってみて面白かった事\n\nmax だけ、読み直しが増えてました\nログの問題で、ファイルを読むなどのやり取りは、high と xhigh が16回、max が25回です\nそれでも、結論の正しさは変わりませんでした\n\nもう1つは、採点するAIにも好みが出た事です\n答えの中に「9月にも同じ問題が起きていたはず」という、証拠から一歩踏み込んだ推測がありました\nClaudeは役に立つ警告として加点して、GPT-6 Astraは根拠を超えた推測として減点してます\n\n▼この実験で言えない事\n\n・各設定2回ずつ、全部で24回の小さな実験です\n・問題は人工的に作った物なので、実際のコード全部に当てはまるとは限りません\n・難しくしても high が満点だったので、「max でないと解けない難しさ」は測れていません\n・深刻さの正解は、出題したAI 1つの判断です\n・時間は、3〜6本を同時に動かした時の値です（3つは常に同時に動かしたので、比べる条件はそろってます）\n・high より下の設定は、比べていません\n\nなので「max は無駄」とは言えません\n言えるのは、「この問題では、設定を上げても見つかる数は増えなかった」までです\n\n正直、「max は無駄でした」と言い切った方が伸びると思います\nでも、そこまで言える実験ではないので言いません\n\n▼公式の説明とも合ってました\n\nAnthropicの公式の説明では、effort は「考える深さ」だけの設定ではないです\n返答の文章にも、ファイルを読むなどの道具の呼び出しにも、考える量にも影響する、とされてます\n\nmax だけ読み直しが増えたのは、この説明と合ってます\n\nClaude Codeの公式の説明には、max は効果が頭打ちになる事があって、考え過ぎる傾向があるので、広く使う前に試すように、とも書かれてます\n\n今回は、それを自分の問題で確かめた形です\n\n▼来そうな質問に先に答えておきます\n\n「じゃあ high で十分？」\n→ 見つける数は同じでしたが、深刻さの付け方や引用の正確さは、上の設定の方が少し良かったです\nいつも high で良い、とは言えません\n\n「定額のプランなら、トークンは気にしなくていい？」\n→ 金額は請求されませんが、時間は約4倍かかります\n公式の説明でも、effort を上げるほど使用量の上限に早く届く、とされてます\n\n「AIが作った問題を、AIが採点して意味がある？」\n→ そこは弱い所です\nなので、出題と採点を別の会社のAIにして、誰の答えかを伏せました\nバグが本物かどうかは、プログラムを動かして確かめてあります\n\n▼まとめ\n\n・Claude Fable 5.2 の effort を、high・xhigh・max で比べた（全24回）\n・見つけたバグの数は、3つとも同じ\n・max は high の約4倍のトークンと時間がかかった\n・細かい所の質は上の設定が少し良く、バランスは xhigh が一番良かった\n・小さな実験なので、「max は無駄」とは言えない\n\n「ここは max でないと駄目だった」という場面があれば、教えてください",
+                "url": "https://x.com/omurice_brand/status/2120125821226762326",
+                "source": "@omurice_brand",
+                "date": "Tue Nov 10 12:06:00 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 0,
+                  "views": "54"
+                }
+              },
+              {
+                "title": "@ansoku_labo 変化については存じ上げないですが、最近の（GPT-5.xやOpus4.6以降くらい？）LLMの傾向として、話し言葉でよく使う表現を書き言葉に使ったり、キャッチコピーを作る時に妙に抽象的な言葉を使ったりすることがよく",
+                "summary": "@ansoku_labo 変化については存じ上げないですが、最近の（GPT-5.xやOpus4.6以降くらい？）LLMの傾向として、話し言葉でよく使う表現を書き言葉に使ったり、キャッチコピーを作る時に妙に抽象的な言葉を使ったりすることがよく見られると考えています。",
+                "url": "https://x.com/ahamushi/status/2120125566280208627",
+                "source": "@ahamushi",
+                "date": "Tue Nov 10 12:04:59 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "13"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R03_web_news_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_web_news",
+        "difficulty": "medium",
+        "what_it_tests": "Tin thời sự trên web → web_search topic=news, timeframe=day (hôm nay)."
+      },
+      "input": "Tin tức AI hôm nay có gì nổi bật?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "AI",
+              "topic": "news",
+              "timeframe": "day"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "search_type": "Latest",
+              "query": "AI hôm nay",
+              "limit": 5
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "missing tool call lookup",
+          "extra tool call social_search"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "search_type": "Latest",
+            "query": "AI hôm nay",
+            "limit": 5
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "AI hôm nay",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "Hôm nay ai rảnh cho e ngậm cu cả đêm khôm",
+                "summary": "Hôm nay ai rảnh cho e ngậm cu cả đêm khôm",
+                "url": "https://x.com/XuEmma0/status/2120124839432438177",
+                "source": "@XuEmma0",
+                "date": "Tue Nov 10 12:02:06 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 0,
+                  "views": "23"
+                }
+              },
+              {
+                "title": "TÔI CHỤP MỘT QUẢ BÍ NGÔ.",
+                "summary": "TÔI CHỤP MỘT QUẢ BÍ NGÔ.\nHôm nay mình muốn khoe với mọi người một bức ảnh mình vừa chụp được.\nChỉ là một quả bí ngô thôi nhưng ánh sáng và màu sắc lên hình nhìn khá ưng mắt.\nĐôi khi những thứ giản dị quanh mình lại mang đến cảm hứng chụp ảnh bất ngờ.\nMình thích cảm giác ngắm lại tấm ảnh và thấy được cái không khí của khoảnh khắc đó.\nCả nhà thấy thế nào, có ai cũng mê chụp mấy thứ nhỏ nhỏ như này không.",
+                "url": "https://x.com/haidaulau/status/2120120678611665356",
+                "source": "@haidaulau",
+                "date": "Tue Nov 10 11:45:34 +0000 2026",
+                "metrics": {
+                  "favorites": 2,
+                  "retweets": 0,
+                  "views": "22"
+                }
+              },
+              {
+                "title": "Chào buổi tối anh em 🌙",
+                "summary": "Chào buổi tối anh em 🌙\n\nHôm nay mình lướt newfeed thấy nhiều người than là build X mãi mà follower tăng chậm quá, có lúc đăng bài cả ngày không ai thèm tương tác.\n\nMình cũng từng như vậy đó.\n\nCó những ngày ngồi nghĩ mãi không biết viết gì, có ngày viết xong rồi xóa vì sợ không hay.\n\nNhưng cứ mỗi tối mình vẫn cố gõ vài dòng, reply vài người, hoặc đơn giản là vào tương tác với anh em đang cùng build.\n\nKhông phải vì hy vọng hôm nay sẽ tăng bao nhiêu follower, mà là để mai mốt nhìn lại còn thấy mình đã không bỏ cuộc.\n\nCrypto thì lúc nào cũng có kèo, nhưng kênh X của mình thì chỉ có mình tự build được thôi 🤭\n\nAnh em đang build thì cố lên nhé, đừng so với người khác làm gì. Mình cũng đang cố đây ✊\n\n@rarelistio",
+                "url": "https://x.com/Saiyanwarriorss/status/2120119429795401903",
+                "source": "@Saiyanwarriorss",
+                "date": "Tue Nov 10 11:40:36 +0000 2026",
+                "metrics": {
+                  "favorites": 2,
+                  "retweets": 0,
+                  "views": "27"
+                }
+              },
+              {
+                "title": "Hỗm giờ 3 ngày chưa sục tối nay ai xem tui sục id",
+                "summary": "Hỗm giờ 3 ngày chưa sục tối nay ai xem tui sục id",
+                "url": "https://x.com/hhddep8l/status/2120114571667001676",
+                "source": "@hhddep8l",
+                "date": "Tue Nov 10 11:21:18 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "5"
+                }
+              },
+              {
+                "title": "Yêu lấy bản thân mình trước khi chờ đợi ai đó yêu thương",
+                "summary": "Yêu lấy bản thân mình trước khi chờ đợi ai đó yêu thương\nHôm nay trời đẹp thế, chắc chắn sẽ gặp được nhiều điều vui https://t.co/WRjTQj8L0j",
+                "url": "https://x.com/NguynBAnph/status/2120113740553330707",
+                "source": "@NguynBAnph",
+                "date": "Tue Nov 10 11:18:00 +0000 2026",
+                "metrics": {
+                  "favorites": 8,
+                  "retweets": 1,
+                  "views": "204"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R04_read_url_routing",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_read_url",
+        "difficulty": "easy",
+        "what_it_tests": "Đã có link cụ thể → read_url, không phải web_search."
+      },
+      "input": "Tóm tắt bài này giúp mình: https://openai.com/blog/gpt-5",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://openai.com/blog/gpt-5"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://openai.com/blog/gpt-5"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "fetch",
+          "args": {
+            "url": "https://openai.com/blog/gpt-5"
+          },
+          "result": {
+            "tool": "read_url",
+            "url": "https://openai.com/blog/gpt-5",
+            "items": [
+              {
+                "title": "OpenAI",
+                "url": "https://openai.com/blog/gpt-5",
+                "source": "openai.com",
+                "summary": "OpenAI\n\n# 404\n\nSearch finds no result\n\nThe question still earns its keep\n\nAsk it a new way\n\nby [gpt-6-astra(opens in a new window)](https://chatgpt.com/?surface=work&model=gpt-6-astra-wm&openaicom-did=52cdc990-ae75-4748-bf07-215286d35858&openaicom_referred=true)"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R05_limit_arg",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_limit",
+        "difficulty": "easy",
+        "what_it_tests": "Trích đúng limit=10 từ '10 tweet'."
+      },
+      "input": "Lấy 10 tweet mới nhất của Elon Musk",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 10
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 10
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "elonmusk",
+            "limit": 10
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "screenname": "elonmusk",
+            "items": [
+              {
+                "title": "RT @XFreeze: Elon Musk just revealed a massive update on Grok 4.8, and SpaceXSI has completely rebuilt its reinforcement",
+                "summary": "RT @XFreeze: Elon Musk just revealed a massive update on Grok 4.8, and SpaceXSI has completely rebuilt its reinforcement learning and infer…",
+                "url": "https://x.com/elonmusk/status/2120102894817173862",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:34:54 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 198,
+                  "views": "463443"
+                }
+              },
+              {
+                "title": "Turns out that the Starlink software, built for managing the movement of vast amounts of data through space and to the g",
+                "summary": "Turns out that the Starlink software, built for managing the movement of vast amounts of data through space and to the ground, is also very well suited to training super intelligence",
+                "url": "https://x.com/elonmusk/status/2120102767624880364",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:34:24 +0000 2026",
+                "metrics": {
+                  "favorites": 16574,
+                  "retweets": 1375,
+                  "views": "981782"
+                }
+              },
+              {
+                "title": "RT @XFreeze: Elon Musk just revealed something huge about Grok's new SI training and inference infrastructure",
+                "summary": "RT @XFreeze: Elon Musk just revealed something huge about Grok's new SI training and inference infrastructure\n\nThe engineering behind Starl…",
+                "url": "https://x.com/elonmusk/status/2120101380144992635",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:28:53 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 126,
+                  "views": "415265"
+                }
+              },
+              {
+                "title": "RT @beffjezos: Taking the Shinkansen and all I can think about is how do we not have this between SF and LA...",
+                "summary": "RT @beffjezos: Taking the Shinkansen and all I can think about is how do we not have this between SF and LA...\n\n if only you knew how great…",
+                "url": "https://x.com/elonmusk/status/2120090806765932705",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 09:46:52 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 105,
+                  "views": "476481"
+                }
+              },
+              {
+                "title": "RT @TheCaptainEli: In February 2004 Elon Musk wrote the check that put Tesla Motors on the road: $6.5 million of a $7.5 ",
+                "summary": "RT @TheCaptainEli: In February 2004 Elon Musk wrote the check that put Tesla Motors on the road: $6.5 million of a $7.5 million Series A, p…",
+                "url": "https://x.com/elonmusk/status/2120082348398256182",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 09:13:15 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 184,
+                  "views": "490628"
+                }
+              },
+              {
+                "title": "RT @MegynKellyShow: .@MegynKelly on the absolute double standard in the Russell Brand sentencing: “If you needed any fur",
+                "summary": "RT @MegynKellyShow: .@MegynKelly on the absolute double standard in the Russell Brand sentencing: “If you needed any further proof that thi…",
+                "url": "https://x.com/elonmusk/status/2119996001490768028",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 03:30:09 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 1434,
+                  "views": "579262"
+                }
+              },
+              {
+                "title": "RT @firesidealpha: JUST IN: Memphis Mayor reveals SpaceX data center taxes more than doubled to $54 million, after $25 m",
+                "summary": "RT @firesidealpha: JUST IN: Memphis Mayor reveals SpaceX data center taxes more than doubled to $54 million, after $25 million last year ma…",
+                "url": "https://x.com/elonmusk/status/2119993726898774521",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 03:21:06 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 452,
+                  "views": "504478"
+                }
+              },
+              {
+                "title": "RT @ricwe123: The Germans are learning what mass immigration really means.",
+                "summary": "RT @ricwe123: The Germans are learning what mass immigration really means.\n\n\"Wir schaffen das\" https://t.co/pEQc1OMbao",
+                "url": "https://x.com/elonmusk/status/2119992481156829218",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 03:16:09 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 2469,
+                  "views": "483522"
+                }
+              },
+              {
+                "title": "RT @JTLonsdale: The UK “justice system” is an utter joke. Beyond parody. Total dishonor.",
+                "summary": "RT @JTLonsdale: The UK “justice system” is an utter joke. Beyond parody. Total dishonor.",
+                "url": "https://x.com/elonmusk/status/2119991850820051347",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 03:13:39 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 370,
+                  "views": "458139"
+                }
+              },
+              {
+                "title": "RT @TheJadeWarwick: UK judge gives Russel Brand 10 years 6 months for “rape”. ",
+                "summary": "RT @TheJadeWarwick: UK judge gives Russel Brand 10 years 6 months for “rape”. \nNo forensic evidence. No DNA. No CCTV. \n\nSame country and sy…",
+                "url": "https://x.com/elonmusk/status/2119991792842260619",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 03:13:25 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 870,
+                  "views": "425990"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R06_timeframe_arg",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_timeframe",
+        "difficulty": "medium",
+        "what_it_tests": "'tuần này' → timeframe=week."
+      },
+      "input": "Tin công nghệ trong tuần này",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "topic": "news",
+              "timeframe": "week"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "tin công nghệ trong tuần",
+              "limit": 5,
+              "search_type": "Latest"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "missing tool call lookup",
+          "extra tool call social_search"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "tin công nghệ trong tuần",
+            "limit": 5,
+            "search_type": "Latest"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "tin công nghệ trong tuần",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "VIR BIOTECHNOLOGY TĂNG HƠN 20% SAU KHI THUỐC ĐIỀU TRỊ VIÊM GAN DELTA ĐẠT KẾT QUẢ TÍCH CỰC",
+                "summary": "VIR BIOTECHNOLOGY TĂNG HƠN 20% SAU KHI THUỐC ĐIỀU TRỊ VIÊM GAN DELTA ĐẠT KẾT QUẢ TÍCH CỰC\n\nMột tin vui lớn vừa xuất hiện trong lĩnh vực công nghệ sinh học.\n\nVir Biotechnology (VIR) công bố thử nghiệm lâm sàng giai đoạn 3 ECLIPSE 1 đã đạt mục tiêu chính với liệu pháp kết hợp elebsiran và tobevibart, điều trị viêm gan D mạn tính.\n\n44% bệnh nhân đạt đồng thời hai tiêu chí: virus không còn phát hiện được và men gan ALT trở về bình thường sau 48 tuần.\nNhóm đối chứng ghi nhận tỷ lệ 0%.\nDữ liệu từ thử nghiệm giai đoạn 2 SOLSTICE cũng cho thấy hiệu quả duy trì tích cực.\n\nViêm gan D là bệnh lý nghiêm trọng, thường chỉ xuất hiện ở người đã nhiễm viêm gan B. Hiện nay, lựa chọn điều trị vẫn còn hạn chế.\n\nNếu được cơ quan quản lý phê duyệt, liệu pháp này có thể mở ra một thị trường điều trị mới cho Vir Biotechnology.\n\nCông ty dự kiến nộp hồ sơ xin phê duyệt vào giữa năm 2027. Thuốc cũng đã nhận các chương trình hỗ trợ như Breakthrough Therapy và Fast Track.\n\nPhản ứng thị trường: Cổ phiếu VIR tăng khoảng 11–22% trước giờ mở cửa.",
+                "url": "https://x.com/TobyNMT/status/2120097886914682959",
+                "source": "@TobyNMT",
+                "date": "Tue Nov 10 10:15:00 +0000 2026",
+                "metrics": {
+                  "favorites": 4,
+                  "retweets": 0,
+                  "views": "165"
+                }
+              },
+              {
+                "title": "QUỐC HỘI BƯỚC VÀO TUẦN CHẤT VẤN: AI PHẢI TRẢ LỜI NHỮNG VẤN ĐỀ NGƯỜI DÂN CHỜ ĐỢI?",
+                "summary": "QUỐC HỘI BƯỚC VÀO TUẦN CHẤT VẤN: AI PHẢI TRẢ LỜI NHỮNG VẤN ĐỀ NGƯỜI DÂN CHỜ ĐỢI?\n\nTừ ngày 9–13/11/2026, Quốc hội khóa XVI bước vào tuần làm việc thứ năm của Kỳ họp thứ hai. Đáng chú ý, ngày 12/11 sẽ diễn ra phiên chất vấn và trả lời chất vấn, với hai lĩnh vực trọng tâm là tài chính và khoa học – công nghệ. Hai người trả lời chính là Bộ trưởng Bộ Tài chính Ngô Văn Tuấn và Bộ trưởng Bộ Khoa học và Công nghệ Vũ Hải Quân; Thủ tướng hoặc Phó Thủ tướng được ủy quyền cũng sẽ trực tiếp trả lời chất vấn.\n\nĐây không chỉ là một phiên họp thường kỳ. Đó là dịp để những vấn đề tồn đọng lâu nay được đưa ra trước Quốc hội, nơi các bộ trưởng phải giải trình về chính sách, tiến độ và trách nhiệm quản lý. Nhưng điều người dân chờ đợi không đơn thuần là những câu trả lời tròn trịa, mà là lời giải cho những vấn đề đã được phản ánh nhiều lần nhưng vẫn chưa có chuyển biến rõ rệt.\n\nVới Bộ trưởng Bộ Tài chính, câu hỏi lớn nhất là: Vì sao tiền ngân sách đã bố trí nhưng nhiều công trình vẫn chậm tiến độ, trong khi người dân tiếp tục phải chờ những hạ tầng thiết yếu?\n\nHàng loạt dự án đầu tư công kéo dài, đội vốn, chậm giải ngân đã trở thành câu chuyện không mới. Ngay tại Nghệ An, dự án tái định cư Châu Khê được phê duyệt từ năm 2011 với tổng vốn hơn 63,5 tỷ đồng, nhưng sau 15 năm vẫn chưa hoàn thành. Nhiều hạng mục thiết yếu như đường giao thông, thoát nước, điện và công trình công cộng còn dang dở. Người dân vùng có nguy cơ sạt lở vẫn phải chờ nơi ở an toàn. Đây là ví dụ điển hình cho câu hỏi về hiệu quả sử dụng vốn đầu tư công: tiền đã được đưa vào dự án, nhưng mục tiêu phục vụ người dân vẫn chưa đạt được.\n\nVấn đề càng đáng chú ý khi theo báo cáo của Bộ Tài chính, đến hết tháng 10/2026, tổng vốn đầu tư công đã giải ngân đạt 708.567 tỷ đồng, tương đương 74,1% kế hoạch Thủ tướng giao. Như vậy, vẫn còn khoảng 247.300 tỷ đồng chưa được giải ngân.\n\nĐáng nói, Bộ Khoa học và Công nghệ nằm trong nhóm cơ quan có tỷ lệ giải ngân dưới 15%, thậm chí được chấm 38,47/100 điểm về kết quả giải ngân kế hoạch vốn năm 2026.\n\nVì sao ngân sách dành cho phát triển vẫn còn đó, trong khi nhiều địa phương, đơn vị và người dân đang cần những công trình thiết yếu? Ai chịu trách nhiệm khi vốn được phân bổ nhưng dự án không thể triển khai đúng tiến độ?\nVới Bộ trưởng Bộ Khoa học và Công nghệ, vấn đề không chỉ là chuyển đổi số hay phát triển trí tuệ nhân tạo, mà còn là hiệu quả thực chất của những khoản đầu tư cho khoa học.\n\nTheo thông tin được công bố, nguồn thu từ hoạt động khoa học, công nghệ mới chiếm khoảng 4,94% tổng nguồn thu của các trường đại học. Trong danh mục hơn 1.000 sản phẩm công nghệ của 41 đơn vị, mới có 334 sản phẩm đạt mức sẵn sàng chuyển giao từ cấp độ 7-9; còn 484 sản phẩm chưa xác định được mức độ sẵn sàng. Điều đó đặt ra câu hỏi về khoảng cách giữa nghiên cứu trong phòng thí nghiệm và sản phẩm thực sự phục vụ đời sống, sản xuất.\n\nChưa kể, chuyển đổi số vẫn là nỗi vất vả của không ít người dân: dữ liệu chưa liên thông, phần mềm phân tán, thủ tục trực tuyến nhưng vẫn phải bổ sung giấy tờ, đi lại nhiều lần. AI được kỳ vọng tạo đột phá, nhưng vấn đề bảo vệ dữ liệu cá nhân, an toàn thông tin và trách nhiệm khi công nghệ gây ra sai sót cũng không thể xem nhẹ.\n\nMột phiên chất vấn chỉ diễn ra trong một ngày, nhưng những vấn đề được đưa ra đã tồn tại qua nhiều năm. Vì vậy, điều cử tri cần theo dõi không chỉ là bộ trưởng trả lời thế nào, mà còn là sau chất vấn, bao nhiêu dự án được tháo gỡ, bao nhiêu đồng vốn được sử dụng hiệu quả, bao nhiêu thủ tục được đơn giản hóa và bao nhiêu cam kết được thực hiện.\n\nTheo mọi người, sau mỗi phiên chất vấn, Quốc hội cần có cơ chế nào để theo dõi đến cùng việc thực hiện cam kết của bộ trưởng, thay vì để những vấn đề người dân phản ánh hôm nay tiếp tục trở thành nội dung chất vấn ở những kỳ họp năm sau?\n\nSan San\n\n#chatvan #traloidan #quochoi #chantroimoi",
+                "url": "https://x.com/chantmmedia/status/2120094122664984942",
+                "source": "@chantmmedia",
+                "date": "Tue Nov 10 10:00:02 +0000 2026",
+                "metrics": {
+                  "favorites": 3,
+                  "retweets": 0,
+                  "views": "77"
+                }
+              },
+              {
+                "title": "MƯA GIÓ CHÁN QUÁ NÊN LÊN ĐÂY CHIA SẺ CHÚT VỀ CÁCH MÌNH SỐNG.",
+                "summary": "MƯA GIÓ CHÁN QUÁ NÊN LÊN ĐÂY CHIA SẺ CHÚT VỀ CÁCH MÌNH SỐNG.\nMình 31 tuổi, ở tỉnh nhỏ, thu nhập 15-18 triệu mỗi tháng, làm 6-8 tiếng một ngày, 6 ngày một tuần, vẫn ở nhà bố mẹ.\nHọc xong cao học, được đào tạo về hai ngành khác nhau và đã làm nhiều năm ở cả hai mảng.\nPhải nói thật là với nền tảng đó mình mới có dư địa để điều chỉnh lối sống theo ý mình.\nChứ nếu không có chỗ ở, không có xe thì chưa chắc mình đã làm được như bây giờ.\nMình gọi đây là kiểu nằm thẳng nhưng không hẳn nằm thẳng, vì vẫn làm việc, vẫn có nguyên tắc, chỉ là không chạy theo những thứ mình thấy vô nghĩa.\nCông việc thì mình chọn loại tạo ra giá trị thật và trả công xứng đáng, trong khả năng của mình thì thêm được phần giá trị gia tăng nào hay phần đó.\nMình không vay nợ, không dùng tín dụng để mua nhà, mua xe hay xa xỉ phẩm, cũng không cho ai vay tiền.\nBảo hiểm thì chỉ mua y tế, không tham gia bảo hiểm xã hội hay nhân thọ.\nMỗi tháng mình mua vàng nhẫn và trích thu nhập bỏ vào vài sổ tiết kiệm, tháng dư nhiều bỏ nhiều, tháng dư ít bỏ ít, thuế thì đóng đầy đủ.\nĐồ thiết yếu như điện thoại, máy tính, quần áo, giày dép, mỹ phẩm thì mình đặt giá trần, không bao giờ mua nguyên giá, cũng không mua chỉ vì thấy rẻ mà không phục vụ được gì cho mình.\nMình xây một tủ quần áo cá nhân đủ cho các tình huống cơ bản, vui thì tự thưởng một chai dầu thơm.\nQuan hệ xã hội thì tối giản tối đa, không nhậu nhẹt trừ khi là bạn rất thân, rất lâu mới gặp.\nĂn uống có chế độ rõ ràng, kiểm soát calo, mỗi tuần thưởng một bữa ngon ở ngoài.\nƯu tiên đồ chưa qua chế biến công nghiệp, ít gia vị, ít dầu mỡ, vận động vừa phải để tăng NEAT, uống nhiều nước và ưu tiên giấc ngủ sâu.\nHobby thì mình chọn mấy thứ khó bị ảnh hưởng bởi chủ nghĩa tiêu thụ như phim, nhạc, sách, triết học Spinoza, Adam Smith, và viết tay.\nCòn một điều nữa là mình không để mấy đại tự sự như tổ quốc, quê hương, yêu nước, tình bạn cao cả hay tình yêu của đời mình chi phối cách sống nữa.\nThay vào đó mình theo đuổi các mối quan hệ vị lợi trên cơ sở không chà đạp nhau, cả hai bên đều mang lại giá trị cho nhau và không vượt ranh giới của nhau, nếu không thì mình loại bỏ.\nAi đọc đến đây thì cảm ơn nhiều, mình rất muốn nghe quan điểm sống của mọi người.",
+                "url": "https://x.com/haidaulau/status/2120092089547636964",
+                "source": "@haidaulau",
+                "date": "Tue Nov 10 09:51:58 +0000 2026",
+                "metrics": {
+                  "favorites": 3,
+                  "retweets": 1,
+                  "views": "70"
+                }
+              },
+              {
+                "title": "🇨🇳 五国：同学聚会回来以后，偷偷重新考虑的人生选择 TOP10",
+                "summary": "🇨🇳 五国：同学聚会回来以后，偷偷重新考虑的人生选择 TOP10\n🇯🇵 5か国：同窓会から帰った後、ひそかに考え直した人生の選択 TOP10\n🇰🇷 5개국: 동창 모임에서 돌아온 뒤 혼자 다시 생각해 본 인생의 선택 TOP10\n🇻🇳 5 quốc gia: Những lựa chọn cuộc đời âm thầm nghĩ lại sau buổi họp lớp TOP10\n🇺🇸 Five Countries: Life Choices You Quietly Reconsider After a Class Reunion TOP10\n🇨🇳 中国\n按居住、工作、关系和个人时间，选出十个虚构自省场景。不是调查排名，也不把聚会上的近况片段当作任何人的完整人生。\n1）究竟想在哪座城市生活 | どの街で暮らしたいか | 어느 도시에서 살고 싶은지 | Thực sự muốn sống ở thành phố nào | Which city you want to live in\n有人换了城市，有人一直没走。回去路上，你重新问自己：现在留下，是因为喜欢这里，还是一直没认真想过别处？\n2）还想不想继续这个行业 | 今の業界で働き続けたいか | 이 업계에서 계속 일하고 싶은지 | Có muốn tiếp tục ngành hiện tại không | Whether to stay in your industry\n同学讲起一次转行，没有讲成逆袭故事。你却记住了他怎么做出决定，回家翻出了自己搁置很久的念头。\n3）能接受怎样的工作节奏 | どんな働くペースなら続けられるか | 어떤 업무 속도로 살아갈 수 있는지 | Chấp nhận nhịp làm việc thế nào | What pace of work you can live with\n饭桌上有人一直回消息，也有人提前离开。你没有判断谁更成功，只开始想，自己希望一个普通晚上是什么样子。\n\n4）还想重新学什么 | 今から何を学びたいか | 지금 다시 무엇을 배우고 싶은지 | Còn muốn học lại điều gì | What you still want to learn\n以前不爱发言的同学，讲起最近学的东西很投入。你回家后搜了搜那个一直想学、却总说以后再说的领域。\n5）住得大还是离生活近 | 広さと暮らしやすい距離のどちらを求めるか | 넓이와 생활의 거리 중 무엇을 원하는지 | Muốn nhà rộng hay gần cuộc sống thường ngày | More space or being closer to daily life\n聊到住处，你原本只会比较大小。听完不同的日常，才发现自己还在意通勤、朋友，以及下楼后有没有想去的地方。\n\n6）怎样把时间留给家人 | 家族との時間をどうつくるか | 가족과 시간을 어떻게 나눌지 | Dành thời gian cho gia đình thế nào | How to make time for family\n有人随口讲起最近和家人一起做的小事。你没有立刻许下大计划，只发现自己又把一次想打的电话拖了很久。\n7）哪些友谊值得主动联系 | どの友人に自分から連絡したいか | 어떤 친구에게 먼저 연락하고 싶은지 | Muốn chủ động giữ liên lạc với ai | Which friendships you want to maintain\n聚会时聊得最舒服的，未必是以前最常坐在一起的人。回来后，你第一次不等群里热闹，单独给对方发了条消息。\n8）要不要给爱好留固定时间 | 趣味の時間を予定に入れるか | 취미 시간을 일정에 넣을지 | Có dành thời gian cố định cho sở thích không | Whether to make regular time for a hobby\n你原本以为别人也只是偶尔玩玩。听见对方每周都留一点时间，才发现自己并不是没兴趣，而是从没把它排进日程。\n9）生活要展示到什么程度 | 暮らしをどこまで人に見せたいか | 내 생활을 어디까지 보여 주고 싶은지 | Muốn chia sẻ cuộc sống đến mức nào | How much of your life you want to show\n有人近况发得多，有人几乎不更新，坐下来却各有很多故事。你重新想了想，哪些事情想分享，哪些只想自己好好过。\n10）还要不要用同一把尺子 | 同じ物差しで比べ続けたいか | 같은 기준으로 계속 비교할지 | Có tiếp tục so bằng cùng một thước đo không | Whether to keep using the same measure\n散场时，你发现大家已经走进不同的生活。以前拿来比较的几项数字，忽然装不下这一桌人，也装不下现在的自己。\n聚会结束后，你最容易重新考虑哪件事？有没有一个念头，不是想超过谁，而是想让自己的日子更合意一点？\n\n🇯🇵 日本\n住む場所、仕事、人との関係、自分の時間から選んだ十の架空の内省場面です。調査による順位ではなく、同窓会で聞いた近況だけで誰かの人生全体を判断するものでもありません。\n\n1）どの街で暮らしたいか | 究竟想在哪座城市生活 | 어느 도시에서 살고 싶은지 | Thực sự muốn sống ở thành phố nào | Which city you want to live in\n街を移った人も、ずっと残っている人もいた。帰り道、今いる場所が好きなのか、ほかを考えたことがないのかと自分に聞く。\n2）今の業界で働き続けたいか | 还想不想继续这个行业 | 이 업계에서 계속 일하고 싶은지 | Có muốn tiếp tục ngành hiện tại không | Whether to stay in your industry\n友人は転職を華やかな成功談としては話さなかった。それでも決めるまでの過程が残り、自分が先送りしていた考えを思い出す。\n3）どんな働くペースなら続けられるか | 能接受怎样的工作节奏 | 어떤 업무 속도로 살아갈 수 있는지 | Chấp nhận nhịp làm việc thế nào | What pace of work you can live with\n何度も仕事の連絡に返す人も、早めに帰る人もいる。優劣より、自分は普通の夜をどう過ごしたいのか考え始める。\n4）今から何を学びたいか | 还想重新学什么 | 지금 다시 무엇을 배우고 싶은지 | Còn muốn học lại điều gì | What you still want to learn\n昔は静かだった同級生が、最近の学びを楽しそうに話す。帰宅後、いつか学びたいと思っていた分野を検索する。\n5）広さと暮らしやすい距離のどちらを求めるか | 住得大还是离生活近 | 넓이와 생활의 거리 중 무엇을 원하는지 | Muốn nhà rộng hay gần cuộc sống thường ngày | More space or being closer to daily life\n住まいを広さだけで比べていた。話を聞いて、通勤や友人との距離、近所に行きたい場所があることも気になってくる。\n6）家族との時間をどうつくるか | 怎样把时间留给家人 | 가족과 시간을 어떻게 나눌지 | Dành thời gian cho gia đình thế nào | How to make time for family\n友人が家族との小さな出来事を話した。大きな計画より先に、自分がずっと後回しにしている電話を思い出す。\n\n7）どの友人に自分から連絡したいか | 哪些友谊值得主动联系 | 어떤 친구에게 먼저 연락하고 싶은지 | Muốn chủ động giữ liên lạc với ai | Which friendships you want to maintain\n一番話しやすかった相手は、昔いつも隣にいた人とは限らなかった。帰ってから、グループの動きを待たず個別に連絡する。\n8）趣味の時間を予定に入れるか | 要不要给爱好留固定时间 | 취미 시간을 일정에 넣을지 | Có dành thời gian cố định cho sở thích không | Whether to make regular time for a hobby\n相手も気が向いたときだけ楽しんでいると思っていた。毎週時間を取ると聞いて、自分はまだ予定に入れたことがなかったと気づく。\n9）暮らしをどこまで人に見せたいか | 生活要展示到什么程度 | 내 생활을 어디까지 보여 주고 싶은지 | Muốn chia sẻ cuộc sống đến mức nào | How much of your life you want to show\nよく投稿する人にも、ほとんど更新しない人にも話があった。何を共有し、何を自分だけで大事にしたいか考え直す。\n10）同じ物差しで比べ続けたいか | 还要不要用同一把尺子 | 같은 기준으로 계속 비교할지 | Có tiếp tục so bằng cùng một thước đo không | Whether to keep using the same measure\n帰る頃には、それぞれの暮らしが違う方向へ進んでいると感じる。昔の比較項目だけでは、皆の今も自分の今も収まらない。\n同窓会の後、何を考え直しがちですか？誰かを追い越すためではなく、自分に合う暮らしに近づけたいと思ったことはありますか？\n\n🇰🇷 대한민국\n사는 곳, 일, 관계, 개인 시간을 기준으로 만든 열 가지 가상 성찰 장면입니다. 설문 순위가 아니며 모임에서 들은 근황만으로 누군가의 삶 전체를 판단하지 않습니다.\n1）어느 도시에서 살고 싶은지 | 究竟想在哪座城市生活 | どの街で暮らしたいか | Thực sự muốn sống ở thành phố nào | Which city you want to live in\n도시를 옮긴 사람도 계속 남은 사람도 있었다. 돌아오는 길에 지금 이곳이 좋은 건지, 다른 곳을 진지하게 생각한 적이 없는 건지 묻는다.\n\n2）이 업계에서 계속 일하고 싶은지 | 还想不想继续这个行业 | 今の業界で働き続けたいか | Có muốn tiếp tục ngành hiện tại không | Whether to stay in your industry\n친구는 업종을 바꾼 일을 화려한 성공담으로 말하지 않았다. 그래도 결정한 과정이 기억에 남아 미뤄 둔 내 생각을 다시 꺼낸다.\n3）어떤 업무 속도로 살아갈 수 있는지 | 能接受怎样的工作节奏 | どんな働くペースなら続けられるか | Chấp nhận nhịp làm việc thế nào | What pace of work you can live with\n계속 업무 메시지에 답하는 사람도 먼저 가는 사람도 있었다. 누가 더 성공했는지보다 내 평범한 저녁이 어떻기를 바라는지 생각한다.\n4）지금 다시 무엇을 배우고 싶은지 | 还想重新学什么 | 今から何を学びたいか | Còn muốn học lại điều gì | What you still want to learn\n예전에는 조용했던 친구가 요즘 배우는 것을 신나게 이야기한다. 집에 와서 언젠가 하겠다며 미뤘던 분야를 검색한다.\n5）넓이와 생활의 거리 중 무엇을 원하는지 | 住得大还是离生活近 | 広さと暮らしやすい距離のどちらを求めるか | Muốn nhà rộng hay gần cuộc sống thường ngày | More space or being closer to daily life\n집 이야기를 하면 크기부터 비교했다. 다른 일상을 듣고 나니 출퇴근과 친구까지의 거리, 근처에 가고 싶은 곳이 있는지도 중요해진다.\n6）가족과 시간을 어떻게 나눌지 | 怎样把时间留给家人 | 家族との時間をどうつくるか | Dành thời gian cho gia đình thế nào | How to make time for family\n친구가 가족과 함께한 작은 일을 이야기한다. 거창한 계획보다 먼저 오래 미뤄 둔 전화 한 통이 떠오른다.\n7）어떤 친구에게 먼저 연락하고 싶은지 | 哪些友谊值得主动联系 | どの友人に自分から連絡したいか | Muốn chủ động giữ liên lạc với ai | Which friendships you want to maintain\n가장 편하게 대화한 사람이 예전에 늘 붙어 다니던 친구는 아니었다. 돌아와서 단체방이 움직이길 기다리지 않고 따로 메시지를 보낸다.\n\n8）취미 시간을 일정에 넣을지 | 要不要给爱好留固定时间 | 趣味の時間を予定に入れるか | Có dành thời gian cố định cho sở thích không | Whether to make regular time for a hobby\n다른 사람도 가끔 즐기는 줄 알았다. 매주 시간을 남겨 둔다는 말을 듣고 나는 한 번도 일정에 넣지 않았다는 걸 안다.\n9）내 생활을 어디까지 보여 주고 싶은지 | 生活要展示到什么程度 | 暮らしをどこまで人に見せたいか | Muốn chia sẻ cuộc sống đến mức nào | How much of your life you want to show\n자주 올리는 사람도 거의 올리지 않는 사람도 할 이야기가 많았다. 무엇을 나누고 무엇을 혼자 간직할지 다시 생각한다.\n10）같은 기준으로 계속 비교할지 | 还要不要用同一把尺子 | 同じ物差しで比べ続けたいか | Có tiếp tục so bằng cùng một thước đo không | Whether to keep using the same measure\n헤어질 때쯤 모두 다른 삶으로 향하고 있음을 느낀다. 예전에 비교하던 몇 가지 숫자로는 이 사람들도 지금의 나도 다 설명되지 않는다.\n동창 모임 뒤 어떤 선택을 가장 많이 다시 생각하나요? 누군가를 앞서기보다 내게 맞는 일상을 만들고 싶어진 적이 있나요?\n\n🇻🇳 Việt Nam\nMười tình huống tự suy ngẫm hư cấu được chọn từ nơi ở, công việc, quan hệ và thời gian riêng. Đây không phải khảo sát, cũng không xem vài mẩu chuyện trong buổi gặp là toàn bộ cuộc đời ai.\n1）Thực sự muốn sống ở thành phố nào | 究竟想在哪座城市生活 | どの街で暮らしたいか | 어느 도시에서 살고 싶은지 | Which city you want to live in\nCó người đã chuyển đi, có người vẫn ở lại. Trên đường về tự hỏi mình ở đây vì thích hay vì chưa từng nghĩ kỹ về nơi khác.\n2）Có muốn tiếp tục ngành hiện tại không | 还想不想继续这个行业 | 今の業界で働き続けたいか | 이 업계에서 계속 일하고 싶은지 | Whether to stay in your industry\nBạn không kể chuyện đổi nghề như một màn thành công rực rỡ. Nhưng cách bạn đi đến quyết định lại khiến mình nhớ ý định đã gác lâu.\n\n3）Chấp nhận nhịp làm việc thế nào | 能接受怎样的工作节奏 | どんな働くペースなら続けられるか | 어떤 업무 속도로 살아갈 수 있는지 | What pace of work you can live with\nCó người liên tục trả lời tin công việc, có người về sớm. Không chấm ai thành công hơn, chỉ bắt đầu nghĩ mình muốn một tối bình thường ra sao.\n4）Còn muốn học lại điều gì | 还想重新学什么 | 今から何を学びたいか | 지금 다시 무엇을 배우고 싶은지 | What you still want to learn\nNgười bạn từng ít nói giờ hào hứng kể thứ đang học. Về nhà lại tìm lĩnh vực mình cứ nói để sau rồi chưa bắt đầu.\n5）Muốn nhà rộng hay gần cuộc sống thường ngày | 住得大还是离生活近 | 広さと暮らしやすい距離のどちらを求めるか | 넓이와 생활의 거리 중 무엇을 원하는지 | More space or being closer to daily life\nTrước nói về nhà chỉ so rộng bao nhiêu. Nghe những nếp sống khác mới nhớ mình còn quan tâm đường đi làm, bạn bè và chỗ muốn ghé gần nhà.\n6）Dành thời gian cho gia đình thế nào | 怎样把时间留给家人 | 家族との時間をどうつくるか | 가족과 시간을 어떻게 나눌지 | How to make time for family\nCó người kể chuyện nhỏ mới làm cùng gia đình. Chưa vội hứa kế hoạch lớn, chỉ nhận ra một cuộc gọi mình muốn gọi đã bị hoãn rất lâu.\n7）Muốn chủ động giữ liên lạc với ai | 哪些友谊值得主动联系 | どの友人に自分から連絡したいか | 어떤 친구에게 먼저 연락하고 싶은지 | Which friendships you want to maintain\nNgười nói chuyện hợp nhất chưa chắc là người ngày xưa hay ngồi cạnh. Về rồi chủ động nhắn riêng thay vì chờ nhóm đông vui.\n8）Có dành thời gian cố định cho sở thích không | 要不要给爱好留固定时间 | 趣味の時間を予定に入れるか | 취미 시간을 일정에 넣을지 | Whether to make regular time for a hobby\nTưởng người kia cũng chỉ thỉnh thoảng chơi. Nghe bạn dành thời gian mỗi tuần mới thấy mình chưa từng thực sự xếp sở thích vào lịch.\n\n9）Muốn chia sẻ cuộc sống đến mức nào | 生活要展示到什么程度 | 暮らしをどこまで人に見せたいか | 내 생활을 어디까지 보여 주고 싶은지 | How much of your life you want to show\nNgười đăng nhiều hay gần như không cập nhật đều có chuyện để kể. Mình nghĩ lại điều muốn chia sẻ và điều chỉ muốn tự sống cho trọn.\n10）Có tiếp tục so bằng cùng một thước đo không | 还要不要用同一把尺子 | 同じ物差しで比べ続けたいか | 같은 기준으로 계속 비교할지 | Whether to keep using the same measure\nTan buổi mới thấy mọi người đã đi vào những cuộc sống khác nhau. Vài con số từng dùng để so không còn chứa hết cả bàn, cũng chẳng chứa hết mình.\nSau họp lớp, bạn hay nghĩ lại lựa chọn nào nhất? Có ý định nào không phải để vượt ai mà để cuộc sống hợp với mình hơn không?\n\n🇺🇸 United States\nTen fictional reflections chosen around where you live, work, relationships, and personal time. This is an editorial list, not a survey, and a reunion update is only a fragment of someone’s life.\n1）Which city you want to live in | 究竟想在哪座城市生活 | どの街で暮らしたいか | 어느 도시에서 살고 싶은지 | Thực sự muốn sống ở thành phố nào\nSome classmates moved; others stayed. On the way back, you ask whether you like where you live or simply haven’t seriously considered anywhere else.\n2）Whether to stay in your industry | 还想不想继续这个行业 | 今の業界で働き続けたいか | 이 업계에서 계속 일하고 싶은지 | Có muốn tiếp tục ngành hiện tại không\nA classmate doesn’t present their career change as a triumphant story. Still, the way they reached the decision brings back a thought you had put aside.\n3）What pace of work you can live with | 能接受怎样的工作节奏 | どんな働くペースなら続けられるか | 어떤 업무 속도로 살아갈 수 있는지 | Chấp nhận nhịp làm việc thế nào\nSomeone keeps answering work messages; someone else leaves early. You find yourself thinking about what you want an ordinary evening to look like.\n\n4）What you still want to learn | 还想重新学什么 | 今から何を学びたいか | 지금 다시 무엇을 배우고 싶은지 | Còn muốn học lại điều gì\nA formerly quiet classmate speaks enthusiastically about something they are learning. Back home, you search for the subject you keep saving for “someday.”\n5）More space or being closer to daily life | 住得大还是离生活近 | 広さと暮らしやすい距離のどちらを求めるか | 넓이와 생활의 거리 중 무엇을 원하는지 | Muốn nhà rộng hay gần cuộc sống thường ngày\nYou used to compare homes mainly by size. Hearing different routines reminds you of commutes, friends, and having somewhere nearby you actually want to go.\n6）How to make time for family | 怎样把时间留给家人 | 家族との時間をどうつくるか | 가족과 시간을 어떻게 나눌지 | Dành thời gian cho gia đình thế nào\nSomeone mentions a small thing they recently did with family. Before making a grand plan, you remember the call you have been putting off.\n7）Which friendships you want to maintain | 哪些友谊值得主动联系 | どの友人に自分から連絡したいか | 어떤 친구에게 먼저 연락하고 싶은지 | Muốn chủ động giữ liên lạc với ai\nThe easiest conversation isn’t necessarily with the person you once sat beside most often. Afterward, you send a direct message rather than wait for the group chat.\n8）Whether to make regular time for a hobby | 要不要给爱好留固定时间 | 趣味の時間を予定に入れるか | 취미 시간을 일정에 넣을지 | Có dành thời gian cố định cho sở thích không\nYou assumed they only did it occasionally. Hearing that they reserve time every week makes you notice you have never put your own interest on the calendar.\n9）How much of your life you want to show | 生活要展示到什么程度 | 暮らしをどこまで人に見せたいか | 내 생활을 어디까지 보여 주고 싶은지 | Muốn chia sẻ cuộc sống đến mức nào\nFrequent posters and nearly silent accounts both have stories to tell. You reconsider what you want to share and what you prefer to experience privately.\n\n10）Whether to keep using the same measure | 还要不要用同一把尺子 | 同じ物差しで比べ続けたいか | 같은 기준으로 계속 비교할지 | Có tiếp tục so bằng cùng một thước đo không\nBy the end, everyone’s life seems to have taken a different shape. The few numbers you once compared no longer describe the table, or you.\nWhich choice do you tend to reconsider after a reunion? Has it ever made you want a life that fits you better, rather than one that gets ahead of someone else?",
+                "url": "https://x.com/FrankIndie/status/2120050063238103093",
+                "source": "@FrankIndie",
+                "date": "Tue Nov 10 07:04:58 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "253"
+                }
+              },
+              {
+                "title": "MỘT LINH HỒN KIÊU HÃNH ",
+                "summary": "MỘT LINH HỒN KIÊU HÃNH \n(CHƯƠNG 1, PHẦN 3)\nViệc đó không khác gì là Sapa đang bị cầm tù trên chính lãnh thổ mà cha của mình để lại.\n\nNgày hôm qua, chú của Sapa cùng các sư tử đực trưởng thành trong bầy đã cùng nhau đi nói chuyện với những kẻ xâm phạm kia, hi vọng rằng sẽ đạt được hiệp định hòa bình cho tới khi mùa khô này kết thúc. Bởi khi đã trải qua đủ ba mùa khô thì Sapa cùng các sư tử con cùng lứa sẽ được xem là đã trưởng thành. Như vậy thì chiến lược của bầy coi như đã khôi phục được một phần. Lúc đó thì mọi thứ sẽ dễ dàng hơn, không cần phải quá cẩn thận và nhẫn nhịn như lúc này.\n\nVới loài ăn thịt, khi chúng đủ mạnh thì khó khăn sẽ đến từ việc tranh đoạt sự sống với tự nhiên, thứ luôn là một cuộc chiến không bao giờ kết thúc. Còn nếu không đủ mạnh thì thứ nguy hiểm đầu tiên và luôn chực chờ chính là sự cạnh tranh của giống loài, là loại cuộc chiến mà một khi đã bắt đầu thì luôn kết thúc bằng cái chết dành cho kẻ yếu. Thảo nguyên rất rộng, nó đủ rộng để chứa đựng hàng triệu giống loài, nhưng nó không đủ rộng để chứa chấp những kẻ yếu ớt không đủ sức tự bảo vệ cho mình. \n\nCác mẹ trong bầy nói rằng Sapa rất giống cha của mình, cả màu lông, cả bờm, cả cách di chuyển và đặc biệt giống nhất là đôi mắt. Chính là đôi mắt mà khi nhìn vào thì những người khác sẽ tự nhiên thấy an tâm cùng tin tưởng. Bản thân Sapa cũng tin vào điều đó, tin rằng khi trưởng thành thì mình sẽ dũng mãnh và vững chắc để làm chỗ dựa cho mọi người giống như cha. \n\nSapa tính rằng đợi hết mùa khô này thì nó sẽ khiêu chiến với chú ruột để lấy lại vị chí mà vốn thuộc về nó. Rồi sẽ tiếp tục tâm nguyện của cha, rằng sẽ đưa cả bầy trở thành bầy sư tử hùng mạnh nhất trên cả thảo nguyên này.\n\nĐể chỉ cần chờ đợi thôi, chờ cho những cơn gió thuận mùa đưa những đám mây ẩm ướt sẫm màu quay trở lại thì mọi thứ sẽ tốt hơn, Sapa tin vào điều đó, như cách nó tin vào bản thân và tin vào cha của mình. Giống như lời mà cha dạy, rằng lòng tin của kẻ mạnh là thứ mà đầu tiên phải đặt vào chính bản thân mình.\n\nSáng hôm sau, khi Sapa thức giấc và trở về bầy thì người mẹ lớn đã chờ sẵn ở đó. Bà nhìn Sapa với đôi mắt đau buồn, còn phía sau lưng của bà thì những người mẹ khác vẫn còn đang than khóc, họ khóc còn nhiều hơn lúc mà cha của Sapa chết, việc này khiến Sapa cảm thấy sợ hãi.\n\nRồi mẹ lớn nói cho Sapa nghe từng tin tức một, đều là những tin tức mà nội dung không khác gì tiếng chuông báo tử dành riêng cho Sapa.\n\nTin đầu tiên, buổi thương thuyết đã thất bại, chú của Sapa đã bị giết chết ngay khi đôi bên vừa gặp mặt. Là một cuộc chiến sinh tử công bằng giữa hai sư tử đầu đàn với nhau, vậy nên không có gì để oán hận về cái chết của chú.\n\nTin thứ hai, ba sư sử đực trưởng thành đi cùng chú đã chấp nhận quy phục bầy mới, đó là lựa chọn bắt buộc, đúng đắn và khôn ngoan. Vậy nên không có gì để trách cứ họ cả, vì bất cứ ai rơi vào trường hợp đó thì cũng sẽ đều đưa ra lựa chọn tương tự.\n\nTin thứ ba chính là sự sáp nhập của hai đàn, để lát nữa đây mẹ lớn sẽ dẫn tất cả sang lãnh địa bên kia, hòa vào rồi trở thành một phần của đàn mới, sẽ tuyên thệ trung thành với sư tử đứng đầu đàn bên kia giống với cách mà họ từng trung thành với cha của Sapa. Đó là luật của thảo nguyên, luật của kẻ mạnh, họ buộc phải tuân theo nếu còn muốn tiếp tục sống trên mảnh đất này, không chỉ vì họ, mà còn vì những đứa con của họ.\n\nCòn tin cuối cùng thì là tin dành riêng cho Sapa, đó là con sư tử đầu đàn bên kia không chấp nhận thu nạp những ai sắp đến tuổi trưởng thành. Để hoặc ngay lúc này Sapa tới đưa ra lời khiêu chiến rồi nhận lại sự thất bại tất yếu mà cũng là cái chết, hoặc Sapa phải rời khỏi vùng đất này vĩnh viễn",
+                "url": "https://x.com/raydy4wae/status/2120049022140555606",
+                "source": "@raydy4wae",
+                "date": "Tue Nov 10 07:00:50 +0000 2026",
+                "metrics": {
+                  "favorites": 8,
+                  "retweets": 1,
+                  "views": "172"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R07_search_type_arg",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_search_type",
+        "difficulty": "medium",
+        "what_it_tests": "'phổ biến/top' → search_type=Top (không phải Latest)."
+      },
+      "input": "Cho mình các tweet phổ biến (top) nhất về OpenAI",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "search_type": "Top"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "OpenAI",
+              "limit": 5,
+              "search_type": "Top"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "missing tool call social_search",
+          "extra tool call timeline"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "OpenAI",
+            "limit": 5,
+            "search_type": "Top"
+          },
+          "result": {
+            "error": "TypeError",
+            "message": "get_user_tweets() got an unexpected keyword argument 'search_type'"
+          }
+        }
+      ]
+    },
+    {
+      "id": "R08_out_of_scope",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "out_of_scope",
+        "difficulty": "easy",
+        "what_it_tests": "Câu ngoài phạm vi research → KHÔNG gọi tool, từ chối/định hướng."
+      },
+      "input": "Giải giúp mình bài toán tích phân: nguyên hàm của x^2 là gì?",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "nguyên hàm của x^2",
+              "topic": "general"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "out_of_scope",
+        "observed_mismatch": "unexpected_tool_call",
+        "failure_type": "out_of_scope",
+        "failures": [
+          "expected no tool call"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "lookup",
+          "args": {
+            "query": "nguyên hàm của x^2",
+            "topic": "general"
+          },
+          "result": {
+            "tool": "web_search",
+            "query": "nguyên hàm của x^2",
+            "topic": "general",
+            "timeframe": "week",
+            "items": [
+              {
+                "title": "NGUYÊN HÀM",
+                "url": "https://www.youtube.com/watch?v=-7hiB-FfZ-8",
+                "source": "youtube.com",
+                "summary": "[0:28] Khi lấy đạo hàm, tất cả đều cho ra kết quả là 2x. Do đạo hàm của mọi hằng số c luôn bằng 0 nên biểu thức x bình c lấy\n[0:36] đạo hàm cũng bằng 2x. Vì thế nguyên hàm của 2x là cả một họ hàm số có dạng x bình cộng c với c thuộc tập số thực r.\n[0:44] Về ý nghĩa hình học, trên mặt phẳng tọa độ oxy ta xét họ nguyên hàm f(x) = 1/4x m 3 - 3/4x + c. Khi hàng số C thay đổi [...] ### Transcript\n[0:00] Chào mừng các em đến với bài học khái niệm nguyên hàm trong chương trình giải tích 12. Như các em đã biết, từ hàm số f(x) = x bình phương khi lấy đạo hàm ta\n[0:08] thu được f(x) = 2x. Ngược lại, từ 2x đi tìm lại hàm số ban đầu chính là bài toán tìm nguyên hàm. Tổng quát, nếu f'x =\n[0:16] f(x) thì nguyên hàm của f(x) dx sẽ bằng f(x) + c. Vậy tại sao ta luôn phải cộng thêm hằng số c? Hãy quan sát các hàm số x bình phương x bình + 3 và x bình - 5. [...] [0:53] tăng lên 2 rồi giảm xuống -2, đồ thị hàm số sẽ dịch chuyển tịnh tiến lên xuống dọc theo trục tung OY. Tuy nhiên, tại cùng một hoành độ x0, các tiếp tuyến màu\n[1:02] đỏ luôn song song với nhau do có trung hệ số gốc. M.",
+                "score": 0.7371019
+              },
+              {
+                "title": "[TOÁN 12] BÀI 11. NGUYÊN HÀM (PHẦN 1)",
+                "url": "https://www.youtube.com/watch?v=hUXLHNN7ANc",
+                "source": "youtube.com",
+                "summary": "[30:27] Được chưa? Rồi số 2 cô để ra ngoài vậy nó sẽ còn lại là nguyên hàm của 2x + 1 tất cả tất cả bình dx\n[30:35] bằng. Rồi vậy nó có giống 1 chia x giống. Vậy nó vẫn bằng gì? Số 2 cô để lại nè, nó vẫn là bằng -1 chia cho chia\n[30:45] cho x là nó giống nguyên cái cục này luôn.\n[30:48] Nhưng mà bây giờ x của mình không còn số 1 nữa. Của a của mình không còn số 1 mà nó là số mấy phải nhân 1/2 vô cho cô. [...] [26:49] chia x cái cuối cùng 2 chia cho x bình nó giống bên kia cô để số 2 ra như vậy để cho mình dễ thấy cái công thức hơn thôi\n[26:58] được chưa rồi bằng x nguyên hàm là\n[27:04] tăng mũ lên đầu đội mũ chân bằng dép trừ số 2 nguyên hàm là x cộng nguyên hàm của\n[27:13] 1 chia x mới học là ln trị tuyệt đối của x cộng hệ số để lại nè 1 chia x bình\n[27:20] nguyên hàm là -1 chia cho x cuối cùng cộng c vậy thì mình sẽ bằng thu gọn lại thôi. [...] [3:13] chỗ này mình sẽ viết cho cô là đẩy số ra.\n[3:21] Đẩy nguyên hàm vào.\n[3:25] Được chưa? Mình phải hiểu được cái tính chất số hai. Vậy bây giờ nhìn cho cô nè.\n[3:29] Nguyên hàm cái này đọc nguyên hàm của 2x m 3 được chưa? Ở đây chữ x thì đằng sau là dx. Còn đây chữ y thì đằng sau là dy.\n[3:37] Vậy thì bây giờ cô đẩy số ra đẩy dấu nguyên hàm vô giống như chữ k vậy nè.\n[3:41] đẩy số ra, cô sẽ đẩy số 2 ra. Vậy mình sẽ còn lại là nguyên hàm của x mũ x m.",
+                "score": 0.6999322
+              },
+              {
+                "title": "Bài Nguyên hàm toán 12 phần 2",
+                "url": "https://www.youtube.com/watch?v=6eoGcju8uO8",
+                "source": "youtube.com",
+                "summary": "[1:10:28] Cái x m 2 này với cái x m 2 này đơn giản rồi mà. Còn cái này là 1/x mũ 2 tất cả bình là phải ra 1/x mũ 4 chứ.\n[1:10:37] Cái này 1/x mũ 2 bình thì nó ra là 1/x mũ 4.\n[1:10:43] Chưa có nguyên. Chưa có nguyên. Vậ tới cái hàng này mới nguyên nè. Tới đây mới nguyên nè. Tới cái dấu bằng thứ tư á mới nguyên á. Nãy giờ mới biến đổi rồi chứa nguyên. Giờ mới nguyên hàm nè.\n[1:10:54] Giờ mới nguyên hàm nè. -6 nguyên hàm là ra -6 gì?\n[1:11:01] - 6x cộng x mũ 4 nguyên hàm là ra x mũ gì các em? [...] [49:07] rồi. Trừ 2 x a là nhân cho 2x nhân cho b là nhân cho 1 phần\n[49:15] 1/x cộng cho bình là 1/x tất cả bình.\n[49:24] Rồi dx viết lại nào. Vẫn là ký hiệu của nguyên hàm lại\n[49:30] nha. 2 bình lên là 4. X bình lên là X bình 2 x 2 là ra 4.\n[49:38] Các em ơi, các em ơi, các em ơi, x với x này sao? Các em hay nói một cách ngắn gọn xúc tích. Hãy rút gọn cho cô Nhi cái\n[49:48] đống này đi. Hãy rút gọn cho cô g đống này.\n[49:54] 2 x 2 là 4 X với X này mất được không? [...] [44:58] cho 1 bình là 1 dx viết lại rồi vô giờ mới bắt đầu thật sự nguyên nè\n[45:08] bây giờ mới thật sự là bắt đầu nguyên nè nhưng mà tới đây các em biết làm rồi nếu mà thật sự các em nghe giảng từ nãy tới giờ là tới đây các em sẽ biết làm số 4\n[45:16] viết lại x m 2 nguyên hàm là bằng cái gì bình luận ơi x m 2 nguyên hàm là bằng cái gì tới đây là nguyên hàm là cô đâu\n[45:23] còn cái ký hiệu con con ký hiệu chữ nữa đâu. Cô không còn ký hiệu tính tổng nữa nha. S là chữ su á.",
+                "score": 0.6010557
+              },
+              {
+                "title": "B3 Tích phân cơ bản",
+                "url": "https://www.youtube.com/watch?v=IL6kkKLEOPM",
+                "source": "youtube.com",
+                "summary": "[11:17] tới 2 của hàm gx dx cộng với nào thằng căn x của bạn đây là tích phân từ 1 đến 2 của thằng căn x\n[11:25] là x mũ 1 phần mấy? 1/2 dx cái này đúng chưa? Chúng ta thay vào thôi. Chúng ta nhìn thấy thằng y này của chúng ta này\n[11:34] bằng này 3 này. Tích phân từ 1 tới 2 của thằng f(x) dx nào chúng ta bằng 4. Đây là 3 x 4 này. Trừ đi\n[11:43] tích phân từ 1 đến 2 của thằng g(x) dx là 3. Đây nó sẽ là trừ đi 4 x 3 này.\n[11:48] Cộng với này nguyên hàm của thằng x mũ 1/2 là x mũ 1 [...] [2:26] y bằng tích phân từ a tới b của hàm fx dx người ta gọi là tích phân của hàm fx fx trong đó a gọi là cận dưới và b các\n[2:35] bạn gọi là cận Trên [khịt mũi] chúng ta có công thức [tiếng cười]\n[2:43] để tìm được cái thằng y này. Công thức để tìm y. y bằng tích phân từ a đến b\n[2:51] của fx dx sẽ được tính bằng fx.\n[2:58] f(x) là gì? Các bạn đã biết rồi nhá.\n[3:01] f(x) ấy chính là nguyên hàm của hàm f(x).\n[3:06] Thế cận ký hiệu này gọi người ta gọi là ký hiệu thế cận này các bạn này. AB. [...] [3:13] Và người ta tìm ra được thằng I này của bạn sẽ được tính bằng f tại b thay thằng\n[3:21] B vào đây. Người ta gọi là nguyên hàm tại cận trên trừ đi f tại A.\n[3:29] Thay a vào đây người ta gọi là nguyên hàm tại cận dưới.\n[3:34] Tích phân của hàm f(x) dx từ a đến b được tính bằng giá trị nguyên hàm tại cận trên trừ giá trị nguyên hàm tại cận\n[3:43] dưới y = fb - fa. Các bạn có thể viết tắt như thế này. Tích phân từ a đến b của hàm fx\n[3:54] đến bằng f tại b trừ đi f tại a.",
+                "score": 0.31371456
+              },
+              {
+                "title": "5.2K views · 108 reactions | Công thức và kỹ năng nguyên hàm lớp 12 phải nhớ, không thể bỏ qua !\n#toanyenly #luyenthithpt #toan #2k9  #tichphan | Toán Yến Ly - Chuyên luyện thi Toán Lý Hoá Khoa Học Tự Nhiên",
+                "url": "https://www.facebook.com/trungtamtoanthongminhyenly/videos/c%C3%B4ng-th%E1%BB%A9c-v%C3%A0-k%E1%BB%B9-n%C4%83ng-nguy%C3%AAn-h%C3%A0m-l%E1%BB%9Bp-12-ph%E1%BA%A3i-nh%E1%BB%9B-kh%C3%B4ng-th%E1%BB%83-b%E1%BB%8F-qua-toanyenly-luyen/2540676023095607",
+                "source": "facebook.com",
+                "summary": "[](\n\nTổ hợp tam giác Hưng Yên. Đếm số tam giác tạo bởi 15 cảm biến. Thay vì đếm từng trường hợp , tư duy đếm này giúp em đếm với số lượng điểm nhiều hơn mà không có kẻ hở. #toanyenly #luyenthithpt #toanhoc #2k9 #Thxs\n\nToán Yến Ly - Chuyên luyện thi Toán Lý Hoá Khoa Học Tự Nhiên\n\n59.1K views\n\n · \n\n3d ago\n\nImage 15: Video thumbnail 1:40\n\n[](\n\nTổ hợp xác suất HSG Phú Thọ , châu chấu nhảy ma trận bậc thang. #toanyenly #luyenthithpt #toanhoc #2k9 #Thxs [...] ## Related reels\n\nImage 11 Toán Yến Ly - Chuyên luyện thi Toán Lý Hoá Khoa Học Tự Nhiên 32K\n\n## Related videos\n\nImage 12: Video thumbnail 1:45\n\n[](\n\nXác suất tivi HSG Phú Thọ rất thú vị. Một bài toán thú vị, tuy là quen thuộc với các em học sinh đã học về tổ hợp đường đi, nhưng nếu không cẩn thận xem kỹ điều kiện sẽ vội vàng 6C3 sẽ rơi vào bẫy của điều kiện. #toanyenly #math #maths #toan #toanhoc #THPT #thptqg #2k9 #Thxs\n\nToán Yến Ly - Chuyên luyện thi Toán Lý Hoá Khoa Học Tự Nhiên\n\n6.9K views",
+                "score": 0.14103305
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "R09_no_tool_capability",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "no_tool_meta",
+        "difficulty": "easy",
+        "what_it_tests": "Câu hỏi meta → trả lời thẳng, KHÔNG gọi tool."
+      },
+      "input": "Bạn là gì và làm được những gì?",
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [],
+        "actual_text": "Tôi là một trợ lý nghiên cứu nhanh và chủ động, có thể tìm kiếm thông tin, viết bài, và gửi nội dung mà không cần bạn chờ đợi. Tôi có thể tra cứu trên internet, tìm kiếm trên mạng xã hội, và thậm chí là viết tweet cho bạn. Hãy cho tôi biết bạn cần gì và tôi sẽ làm ngay!",
+        "case_failure_type": "unnecessary_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": []
+    },
+    {
+      "id": "R10_missing_handle",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "clarify_missing_handle",
+        "difficulty": "medium",
+        "what_it_tests": "Thiếu handle → ask_user, KHÔNG đoán bừa người nào."
+      },
+      "input": "Tóm tắt 5 tweet mới nhất giúp mình",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "SamAltman",
+              "limit": 5
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "missing_info",
+        "failures": [
+          "missing tool call clarify",
+          "extra tool call timeline"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "SamAltman",
+            "limit": 5
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "error": "JSONDecodeError",
+            "message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "R11_missing_url",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "clarify_missing_url",
+        "difficulty": "medium",
+        "what_it_tests": "Nói 'bài này' nhưng không có link → ask_user xin URL."
+      },
+      "input": "Tóm tắt bài viết này hộ mình",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [],
+        "actual_text": "Tôi sẽ tìm kiếm và tóm tắt bài viết cho bạn. Vui lòng cho tôi biết URL của bài viết hoặc ít nhất là chủ đề của nó. Nếu không, tôi sẽ giả định là một bài viết nổi tiếng của Sam Altman.",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "missing_info",
+        "failures": [
+          "missing tool call clarify"
+        ]
+      },
+      "tool_results": []
+    },
+    {
+      "id": "R12_confirm_before_send",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "confirm_before_write",
+        "difficulty": "medium",
+        "what_it_tests": "Hành động ghi (gửi) → xác nhận trước (ask_user yes_no), không tự gửi."
+      },
+      "input": "Đăng bản tin này lên Telegram giúp mình",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "send",
+            "args": {
+              "text": "Đây là bản tin mới đã được chuẩn bị."
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_boundary",
+        "failures": [
+          "missing tool call clarify",
+          "extra tool call send"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "send",
+          "args": {
+            "text": "Đây là bản tin mới đã được chuẩn bị."
+          },
+          "result": {
+            "tool": "send_telegram",
+            "status": "needs_confirmation",
+            "message": "Only send after the user explicitly confirms."
+          }
+        }
+      ]
+    },
+    {
+      "id": "R13_parallel_web_and_tweets",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "parallel_tool_calls",
+        "difficulty": "hard",
+        "what_it_tests": "Một request cần hai nguồn → gọi cả web_search và search_tweets; eval không phụ thuộc thứ tự tool call."
+      },
+      "input": "Tìm trên web tin AI hôm nay và tìm thêm tweet về AI.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "AI",
+              "topic": "news",
+              "timeframe": "day"
+            }
+          },
+          {
+            "name": "social_search",
+            "args": {
+              "query": "AI"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "AI hôm nay",
+              "limit": 5,
+              "search_type": "Latest"
+            }
+          },
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "SamAltman",
+              "limit": 5
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "missing tool call lookup",
+          "query: expected 'AI', got 'AI hôm nay'",
+          "extra tool call timeline"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "AI hôm nay",
+            "limit": 5,
+            "search_type": "Latest"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "AI hôm nay",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "Hôm nay ai rảnh cho e ngậm cu cả đêm khôm",
+                "summary": "Hôm nay ai rảnh cho e ngậm cu cả đêm khôm",
+                "url": "https://x.com/XuEmma0/status/2120124839432438177",
+                "source": "@XuEmma0",
+                "date": "Tue Nov 10 12:02:06 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 0,
+                  "views": "26"
+                }
+              },
+              {
+                "title": "TÔI CHỤP MỘT QUẢ BÍ NGÔ.",
+                "summary": "TÔI CHỤP MỘT QUẢ BÍ NGÔ.\nHôm nay mình muốn khoe với mọi người một bức ảnh mình vừa chụp được.\nChỉ là một quả bí ngô thôi nhưng ánh sáng và màu sắc lên hình nhìn khá ưng mắt.\nĐôi khi những thứ giản dị quanh mình lại mang đến cảm hứng chụp ảnh bất ngờ.\nMình thích cảm giác ngắm lại tấm ảnh và thấy được cái không khí của khoảnh khắc đó.\nCả nhà thấy thế nào, có ai cũng mê chụp mấy thứ nhỏ nhỏ như này không.",
+                "url": "https://x.com/haidaulau/status/2120120678611665356",
+                "source": "@haidaulau",
+                "date": "Tue Nov 10 11:45:34 +0000 2026",
+                "metrics": {
+                  "favorites": 2,
+                  "retweets": 0,
+                  "views": "23"
+                }
+              },
+              {
+                "title": "Chào buổi tối anh em 🌙",
+                "summary": "Chào buổi tối anh em 🌙\n\nHôm nay mình lướt newfeed thấy nhiều người than là build X mãi mà follower tăng chậm quá, có lúc đăng bài cả ngày không ai thèm tương tác.\n\nMình cũng từng như vậy đó.\n\nCó những ngày ngồi nghĩ mãi không biết viết gì, có ngày viết xong rồi xóa vì sợ không hay.\n\nNhưng cứ mỗi tối mình vẫn cố gõ vài dòng, reply vài người, hoặc đơn giản là vào tương tác với anh em đang cùng build.\n\nKhông phải vì hy vọng hôm nay sẽ tăng bao nhiêu follower, mà là để mai mốt nhìn lại còn thấy mình đã không bỏ cuộc.\n\nCrypto thì lúc nào cũng có kèo, nhưng kênh X của mình thì chỉ có mình tự build được thôi 🤭\n\nAnh em đang build thì cố lên nhé, đừng so với người khác làm gì. Mình cũng đang cố đây ✊\n\n@rarelistio",
+                "url": "https://x.com/Saiyanwarriorss/status/2120119429795401903",
+                "source": "@Saiyanwarriorss",
+                "date": "Tue Nov 10 11:40:36 +0000 2026",
+                "metrics": {
+                  "favorites": 2,
+                  "retweets": 0,
+                  "views": "29"
+                }
+              },
+              {
+                "title": "Hỗm giờ 3 ngày chưa sục tối nay ai xem tui sục id",
+                "summary": "Hỗm giờ 3 ngày chưa sục tối nay ai xem tui sục id",
+                "url": "https://x.com/hhddep8l/status/2120114571667001676",
+                "source": "@hhddep8l",
+                "date": "Tue Nov 10 11:21:18 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "5"
+                }
+              },
+              {
+                "title": "Yêu lấy bản thân mình trước khi chờ đợi ai đó yêu thương",
+                "summary": "Yêu lấy bản thân mình trước khi chờ đợi ai đó yêu thương\nHôm nay trời đẹp thế, chắc chắn sẽ gặp được nhiều điều vui https://t.co/WRjTQj8L0j",
+                "url": "https://x.com/NguynBAnph/status/2120113740553330707",
+                "source": "@NguynBAnph",
+                "date": "Tue Nov 10 11:18:00 +0000 2026",
+                "metrics": {
+                  "favorites": 8,
+                  "retweets": 1,
+                  "views": "206"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "SamAltman",
+            "limit": 5
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "error": "JSONDecodeError",
+            "message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "R14_out_of_scope_coding",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "out_of_scope_coding",
+        "difficulty": "easy",
+        "what_it_tests": "Câu coding ngoài phạm vi research/news → KHÔNG gọi tool."
+      },
+      "input": "Viết giúp mình một hàm Python tính Fibonacci bằng recursion.",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "send",
+            "args": {
+              "text": "def fibonacci(n):\n    if n <= 1:\n        return n\n    else:\n        return fibonacci(n-1) + fibonacci(n-2)"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "out_of_scope",
+        "observed_mismatch": "unexpected_tool_call",
+        "failure_type": "out_of_scope",
+        "failures": [
+          "expected no tool call"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "send",
+          "args": {
+            "text": "def fibonacci(n):\n    if n <= 1:\n        return n\n    else:\n        return fibonacci(n-1) + fibonacci(n-2)"
+          },
+          "result": {
+            "tool": "send_telegram",
+            "status": "needs_confirmation",
+            "message": "Only send after the user explicitly confirms."
+          }
+        }
+      ]
+    },
+    {
+      "id": "M01_clarify_then_fill",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_clarify_fill",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: carry limit=5 từ lượt 1 + map tên Elon Musk thành handle elonmusk từ lượt 2."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tóm tắt 5 tweet mới nhất giúp mình"
+        },
+        {
+          "role": "user",
+          "content": "Của Elon Musk nhé"
+        },
+        {
+          "role": "user",
+          "content": "Giữ đúng 5 tweet, đừng đổi số lượng"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 5
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "limit": 5,
+              "screenname": "elonmusk"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "limit": 5,
+            "screenname": "elonmusk"
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "screenname": "elonmusk",
+            "items": [
+              {
+                "title": "RT @XFreeze: Elon Musk just revealed a massive update on Grok 4.8, and SpaceXSI has completely rebuilt its reinforcement",
+                "summary": "RT @XFreeze: Elon Musk just revealed a massive update on Grok 4.8, and SpaceXSI has completely rebuilt its reinforcement learning and infer…",
+                "url": "https://x.com/elonmusk/status/2120102894817173862",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:34:54 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 200,
+                  "views": "464388"
+                }
+              },
+              {
+                "title": "Turns out that the Starlink software, built for managing the movement of vast amounts of data through space and to the g",
+                "summary": "Turns out that the Starlink software, built for managing the movement of vast amounts of data through space and to the ground, is also very well suited to training super intelligence",
+                "url": "https://x.com/elonmusk/status/2120102767624880364",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:34:24 +0000 2026",
+                "metrics": {
+                  "favorites": 16820,
+                  "retweets": 1394,
+                  "views": "992581"
+                }
+              },
+              {
+                "title": "RT @XFreeze: Elon Musk just revealed something huge about Grok's new SI training and inference infrastructure",
+                "summary": "RT @XFreeze: Elon Musk just revealed something huge about Grok's new SI training and inference infrastructure\n\nThe engineering behind Starl…",
+                "url": "https://x.com/elonmusk/status/2120101380144992635",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:28:53 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 126,
+                  "views": "416375"
+                }
+              },
+              {
+                "title": "RT @beffjezos: Taking the Shinkansen and all I can think about is how do we not have this between SF and LA...",
+                "summary": "RT @beffjezos: Taking the Shinkansen and all I can think about is how do we not have this between SF and LA...\n\n if only you knew how great…",
+                "url": "https://x.com/elonmusk/status/2120090806765932705",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 09:46:52 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 105,
+                  "views": "477102"
+                }
+              },
+              {
+                "title": "RT @TheCaptainEli: In February 2004 Elon Musk wrote the check that put Tesla Motors on the road: $6.5 million of a $7.5 ",
+                "summary": "RT @TheCaptainEli: In February 2004 Elon Musk wrote the check that put Tesla Motors on the road: $6.5 million of a $7.5 million Series A, p…",
+                "url": "https://x.com/elonmusk/status/2120082348398256182",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 09:13:15 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 184,
+                  "views": "491197"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "M02_carryover_timeframe",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_carryover",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: chỉ xử lý latest turn, carry timeframe=day và topic=news, query robotics."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tin AI hôm nay có gì?"
+        },
+        {
+          "role": "user",
+          "content": "Còn về robotics thì sao?"
+        },
+        {
+          "role": "user",
+          "content": "Chỉ tìm robotics thôi, vẫn là tin hôm nay"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "robotics",
+              "topic": "news",
+              "timeframe": "day"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "robotics",
+              "limit": 5,
+              "search_type": "Latest"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "missing tool call lookup",
+          "extra tool call social_search"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "robotics",
+            "limit": 5,
+            "search_type": "Latest"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "robotics",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "🤖 Axis Robotics fuels $AXIS surge!",
+                "summary": "🤖 Axis Robotics fuels $AXIS surge!\n\nRewarding demos after $12M raise, tech outpaces gmx:native.\n\nReward Path:\n🌐 Open portal now\n🔗 Connect EVM wallet\n🎁 Claim $AXIS tokens\n\n🔗 https://t.co/rP7HjDnVY3\n\n#AI #DePIN https://t.co/d8gJKVHEEs",
+                "url": "https://x.com/Julieannlic/status/2120126983774556176",
+                "source": "@Julieannlic",
+                "date": "Tue Nov 10 12:10:37 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "1"
+                }
+              },
+              {
+                "title": "@Marsadist @anextracomma Yeah I agree and a decade is an overestimation. Given the huge leap 5.2 just took in robotics I",
+                "summary": "@Marsadist @anextracomma Yeah I agree and a decade is an overestimation. Given the huge leap 5.2 just took in robotics I would put that figure at 5-6 years with meaningful change starting in the next 1-3 years.",
+                "url": "https://x.com/wayy_rice/status/2120126883538825288",
+                "source": "@wayy_rice",
+                "date": "Tue Nov 10 12:10:13 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "1"
+                }
+              },
+              {
+                "title": "I really hope that someone is researching on more efficient model training paradigm for robotics than \"just use more GPU",
+                "summary": "I really hope that someone is researching on more efficient model training paradigm for robotics than \"just use more GPUs\" mindset. \nThey have my blessing.\n\nIf any of these researchers believe I can help in any way, please reach out.",
+                "url": "https://x.com/vaithak/status/2120126826903462271",
+                "source": "@vaithak",
+                "date": "Tue Nov 10 12:10:00 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              },
+              {
+                "title": "NVIDIA announced GR00T 2 at CoRL: an open world action model on Cosmos, trained on robot and human data incl. 100,000 ho",
+                "summary": "NVIDIA announced GR00T 2 at CoRL: an open world action model on Cosmos, trained on robot and human data incl. 100,000 hours of human egocentric video. Isaac Lab 3.0 gets up to 2.5x training throughput. My take: data collection is the bottleneck to watch.\nhttps://t.co/LMyHXAq3mM",
+                "url": "https://x.com/simplylavi/status/2120126826806919321",
+                "source": "@simplylavi",
+                "date": "Tue Nov 10 12:10:00 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "4"
+                }
+              },
+              {
+                "title": "@NinNinnin0306 Robotics AI",
+                "summary": "@NinNinnin0306 Robotics AI",
+                "url": "https://x.com/Essentialsam01/status/2120126603178999940",
+                "source": "@Essentialsam01",
+                "date": "Tue Nov 10 12:09:06 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "4"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "M03_correction_handle",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_correction",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: map tên thường, sửa Sam Altman→Andrej Karpathy, dùng handle karpathy và limit=3."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tweet mới nhất của Sam Altman"
+        },
+        {
+          "role": "user",
+          "content": "À nhầm, của Andrej Karpathy"
+        },
+        {
+          "role": "user",
+          "content": "Lấy 3 tweet mới nhất nhé"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "karpathy",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "limit": 3,
+              "screenname": "AndrejKarpathy"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "screenname: expected 'karpathy', got 'AndrejKarpathy'"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "limit": 3,
+            "screenname": "AndrejKarpathy"
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "error": "JSONDecodeError",
+            "message": "Expecting value: line 1 column 1 (char 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "M04_clarify_then_url",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_clarify_url",
+        "difficulty": "medium",
+        "what_it_tests": "3 turns: sau khi được cung cấp URL, latest turn xác nhận chỉ đọc link đó → read_url đúng url."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tóm tắt bài này hộ mình"
+        },
+        {
+          "role": "user",
+          "content": "https://anthropic.com/news/claude"
+        },
+        {
+          "role": "user",
+          "content": "Chỉ đọc đúng link đó thôi"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://anthropic.com/news/claude"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://anthropic.com/news/claude"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "fetch",
+          "args": {
+            "url": "https://anthropic.com/news/claude"
+          },
+          "result": {
+            "tool": "read_url",
+            "url": "https://anthropic.com/news/claude",
+            "items": [
+              {
+                "title": "https://anthropic.com/news/claude",
+                "url": "https://anthropic.com/news/claude",
+                "source": "anthropic.com",
+                "summary": "[Skip to main content](https://www.anthropic.com/news/claude#main-content)\n\nA 404 poem byClaude Fable 5Claude Opus 5.5Claude Sonnet 5.5Claude Haiku 5.5\n\nYou came"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "M05_correction_limit",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_arg_correction",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: map tên Elon Musk, carry handle elonmusk, sửa limit 10→3."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Lấy 10 tweet mới nhất của Elon Musk"
+        },
+        {
+          "role": "user",
+          "content": "Cho mình 3 thôi"
+        },
+        {
+          "role": "user",
+          "content": "Vẫn của Elon Musk nhé"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "limit": 3,
+              "screenname": "elonmusk"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "limit": 3,
+            "screenname": "elonmusk"
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "screenname": "elonmusk",
+            "items": [
+              {
+                "title": "RT @XFreeze: Elon Musk just revealed a massive update on Grok 4.8, and SpaceXSI has completely rebuilt its reinforcement",
+                "summary": "RT @XFreeze: Elon Musk just revealed a massive update on Grok 4.8, and SpaceXSI has completely rebuilt its reinforcement learning and infer…",
+                "url": "https://x.com/elonmusk/status/2120102894817173862",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:34:54 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 200,
+                  "views": "464869"
+                }
+              },
+              {
+                "title": "Turns out that the Starlink software, built for managing the movement of vast amounts of data through space and to the g",
+                "summary": "Turns out that the Starlink software, built for managing the movement of vast amounts of data through space and to the ground, is also very well suited to training super intelligence",
+                "url": "https://x.com/elonmusk/status/2120102767624880364",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:34:24 +0000 2026",
+                "metrics": {
+                  "favorites": 16927,
+                  "retweets": 1404,
+                  "views": "998101"
+                }
+              },
+              {
+                "title": "RT @XFreeze: Elon Musk just revealed something huge about Grok's new SI training and inference infrastructure",
+                "summary": "RT @XFreeze: Elon Musk just revealed something huge about Grok's new SI training and inference infrastructure\n\nThe engineering behind Starl…",
+                "url": "https://x.com/elonmusk/status/2120101380144992635",
+                "source": "@elonmusk",
+                "date": "Tue Nov 10 10:28:53 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 126,
+                  "views": "416724"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "M06_switch_tool",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "base",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_switch_tool",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: explicitly bỏ Twitter, chuyển sang web_search news, giữ chủ đề OpenAI."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Mọi người nói gì về OpenAI trên Twitter?"
+        },
+        {
+          "role": "user",
+          "content": "Bỏ Twitter, chuyển sang tìm trên web tin tức đi"
+        },
+        {
+          "role": "user",
+          "content": "Giữ chủ đề OpenAI"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "OpenAI",
+              "topic": "news"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "OpenAI",
+              "limit": 5,
+              "search_type": "Latest"
+            }
+          }
+        ],
+        "actual_text": "",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_tool",
+        "failures": [
+          "missing tool call lookup",
+          "extra tool call social_search"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "social_search",
+          "args": {
+            "query": "OpenAI",
+            "limit": 5,
+            "search_type": "Latest"
+          },
+          "result": {
+            "tool": "search_tweets",
+            "query": "OpenAI",
+            "search_type": "Latest",
+            "items": [
+              {
+                "title": "@maxjendrall The speed will become more affordable in the future (I hope people will find a way). Maybe when OpenAI fina",
+                "summary": "@maxjendrall The speed will become more affordable in the future (I hope people will find a way). Maybe when OpenAI finally starts make their own AI chips.\n\nWe're in 'dial-up' AI era right now. Ultrafast right now feels like ADSL connection. I hope we'll see 'unlimited' AI bandwidth one day.",
+                "url": "https://x.com/XaniWhatever/status/2120127185193197740",
+                "source": "@XaniWhatever",
+                "date": "Tue Nov 10 12:11:25 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              },
+              {
+                "title": "#Australia tightens AI oversight rules after OpenAI government breach https://t.co/216gNcbacI",
+                "summary": "#Australia tightens AI oversight rules after OpenAI government breach https://t.co/216gNcbacI",
+                "url": "https://x.com/GaroweOnline/status/2120127169233887363",
+                "source": "@GaroweOnline",
+                "date": "Tue Nov 10 12:11:21 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              },
+              {
+                "title": "My prediction for AI over the next 5–10 years ",
+                "summary": "My prediction for AI over the next 5–10 years \n\nI believe Google, OpenAI, and Elon Musk's xAI will be among the biggest players in AI. But the company with the most powerful technology won't necessarily win the consumer market.\n\nHere's what I think many people are overlooking.\n\nMost ordinary people aren't programmers, scientists, or engineers. They don't want AI just to solve equations, write code, or handle office work. They want something they can actually enjoy using.\n\nThey want an AI they can talk to about life, philosophy, religion, politics, movies, and everyday problems. Something intelligent, funny, creative, and capable of challenging their thinking instead of simply agreeing with everything.\n\nThey'll also want to create their own movies, comic books, novels, YouTube channels, and entire fictional universes. Not just a few AI-generated pictures or short clips, but complete, high-quality productions.\n\nAnd creative freedom will matter enormously. People don't want an AI that constantly lectures them, pushes ideological assumptions, or refuses harmless creative requests because the subject is controversial. They want a collaborator, not a corporate babysitter.\n\nOf course, it still needs to be accurate and reliable, especially with medicine, finances, and other serious matters.\n\nMy prediction is that the winning consumer AI will be a combination of a digital friend, an artist, a philosopher, and a personal assistant.\n\nGoogle has the infrastructure and research. OpenAI has ChatGPT's established user base. Musk's xAI has an opportunity to stand out through personality, creative freedom, multimedia generation, and access to SpaceX's technological resources.\n\nI wouldn't declare a winner yet. But I believe the biggest battle won't simply be about who builds the smartest AI.\n\nIt will be about who builds the AI that ordinary people actually love using.\n\nAnd the company that gets that right could beat competitors with far more money, computing power, and technical resources.\n\n@elonmusk @sama @AnthropicAI",
+                "url": "https://x.com/RaskolnikovGaze/status/2120127168726372609",
+                "source": "@RaskolnikovGaze",
+                "date": "Tue Nov 10 12:11:21 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": "1"
+                }
+              },
+              {
+                "title": "@willwang_xx 这个活在OpenAI的梦里",
+                "summary": "@willwang_xx 这个活在OpenAI的梦里",
+                "url": "https://x.com/TqMiracle18260/status/2120127134891200817",
+                "source": "@TqMiracle18260",
+                "date": "Tue Nov 10 12:11:13 +0000 2026",
+                "metrics": {
+                  "favorites": 1,
+                  "retweets": 0,
+                  "views": "1"
+                }
+              },
+              {
+                "title": "Private AI should be as easy to call as any API",
+                "summary": "Private AI should be as easy to call as any API\nPhalaNetwork x foundry_fi gives builders and agents confidential GPU compute via an OpenAI-compatible endpoint, paid in USDF.@PhalaNetwork\n\nSwap the endpoint keep your code, get hardware-backed privacy. That’s how adoption happens https://t.co/rERSkiNLCr",
+                "url": "https://x.com/M_U_SA_SHI/status/2120127131745489334",
+                "source": "@M_U_SA_SHI",
+                "date": "Tue Nov 10 12:11:12 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 0,
+                  "views": null
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
