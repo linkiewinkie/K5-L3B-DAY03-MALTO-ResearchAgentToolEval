@@ -22,18 +22,26 @@
 **Cách chạy UI** (từ thư mục `starter_v0/`):
 
 ```bash
-pip install -r requirements.txt   # đã có streamlit
+pip install -r requirements.txt
 cp .env.example .env              # điền OPENROUTER_API_KEY, TAVILY_API_KEY, FIRECRAWL_API_KEY, RAPIDAPI_KEY
-streamlit run app.py              # → http://localhost:8501
+python web_app.py                 # → http://127.0.0.1:8000  (UI chính: starter_v0/web_app.py + starter_v0/web/index.html)
 ```
 
-UI hiện câu trả lời của agent, từng tool call (tên tool, args, kết quả, lỗi nếu có), và một nút xác nhận khi agent muốn gửi Telegram. Mọi lượt chat được lưu vào `starter_v0/transcripts/`.
+UI chính gọi agent thật (cùng vòng lặp model ↔ tool với `chat.py`):
+
+- Chọn **model** (`gpt-4o-mini`, `glm-5.3`) và **version** prompt/tools: v0, v1, v2, v3 hoặc `current` (bản tích hợp prompt v3 + 4 tool mới, mặc định). Mỗi version hiện điểm base eval của nó.
+- **Compare**: gửi cùng một câu cho 2 version và hiện 2 cột cạnh nhau (ví dụ v0 ⇆ v3).
+- Mỗi câu trả lời hiện các bước tool, args, kết quả JSON, lỗi tool, trạng thái hỏi lại, nhãn "Không dùng tool" khi model tự trả lời; rê chuột vào tên tool để xem tool làm gì.
+- Khi agent muốn gửi Telegram, UI hiện nội dung và chỉ gửi sau khi người dùng bấm **Yes, send**.
+- Mỗi cuộc chat lưu một transcript `starter_v0/transcripts/ui_*.transcript.json` (tải được từ nút trên header).
+
+Cách chạy khác: UI Streamlit `streamlit run app.py` (→ http://localhost:8501, dùng `agent_backend.py`).
 
 **Link dùng thử (deploy):**
 
-Mở bằng Cloudflare Tunnel trong lúc demo: `cloudflared tunnel --url http://localhost:8501`. Link `trycloudflare.com` chỉ sống khi lệnh còn chạy, nên mỗi lần mở lại là một link mới.
+Mở bằng Cloudflare Tunnel trỏ vào UI chính: `cloudflared tunnel --url http://localhost:8000`. Link `trycloudflare.com` chỉ sống khi `web_app.py` và `cloudflared` còn chạy trên máy nhóm trưởng; mỗi lần mở lại là một link mới.
 
-> URL: _(dán link khi mở tunnel lúc showdown)_
+> URL: https://appears-accounts-checkout-assessed.trycloudflare.com
 
 ### A2. Tool agent có
 
@@ -143,7 +151,7 @@ Transcript: `starter_v0/transcripts/v3_openrouter_20261110T191419801552.transcri
 | ------------------------------------ | ---------------------------- | ----------- | ---------------- |
 | Tool mới (`tools/<tên>/`)        |                              |             |                  |
 | Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed) |             |                  |
-| UI (lệnh chạy + link dùng thử)   |                              |             |                  |
+| UI (lệnh chạy + link dùng thử)   | `starter_v0/web_app.py`, `starter_v0/web/index.html`, `starter_v0/artifacts/versions/`; lệnh `python web_app.py`; link ở mục A1 | Gọi agent thật; chọn model và version v0–v3/`current`; chế độ Compare 2 version; hiện tool call, args, kết quả, lỗi tool; mỗi chat lưu transcript `ui_*.transcript.json` | Cổng xác nhận trên UI: kể cả khi model gọi `send(confirmed=true)`, không gửi gì cho tới khi người dùng bấm xác nhận. Giới hạn 15 lượt/chat và 300 lượt/server để link public không dùng hết credit API. Snapshot v0–v3 có hash khớp run JSON. Rủi ro: link tunnel tạm thời; `reading_list` lưu chung một file cho mọi người dùng |
 
 Tool unit tests: số test đã viết, và một ví dụ lỗi mà unit test bắt được nhưng eval không bắt được.
 
