@@ -239,8 +239,6 @@ Lỗi đặc thù của model nhỏ (đếm từ run JSON):
 
 | Khó khăn                                                                   | Cách xử lý                                              |
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Tavily trả 401 dù đã có key                                               | Key trong `.env` bị dư dấu `=` (`TAVILY_API_KEY==...`), sửa lại |
-| Telegram báo `chat not found`                                              | `TELEGRAM_CHAT_ID` của channel phải có dấu `-` ở đầu |
 | Cùng prompt nhưng hash khác nhau giữa máy Windows và macOS               | Do xuống dòng CRLF/LF; so sánh run theo hash ghi trong run JSON, không tính lại trên máy khác |
 | `llama3.2:3b` sinh lặp không dừng ở một case (~12.700 token, timeout) | Chạy bằng biến thể `num_predict=1024`, ghi rõ ở B7 |
 | Chạy 3 model local trên máy 16 GB chậm (mỗi run 3–10 phút)             | Chạy lần lượt từng model, chỉ giữ run có `provider_error_cases == 0` |
@@ -257,3 +255,12 @@ Chi tiết đóng góp của từng thành viên nằm trong [TEAM.md](../../TEA
 - **Nếu có thêm một vòng?** Thêm rule xác nhận yes/no cho mọi hành động không hoàn tác được, không chỉ `send` (sửa GM04 `reading_list clear`). Với R12: khi người dùng nói "gửi bản tin này" thì hỏi xác nhận trước, hỏi nội dung sau.
 
 ## 8. Tài liệu tham khảo
+
+- Tài liệu của lab: [README.md](../../README.md), [RULES.md](../../RULES.md), [RUBRIC.md](../../RUBRIC.md), [CHECKPOINTS.md](../../CHECKPOINTS.md), [docs/TOOL-SETUP.md](../../docs/TOOL-SETUP.md), [starter_v0/README.md](../../starter_v0/README.md)
+- OpenRouter API (OpenAI-compatible): https://openrouter.ai/docs
+- Tavily Search API (`lookup`): https://docs.tavily.com
+- Firecrawl Scrape API (`fetch`): https://docs.firecrawl.dev
+- Twitter API45 trên RapidAPI (`timeline`, `social_search`): https://rapidapi.com/alexanderxbx/api/twitter-api45
+- Telegram Bot API (`send`): https://core.telegram.org/bots/api
+- arXiv API (`papers`, `paper_text`): https://info.arxiv.org/help/api/
+- Ollama (local model, Modelfile `num_predict`): https://github.com/ollama/ollama/blob/main/docs/modelfile.md

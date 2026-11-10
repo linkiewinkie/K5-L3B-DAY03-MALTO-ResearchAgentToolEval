@@ -15,7 +15,7 @@
 | --: | ------ | ---- | ----- | ------ | ------- |
 |   1 | Nguyễn Xuân Khánh Linh | 2A202603801 | [nxklinh@gmail.com](mailto:nxklinh@gmail.com) | [linkiewinkie](https://github.com/linkiewinkie) | Nhóm trưởng — UI + Group Eval + điều phối |
 |   2 | Đậu Hoàng Minh | 2A202604011 | [26ai.minhdh4@vinuni.edu.vn](mailto:26ai.minhdh4@vinuni.edu.vn) | [justapea25](https://github.com/justapea25) | Backend Integration + Live Chat + Report |
-|   3 | <Họ tên Lên> | <MSSV> | <email> | <github> | Prompt Engineering + tối ưu v1–v3 |
+|   3 | Nguyễn Văn Lên | <MSSV> | <email> | [Nguyenvanlen2412](https://github.com/Nguyenvanlen2412) | Prompt Engineering + tối ưu v1–v3 |
 |   4 | Đặng Minh Thu | 2A202604009 | [26ai.thudm@vinuni.edu.vn](mailto:26ai.thudm@vinuni.edu.vn) | [minhthu27](https://github.com/minhthu27) | Custom Tool + Unit Testing |
 
 ## Cá nhân
@@ -54,17 +54,24 @@ Ví dụ: `report/team/20241234_NguyenVanAn.md`.
 
 ### Phần việc phụ trách
 
--
+- Backend Integration + Live Chat + Report.
+- Bonus: gửi Telegram có xác nhận, Small Local Model (Ollama).
 
 ### Đóng góp cụ thể
 
--
+- Viết backend service cho agent (`starter_v0/agent_backend.py`) kèm unit test.
+- Chạy live chat v3 (5 lượt: hỏi lại khi thiếu thông tin, xác nhận rồi gửi Telegram thật).
+- Chạy eval trên 3 model local (`qwen2.5:3b`, `llama3.2:3b`, `qwen2.5:7b`) với prompt v0, v3 và 2 vòng tối ưu v4-local, v5-local.
+- Tổng hợp báo cáo nhóm: B4, B5 (Telegram, local model), B7, mục 3, 5, 8 và B6.
 
 ### Bằng chứng
 
--
+- Commit `6aab420` (backend + unit test), `2355c73` (kết quả local model)
+- Transcript: `starter_v0/transcripts/v3_openrouter_20261110T191419801552.transcript.json`
+- Run local: `starter_v0/runs/v{0,3,4,5}-local-*`, `v3-{qwen3b,llama3b,qwen7b}_*`
+- Báo cáo cá nhân: `report/team/2A202604011_DauHoangMinh.md`
 
-## <HoVaTen>-<MSSV> (Lên)
+## NguyenVanLen-<MSSV>
 
 ### Phần việc phụ trách
 
