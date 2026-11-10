@@ -11,39 +11,53 @@
 
 - Tên nhóm: MALTO
 - Thành viên và phân công: xem [TEAM.md](../../TEAM.md)
-- Provider/model dùng cho v0–v3:
+- Provider/model dùng cho v0–v3: OpenRouter, model `openai/gpt-4o-mini` 
 
 ## 2. Mục tiêu và cách tiếp cận — PHẦN A: Giới thiệu agent
 
 ### A1. Agent này làm được gì
 
-> 1–2 câu mô tả agent dùng để làm gì (cho team khác hiểu nhanh).
+**Research agent cho tin tức AI:** xem bài đăng mới của một tài khoản X/Twitter, tìm theo chủ đề trên mạng xã hội và web, đọc nội dung một URL hoặc bài báo arXiv, rồi tổng hợp thành bản tin (digest) có dẫn nguồn. Agent **hỏi lại khi thiếu thông tin** (ví dụ chưa nói tài khoản hay URL nào) và **chỉ gửi bản tin lên Telegram sau khi người dùng xác nhận**.
 
-Ví dụ: "Research agent: tìm tin theo từ khóa / theo tài khoản, đọc URL, tổng hợp thành digest, và gửi lên Telegram khi được xác nhận."
+**Cách chạy UI** (từ thư mục `starter_v0/`):
 
-**Cách chạy UI:**
+```bash
+pip install -r requirements.txt   # đã có streamlit
+cp .env.example .env              # điền OPENROUTER_API_KEY, TAVILY_API_KEY, FIRECRAWL_API_KEY, RAPIDAPI_KEY
+streamlit run app.py              # → http://localhost:8501
+```
 
-> Lệnh chạy UI (ví dụ `streamlit run app.py`) và dependency đã thêm vào `starter_v0/requirements.txt`.
+UI hiện câu trả lời của agent, từng tool call (tên tool, args, kết quả, lỗi nếu có), và một nút xác nhận khi agent muốn gửi Telegram. Mọi lượt chat được lưu vào `starter_v0/transcripts/`.
 
 **Link dùng thử (deploy):**
 
-> Dán link public để team khác mở thử ngay. Cách deploy nhanh bằng Cloudflare Tunnel xem README. Nếu deploy Vercel/Streamlit Cloud thì dán link đó.
->
-> URL:
+Mở bằng Cloudflare Tunnel trong lúc demo: `cloudflared tunnel --url http://localhost:8501`. Link `trycloudflare.com` chỉ sống khi lệnh còn chạy, nên mỗi lần mở lại là một link mới.
+
+> URL: _(dán link khi mở tunnel lúc showdown)_
 
 ### A2. Tool agent có
 
-> Liệt kê các tool agent đang dùng (gồm tool mới nhóm tự thêm). Mỗi tool 1 dòng: tên + làm được gì.
-
-| Tên tool | Làm được gì                              | Tool mới nhóm thêm? |
-| --------- | --------------------------------------------- | ---------------------- |
-| clarify   | hỏi lại người dùng khi thiếu thông tin | không                 |
-|           |                                               |                        |
-|           |                                               |                        |
+| Tên tool        | Làm được gì                                                                                       | Nguồn dữ liệu          | Tool mới nhóm thêm? |
+| --------------- | -------------------------------------------------------------------------------------------------- | ---------------------- | ------------------- |
+| `clarify`       | Hỏi lại người dùng khi thiếu thông tin (tài khoản, URL, chủ đề…); agent dừng chờ trả lời            | —                      | không               |
+| `timeline`      | Lấy các bài đăng mới nhất của một tài khoản X/Twitter (handle không có `@`)                        | RapidAPI Twitter API45 | không               |
+| `social_search` | Tìm bài đăng trên X/Twitter theo từ khoá (`Top` hoặc `Latest`)                                     | RapidAPI Twitter API45 | không               |
+| `lookup`        | Tìm kiếm web / tin tức theo từ khoá, có lọc khoảng thời gian                                       | Tavily                 | không               |
+| `fetch`         | Đọc nội dung một URL cụ thể (trả về text/markdown)                                                 | Firecrawl              | không               |
+| `format`        | Trình bày các kết quả đã có thành bản tin có tiêu đề và link nguồn                                 | Local                  | không               |
+| `send`          | Gửi bản tin lên Telegram; **chỉ gửi khi `confirmed=true`**, chưa xác nhận thì trả `needs_confirmation` | Telegram Bot API       | không               |
+| `policy`        | Tra cứu tài liệu chính sách nội bộ (nghiên cứu AI, bảo mật dữ liệu, đăng bài ra ngoài, trích dẫn nguồn, dùng tool) | `company_policy/*.md`  | không (bonus có sẵn) |
+| `papers`        | Tìm bài báo khoa học trên arXiv                                                                    | arXiv API              | không (bonus có sẵn) |
+| `paper_text`    | Lấy nội dung text của một bài báo arXiv (đọc PDF)                                                  | arXiv + pypdf          | không (bonus có sẵn) |
+| _(tool mới)_    | _Cập nhật khi tool mới của nhóm được tích hợp vào `tools.yaml`._                                    |                        | có                  |
 
 ### A3. Câu hỏi mẫu để thử
 
-> 3–5 câu hỏi/yêu cầu mẫu để team khác tự thử agent ngay.
+1. `Tweet mới nhất của Sam Altman là gì?`: đọc timeline của một tài khoản (`timeline`).
+2. `Tin tức AI nổi bật trong tuần này là gì? Tóm tắt kèm link nguồn.`: tìm web/tin tức rồi tổng hợp (`lookup` → `format`).
+3. `Đọc giúp mình bài này`, không kèm link: agent phải **hỏi lại** URL nào (`clarify`), rồi đọc khi bạn gửi link (`fetch`).
+4. `Tìm 3 bài báo arXiv mới về AI agent tool calling`: tìm bài báo khoa học (`papers`).
+5. `Gửi bản tin vừa rồi lên Telegram`: agent phải **hỏi xác nhận trước**, chỉ gửi sau khi bạn đồng ý (`send` với `confirmed=true`).
 
 ## 3. Giải pháp
 
