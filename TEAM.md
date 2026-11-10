@@ -15,7 +15,7 @@
 | --: | ------ | ---- | ----- | ------ | ------- |
 |   1 | Nguyễn Xuân Khánh Linh | 2A202603801 | [nxklinh@gmail.com](mailto:nxklinh@gmail.com) | [linkiewinkie](https://github.com/linkiewinkie) | Nhóm trưởng — UI + Group Eval + điều phối |
 |   2 | Đậu Hoàng Minh | 2A202604011 | [26ai.minhdh4@vinuni.edu.vn](mailto:26ai.minhdh4@vinuni.edu.vn) | [justapea25](https://github.com/justapea25) | Backend Integration + Live Chat + Report |
-|   3 | <Họ tên Lên> | <MSSV> | <email> | <github> | Prompt Engineering + tối ưu v1–v3 |
+|   3 | Nguyễn Văn Lên | 2A202604007 | [26ai.lennv@vinuni.edu.vn](mailto:26ai.lennv@vinuni.edu.vn) | [Nguyenvanlen2412](https://github.com/Nguyenvanlen2412) | Prompt Engineering + tối ưu v1–v3 |
 |   4 | <Họ tên Thu> | <MSSV> | <email> | <github> | Custom Tool + Unit Testing |
 
 ## Cá nhân
@@ -64,19 +64,28 @@ Ví dụ: `report/team/20241234_NguyenVanAn.md`.
 
 -
 
-## <HoVaTen>-<MSSV> (Lên)
+## NguyenVanLen-2A202604007
 
 ### Phần việc phụ trách
 
--
+- Phân tích nguyên nhân lỗi ở baseline v0, thiết kế chu trình tối ưu qua 3 version v1–v3 (CP2).
+- Tối ưu `starter_v0/artifacts/system_prompt.md`: loại bỏ chỉ dẫn xấu, thiết lập scope boundary, no-tool cho out-of-scope, thêm rule `clarify` khi thiếu thông tin và cổng xác nhận yes/no trước khi `send`.
+- Tối ưu `starter_v0/artifacts/tools.yaml`: viết lại toàn bộ phần mô tả tool (khi nào dùng / không dùng) và chuẩn hóa argument conventions, enum format.
+- Ghi log các vòng lặp vào `starter_v0/artifacts/version_log.csv`.
 
 ### Đóng góp cụ thể
 
--
+- Version v1: Bỏ ép đoán thông tin, bỏ ép 1 bước, bỏ tự ý gửi; thêm scope research và cấm gọi tool cho câu hỏi toán/code. Base eval tăng từ 0.65 lên 0.80 (16/20 PASS).
+- Version v2: Thêm rule hỏi lại bằng `clarify` khi thiếu handle/URL và rule xác nhận yes/no trước khi `send`. Base eval đạt 0.75 (15/20 PASS, phát hiện hạn chế khi chỉ sửa prompt).
+- Version v3: Tinh chỉnh routing nguồn trong prompt + viết lại toàn diện `tools.yaml` (ranh giới dùng tool, convention `lookup`, `timeline`, `send`). Base eval nhảy vọt lên 0.95 (19/20 PASS, routing 1.00, args 0.95, multi-turn 1.00).
 
 ### Bằng chứng
 
--
+- Commit `772e614` — run v1: `starter_v0/runs/v1_B_base_openrouter_20261110T182732220052.json`
+- Commit `7db0972` — run v2: `starter_v0/runs/v2_B_base_openrouter_20261110T184712806825.json`
+- Commit `65bf68f` — run v3: `starter_v0/runs/v3_B_base_openrouter_20261110T190626530147.json`
+- Dòng v1, v2, v3 trong `starter_v0/artifacts/version_log.csv`
+- Bảng B1, Mục 3 và Mục 7 (B6) trong `report/team/group_report.md`
 
 ## <HoVaTen>-<MSSV> (Thu)
 
