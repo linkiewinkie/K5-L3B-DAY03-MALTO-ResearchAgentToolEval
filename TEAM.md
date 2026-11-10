@@ -7,7 +7,7 @@
 - Repo nhóm: `K5-L3B-DAY03-MALTO-ResearchAgentToolEval` (xem [SUBMISSION.md](SUBMISSION.md))
 - URL repo: https://github.com/linkiewinkie/K5-L3B-DAY03-MALTO-ResearchAgentToolEval
 - Nhánh nộp: `main`
-- Commit chốt: <điền sau khi merge cuối>
+- Commit chốt: `c7ad627`
 
 ## Thành viên
 
