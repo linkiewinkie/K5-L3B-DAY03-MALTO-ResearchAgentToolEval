@@ -123,3 +123,85 @@ tools:
         max_pages: {type: integer, default: 5, description: "Số trang"}
         max_chars: {type: integer, default: 8000, description: "Số ký tự"}
       required: [arxiv_url]
+
+  # ---------------- Team tools ----------------
+  - name: dedupe
+    description: "Loại bỏ item trùng lặp (cùng URL hoặc cùng tiêu đề) khỏi danh sách kết quả ĐÃ CÓ từ lookup/social_search. Dùng khi gộp nhiều nguồn trước khi format. KHÔNG dùng để tìm kiếm hay đọc nội dung mới; không dùng khi chưa có danh sách item."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Danh sách item đã có (mỗi item là object có url/title)"
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+        key: {type: string, enum: [url, title], default: "url", description: "Trường dùng để so trùng; mặc định url"}
+        limit: {type: integer, default: 0, description: "Giữ tối đa N item; 0 là không giới hạn"}
+      required: [items]
+
+  - name: filter_results
+    description: "Lọc danh sách item ĐÃ CÓ: chỉ giữ item từ các nguồn người dùng chọn (ví dụ Reuters, TechCrunch) và/hoặc chỉ giữ item đăng trong N ngày gần đây. Dùng khi người dùng nói 'chỉ lấy tin từ ...', 'trong 7 ngày gần đây', 'loại bỏ tin cũ'. KHÔNG dùng để tìm kiếm mới (dùng lookup/social_search; lookup đã có timeframe riêng khi tìm) và không dùng khi chưa có danh sách item. Khi đặt days, item không có ngày hợp lệ sẽ bị loại."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Danh sách item đã có (object có thể chứa title, url, source, date)"
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              date: {type: string}
+        sources:
+          type: array
+          default: []
+          description: "Tên nguồn cần giữ, không phân biệt hoa thường, ví dụ Reuters, TechCrunch hoặc reuters.com. Để trống = không lọc theo nguồn"
+          items: {type: string}
+        days: {type: integer, default: 0, description: "Chỉ giữ item trong N ngày gần đây (7 = một tuần); 0 là không lọc theo ngày"}
+      required: [items]
+
+  - name: topic_stats
+    description: "Phân tích chủ đề nổi bật trong một danh sách bài viết ĐÃ CÓ: trả về các chủ đề được nhắc nhiều nhất, số bài liên quan, tỉ lệ và các nguồn tiêu biểu. Dùng khi người dùng hỏi 'chủ đề nào được nhắc nhiều nhất', 'thống kê chủ đề' thay vì đọc từng bài. Có thể truyền topics để đếm đúng các chủ đề người dùng nêu. KHÔNG dùng để tóm tắt nội dung từng bài, không dùng để tìm kiếm mới và không dùng khi chưa có danh sách bài."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Danh sách bài viết đã có (object có title và/hoặc summary, source hoặc url)"
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+        top_n: {type: integer, default: 10, description: "Số chủ đề trả về tối đa ở chế độ tự động"}
+        min_articles: {type: integer, default: 2, description: "Chủ đề phải xuất hiện trong ít nhất N bài mới được tính (chế độ tự động)"}
+        topics:
+          type: array
+          default: []
+          description: "Tuỳ chọn: danh sách chủ đề cụ thể cần đếm, ví dụ agent, regulation. Để trống = tự tìm chủ đề nổi bật"
+          items: {type: string}
+      required: [items]
+
+  - name: reading_list
+    description: "Danh sách bài đọc sau của người dùng, lưu trong file local. action=add lưu một bài (cần url, có thể kèm title và note), list xem toàn bộ, remove xoá một bài theo url, clear xoá sạch. Dùng khi người dùng nói 'lưu bài này để đọc sau', 'cho xem danh sách đọc lại', 'bỏ bài này khỏi danh sách'. KHÔNG dùng để đọc nội dung bài (dùng fetch) hay tìm bài mới. action=clear xoá hết nên PHẢI hỏi xác nhận người dùng trước, chỉ gọi với confirmed=true sau khi người dùng đồng ý."
+    parameters:
+      type: object
+      properties:
+        action: {type: string, enum: [add, list, remove, clear], default: "list", description: "add = lưu bài; list = xem danh sách; remove = xoá một bài; clear = xoá tất cả (cần confirmed=true)"}
+        url: {type: string, default: "", description: "Địa chỉ bài viết (http/https). Bắt buộc với add và remove"}
+        title: {type: string, default: "", description: "Tiêu đề bài viết (tuỳ chọn, dùng với add)"}
+        note: {type: string, default: "", description: "Ghi chú của người dùng (tuỳ chọn, dùng với add)"}
+        confirmed: {type: boolean, default: false, description: "Chỉ đặt true khi người dùng đã đồng ý rõ ràng việc xoá toàn bộ (action=clear)"}
+      required: [action]
