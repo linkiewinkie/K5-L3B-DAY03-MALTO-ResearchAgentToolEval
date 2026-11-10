@@ -98,7 +98,11 @@ Lấy từ `starter_v0/transcripts/*.transcript.json`.
 
 | Turn | User Request | Tool Calls | Version Evidence | Outcome |
 | ---- | ------------ | ---------- | ---------------- | ------- |
-|      |              |            |                  |         |
+| 1 — yêu cầu thường |              |            |                  |         |
+| 2 — thiếu thông tin |              |            |                  |         |
+| 3 — bổ sung thông tin |              |            |                  |         |
+| 4 — yêu cầu gửi/đăng |              |            |                  |         |
+| 5 — xác nhận gửi |              |            |                  |         |
 
 ### B5a. Required Evidence — Tool mới, unit test, UI
 
@@ -129,11 +133,17 @@ Chỉ điền nếu nhóm làm bonus này.
 
 | Version            | Model (provider) | Prompt/Tools | case_accuracy | tool_routing | argument | multiturn | Run File |
 | ------------------ | ---------------- | ------------ | ------------- | ------------ | -------- | --------- | -------- |
-| v3                 | (cloud)          | v3           |               |              |          |           |          |
-| v3-<model></model> | (ollama)         | v3           |               |              |          |           |          |
-| v3-<model></model> | (ollama)         | v3           |               |              |          |           |          |
-| v4-local           |                  |              |               |              |          |           |          |
-| v5-local           |                  |              |               |              |          |           |          |
+| v0 | `openai/gpt-4o-mini` (openrouter) | v0 | 0.65 | 0.75 | 0.65 | 1.00 | `starter_v0/runs/v0_B_base_openrouter_20261110T170619040358.json` |
+| v0-local-qwen3b | `qwen2.5:3b` (ollama) | v0 | 0.35 | 0.50 | 0.35 | 0.50 | `starter_v0/runs/v0-local-qwen3b_B_base_ollama_20261110T184218499398.json` |
+| v0-local-llama3b | `llama3.2:3b` (ollama) | v0 | 0.15 | 0.20 | 0.15 | 0.17 | `starter_v0/runs/v0-local-llama3b_B_base_ollama_20261110T184443662952.json` |
+| v3 | `openai/gpt-4o-mini` (openrouter) | v3 |  |  |  |  |  |
+| v3-qwen3b | `qwen2.5:3b` (ollama) | v3 |  |  |  |  |  |
+| v3-llama3b | `llama3.2:3b` (ollama) | v3 |  |  |  |  |  |
+| v3-qwen7b | `qwen2.5:7b` (ollama) | v3 |  |  |  |  |  |
+| v4-local |  |  |  |  |  |  |  |
+| v5-local |  |  |  |  |  |  |  |
+
+Phần cứng chạy local: Apple M1 (GPU 8 core), 16 GB unified memory, Ollama 0.40.16. Dòng `v0-local-*` là đo thêm trên cùng prompt v0, để so cloud và local khi prompt chưa tối ưu.
 
 Lỗi đặc thù của model nhỏ (đếm từ run JSON):
 
