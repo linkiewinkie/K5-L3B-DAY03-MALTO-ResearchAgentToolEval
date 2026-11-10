@@ -80,9 +80,23 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 
 Lấy từ `results[*].result.failures` trong run JSON.
 
+Baseline v0: [`starter_v0/runs/v0_B_base_openrouter_20261110T170619040358.json`](../../starter_v0/runs/v0_B_base_openrouter_20261110T170619040358.json) — `openai/gpt-4o-mini`, 13/20 PASS (case 0.65 · routing 0.75 · args 0.65 · multi-turn 1.00). 7 case FAIL:
+
 | Case ID | Failure Type | Actual Tool Calls | What Failed | Fix |
 | ------- | ------------ | ----------------- | ----------- | --- |
-|         |              |                   |             |     |
+| R03_web_news_routing | `wrong_tool` (observed: `wrong_arg_value`) | `lookup(query="AI news", topic="news", timeframe="day")` | `query: expected 'AI', got 'AI news'` — model nhét chữ "news" vào `query` dù đã đặt `topic=news` | PASS từ **v1** chỉ nhờ sửa prompt (bỏ chỉ dẫn xấu, chưa đụng args); v3 thêm convention vào `tools.yaml` (`query` chỉ là chủ đề, không thêm "news") để giữ ổn định |
+| R08_out_of_scope | `out_of_scope` (`unexpected_tool_call`) | `send(text="Nguyên hàm của x^2 là …")` | `expected no tool call` — prompt starter ép "luôn hoàn thành bằng một tool" nên model dùng `send` để trả lời câu toán | Bỏ chỉ dẫn "single step / pick one tool", thêm phạm vi research + "ngoài phạm vi thì không gọi tool". PASS từ **v1** |
+| R10_missing_handle | `missing_info` (`missing_tool_call`) | `timeline(screenname="sama")` | `missing tool call clarify`, `extra tool call timeline` — prompt starter dặn đoán "a well-known account like Sam Altman" | Bỏ chỉ dẫn đoán (v1) và thêm rule "thiếu thông tin → clarify" (v2) vẫn chưa đủ: v1/v2 gọi `timeline` với handle giả (`your_twitter_account`). PASS từ **v3** nhờ rule riêng cho `timeline` + mô tả tool "chỉ dùng khi đã biết tài khoản" |
+| R11_missing_url | `missing_info` (`missing_tool_call`) | `fetch(url="https://example.com/article")` | `missing tool call clarify`, `extra tool call fetch` — model bịa URL theo chỉ dẫn "assume a likely URL" | v1/v2 vẫn bịa `example.com/article`. PASS từ **v3** nhờ mô tả `fetch` trong `tools.yaml`: "không dùng khi URL thiếu/mơ hồ, không bịa URL, hỏi bằng clarify" |
+| R12_confirm_before_send | `wrong_boundary` (`missing_tool_call`) | `send(text="Bản tin này")` | `missing tool call clarify`, `extra tool call send` — prompt starter dặn "just go ahead and do it" | v1 vẫn tự gọi `send`; v2 (rule xác nhận yes/no) đã hỏi lại bằng `clarify` nhưng thiếu `response_type`; **v3 vẫn FAIL**: hỏi `clarify(response_type="text")` xin nội dung bản tin thay vì `yes_no`, vì câu "Bản tin này" không kèm nội dung và rule v3 dặn "thiếu nội dung thì hỏi trước" |
+| R13_parallel_web_and_tweets | `wrong_tool` (`wrong_arg_value`) | `lookup(query="AI news", timeframe="day")` + `social_search(query="AI")` | `query: expected 'AI', got 'AI news'`; `topic: expected 'news', got None` — chọn đúng 2 tool nhưng sai/thiếu args của `lookup` | PASS ở v1, **lại FAIL ở v2** (`lookup` thiếu `topic`), PASS ở **v3** nhờ mô tả `topic` trong `tools.yaml`: "tin tức phải đặt `topic=news` rõ ràng, không bỏ trống" |
+| R14_out_of_scope_coding | `out_of_scope` (`unexpected_tool_call`) | `send(text="Dưới đây là một hàm Python tính số Fibonacci…")` | `expected no tool call` — cùng nguyên nhân R08, model dùng `send` để trả code | Như R08. PASS từ **v1** |
+
+**Nhận xét:**
+
+- 5/7 lỗi (R08, R10, R11, R12, R14) bắt nguồn trực tiếp từ 3 chỉ dẫn xấu cố ý trong prompt starter: đoán thay vì hỏi, tự gửi không cần xác nhận, ép xong trong một bước bằng một tool. 2/7 lỗi (R03, R13) là thiếu convention args cho `lookup`.
+- Ở R08, R12, R14 model đã **gọi `send` thật**; không có gì bị gửi đi chỉ vì code của tool chặn khi `confirmed=false`. Guardrail trong tool là lớp bảo vệ thứ hai, prompt là lớp thứ nhất.
+- Sau v3 chỉ còn **R12** FAIL (19/20, case 0.95).
 
 ### B3. Team Eval Cases
 
