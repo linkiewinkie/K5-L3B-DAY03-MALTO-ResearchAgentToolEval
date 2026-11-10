@@ -48,7 +48,7 @@ Vai trò trong nhóm: **Nhóm trưởng — UI + Group Eval + điều phối**.
   - Commit `711f871`: `starter_v0/data/eval_group.json`
   - Commit `e8145cb`: bảng B2 trong `report/team/group_report.md`
   - Commit `6c8b74e`: `TEAM.md`
-  - Run group eval chính thức: <cập nhật sau khi chạy>
+  - Run bản tích hợp `v3-int`: base `starter_v0/runs/v3-int_B_base_openrouter_20261110T213215560432.json` (19/20), group `starter_v0/runs/v3-int_B_group_openrouter_20261110T213256880386.json` (9/10); dòng `v3-int` trong `starter_v0/artifacts/version_log.csv`; bảng B3
 - AI/công cụ đã dùng và cách tự kiểm tra kết quả:
   - Dùng Claude (trợ lý lập trình AI) để đọc code harness (`run_eval.py`, `chat.py`), gợi ý cách viết eval case, viết code web UI và soạn nháp bảng B2.
   - Tự kiểm tra: đối chiếu từng số liệu và tool call trong B2 với run JSON v0–v3; kiểm tra hash của snapshot v0–v3 khớp với run JSON; kiểm tra cấu trúc `eval_group.json` (5+5, `phase`, `failure_type`) và chạy `pytest` (0 failed); chạy thử group eval và đọc `actual_tool_calls` của từng case trước khi giữ hay sửa case; chạy UI với agent thật và kiểm tra transcript ghi đúng.

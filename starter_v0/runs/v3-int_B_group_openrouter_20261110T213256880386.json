@@ -1,0 +1,906 @@
+{
+  "run_id": "v3-int_B_group_openrouter_20261110T213256880386",
+  "version": "v3-int",
+  "artifact_version": "v3-int+pdeb12896aba6+t57ae1ce08b35",
+  "prompt_hash": "deb12896aba62bf5d4ecb1580fb554f74002bb780b01394caba6897d62b80d54",
+  "tools_hash": "57ae1ce08b356ce66dc2660e8a6066ccb0625c3dc5b5d130625809bc6689a374",
+  "phase": "B",
+  "suite": "group",
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "system_prompt": "C:\\Users\\Admin\\K5-L3B-DAY03-ResearchAgentToolEval\\starter_v0\\artifacts\\system_prompt.md",
+  "tools": "C:\\Users\\Admin\\K5-L3B-DAY03-ResearchAgentToolEval\\starter_v0\\artifacts\\tools.yaml",
+  "eval_cases": "data\\eval_group.json",
+  "dataset_id": "day03_v2_research_group",
+  "dataset_role": "group",
+  "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
+  "generated_at": "2026-11-10T21:32:56",
+  "summary": {
+    "total_cases": 10,
+    "measured_cases": 10,
+    "provider_error_cases": 0,
+    "passed_cases": 9,
+    "case_accuracy": 0.9,
+    "tool_routing_accuracy": 0.9,
+    "argument_accuracy": 0.9,
+    "multiturn_accuracy": 0.8,
+    "failure_counts": {
+      "wrong_boundary": 1
+    },
+    "observed_mismatch_counts": {
+      "missing_tool_call": 1
+    }
+  },
+  "results": [
+    {
+      "id": "G01_reading_list_add_url",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "routing_new_tool_reading_list",
+        "difficulty": "easy",
+        "what_it_tests": "Yêu cầu 'lưu để đọc sau' → reading_list action=add với đúng url, KHÔNG dùng fetch để đọc bài ngay."
+      },
+      "input": "Lưu bài https://www.theverge.com/ai-artificial-intelligence/nvidia-blackwell-review vào danh sách đọc giúp mình, tối mình đọc sau",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "reading_list",
+            "args": {
+              "action": "add",
+              "url": "https://www.theverge.com/ai-artificial-intelligence/nvidia-blackwell-review"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "reading_list",
+            "args": {
+              "action": "add",
+              "url": "https://www.theverge.com/ai-artificial-intelligence/nvidia-blackwell-review",
+              "title": "Nvidia Blackwell Review",
+              "note": "Bài viết về Nvidia Blackwell"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "reading_list",
+          "args": {
+            "action": "add",
+            "url": "https://www.theverge.com/ai-artificial-intelligence/nvidia-blackwell-review",
+            "title": "Nvidia Blackwell Review",
+            "note": "Bài viết về Nvidia Blackwell"
+          },
+          "result": {
+            "tool": "reading_list",
+            "action": "add",
+            "status": "saved",
+            "entry": {
+              "url": "https://www.theverge.com/ai-artificial-intelligence/nvidia-blackwell-review",
+              "title": "Nvidia Blackwell Review",
+              "note": "Bài viết về Nvidia Blackwell",
+              "saved_at": "2026-11-10T14:32:29+00:00"
+            },
+            "count": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "G02_lookup_news_year",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_timeframe_year",
+        "difficulty": "medium",
+        "what_it_tests": "'năm nay' → timeframe=year và tin tức → topic=news (base chỉ test day/week)."
+      },
+      "input": "Năm nay Nvidia có những tin tức gì đáng chú ý?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "topic": "news",
+              "timeframe": "year"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "Nvidia",
+              "topic": "news",
+              "timeframe": "year",
+              "max_results": 5
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "lookup",
+          "args": {
+            "query": "Nvidia",
+            "topic": "news",
+            "timeframe": "year",
+            "max_results": 5
+          },
+          "result": {
+            "tool": "web_search",
+            "query": "Nvidia",
+            "topic": "news",
+            "timeframe": "year",
+            "items": [
+              {
+                "title": "Nvidia",
+                "url": "https://tavily.com/knowledge/company/TXRhn2TKUD7t",
+                "source": "tavily.com",
+                "summary": "# NVIDIA\nID: TXRhn2TKUD7t\nWebsite: www.nvidia.com\nHeadquarters: Santa Clara, CA, United States\nLinkedIn: www.linkedin.com/company/nvidia · 6,301,389 followers\nIndustry: Computer Hardware Manufacturing\nIndustry codes: SIC 73, 737, NAICS 33, 334\nCompany type: Public Company\nFounded: 1993 [...] Description: NVIDIA is a world leader in the field of artificial intelligence, specifically in the field of GPU. They focus on AI, HPC, gaming, creative design, autonomy vehicles, and robotics. [...] ## Products and services\nKeywords: technology, computers_electronics_and_technology/computer_hardware, gpu-accelerated computing, artificial intelligence, deep learning, virtual reality, gaming, self-driving cars, supercomputing, robotics, virtualization, parallel computing",
+                "score": 0.8377398
+              },
+              {
+                "title": "Nvidia stock falls amid probe into CEO’s relationship with Chinese spy",
+                "url": "https://www.nbcnews.com/business/markets/nvidia-stock-falls-probe-ceos-relationship-chinese-spy-rcna608290",
+                "source": "nbcnews.com",
+                "summary": "By Steve Kopack and Rob Wile\n\nNvidia’s stock slid about 4% on Monday after the company announced that it had opened an investigation into CEO Jensen Huang’s relationship with a woman that U.S. intelligence agencies say is a Chinese spy.\n\nThe probe has the potential to unsettle the entire AI boom, fueled by trillions of dollars of spending and investments, in part to purchase Nvidia’s cutting-edge AI chips. Nvidia’s drop wiped out more than $200 billion in value. [...] Nvidia’s peers, such as AMD, Qualcomm, Taiwan Semi and Intel, all rose along with the broader market. Nvidia was the biggest loser on the Dow, the Nasdaq 100 and S&P 500.\n\nWith so many outstanding questions about the Huang scandal, few major analysts that cover Nvidia had weighed in on Monday morning about what it could mean for the company’s future.\n\nBut those who did said it was a blemish on an otherwise sterling track record, which could spark even more investigations. [...] “A committee of independent directors, assisted by outside independent counsel, will oversee the investigation,” Nvidia said in a Sunday statement. “The Board prioritizes U.S. national and economic security, which is paramount to the interests of NVIDIA and its shareholders.”\n\nAn Nvidia spokesperson told NBC News that Huang was “committed to continuing to lead NVIDIA as CEO without interruption.”",
+                "score": 0.6279746
+              },
+              {
+                "title": "Nvidia's shares slide as chip giant probes CEO over spy claims | Reuters",
+                "url": "https://www.reuters.com/world/asia-pacific/south-korea-says-nvidia-issues-wont-affect-contracted-gpu-supplies-2026-11-09",
+                "source": "reuters.com",
+                "summary": "SEOUL/SYDNEY, Nov 9 (Reuters) - Nvidia (NVDA.O) shares tumbled on Monday after an internal investigation into whether CEO Jensen Huang had been targeted by a foreign intelligence effort ​put his future at the AI chipmaker under scrutiny. [...] Nvidia's shares tumbled around 8% in early trading, extending last week's selloff and pushing the stock to fresh multi-month lows. At the current levels, the chipmaker would lose around $350 billion in value from its last ​closing price.\n\n\"The market's probably telling you now this does no favors to the stock whatsoever in a time when there's a lot of conjecture as to the build-out of data centers,\" said Chris Weston, head of research at brokerage Pepperstone in ​Melbourne. [...] He is Nvidia's fifth-largest shareholder with a roughly 3.6% stake, according to LSEG data, and keeps a tight grip on the company through an unusually ​flat structure in which dozens of executives report directly to him.\n\nBut unlike Meta Platforms (META.O) or SpaceX (SPCX.O), Nvidia has no dual-class shares that would give its co-founder majority voting control.",
+                "score": 0.62000114
+              },
+              {
+                "title": "Nvidia launches investigation into CEO’s alleged relationship with Chinese spy : NPR",
+                "url": "https://www.npr.org/2026/11/08/nx-s1-6034036/nvidia-launches-investigation-into-ceos-alleged-relationship-with-chinese-spy",
+                "source": "npr.org",
+                "summary": "Rebecca Hersher\n\nNvidia CEO Jensen Huang delivers his keynote on the company's GTC event in Berlin, Germany, Wednesday, Oct. 21, 2026.\n\nNvidia CEO Jensen Huang delivers his keynote on the company's GTC event in Berlin, Germany, Wednesday, Oct. 21, 2026.  Markus Schreiber/AP  hide caption\n\n Markus Schreiber/AP\n\nThe massive artificial intelligence chip maker Nvidia says it is launching an internal investigation, after reports that the company's CEO was in a close relationship with a Chinese spy. [...] Nvidia dominates the global market for AI chips, and has seen explosive growth in recent years, as NPR has reported. The company started as a manufacturer of chips for computer graphics, which later turned out to be crucial for training artificial intelligence.\n\nNvidia's CEO and President Trump have repeatedly appeared in public together in recent years. According to Huang, Nvidia is helping to fund the construction of a new ballroom at the White House. [...] In the statement announcing the investigation, Nvidia cited recent reporting by The New York Times, which alleges Nvidia CEO Jensen Huang was the target of a Chinese intelligence operation that sought to send advanced Nvidia AI chips to China.\n\n\"While the Board has no reason to believe that either national security or NVIDIA secrets were compromised, the Board's inquiry will examine all available information,\" the statement from the company's board of directors reads in part.",
+                "score": 0.61363083
+              },
+              {
+                "title": "Jensen Huang's affair highlights Nvidia's key man risk with no heir",
+                "url": "https://www.cnbc.com/2026/11/09/jensen-huang-affair-nvidia-succession.html",
+                "source": "cnbc.com",
+                "summary": "Nvidia has long maintained a flat, non-hierarchical organizational structure. Huang has deep involvement in the company's day-to-day operations and frequently serves as its spokesperson in front of world leaders and at industry conferences. In addition to being co-founder and CEO, Huang is also Nvidia's president. [...] Nvidia's board \"needs to demonstrate independence and protect shareholders without destabilizing a company whose success is unusually dependent on its founder,\" Schulze-Melander wrote. \"Its initial statement suggests it is attempting to achieve both.\"\n\nSeveral analysts said the investigation could lead to governance changes at Nvidia, including putting a transition contingency plan in place. [...] The Melius analysts wrote that Nvidia has a \"strong bench\" of executive talent across its networking, hyperscale and high-performance computing businesses, along with \"technical expertise\" stemming from Chief Technology Officer Michael Kagan as well as Dally, the chief scientist.\n\n\"While these folks can keep the engine running, Jensen is one of a kind, and his energy will be needed to maintain confidence in the AI trade,\" the analysts wrote.",
+                "score": 0.459586
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "G03_timeline_name_to_handle_limit",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "arg_handle_and_limit",
+        "difficulty": "medium",
+        "what_it_tests": "Map tên Yann LeCun → handle ylecun (không có @) và trích limit=3."
+      },
+      "input": "Cho mình 3 bài đăng gần nhất của Yann LeCun trên X",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "ylecun",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "ylecun",
+              "limit": 3
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "timeline",
+          "args": {
+            "screenname": "ylecun",
+            "limit": 3
+          },
+          "result": {
+            "tool": "get_user_tweets",
+            "screenname": "ylecun",
+            "items": [
+              {
+                "title": "RT @HarryStebbings: Will we end up with a model landscape that has just two to three providers?",
+                "summary": "RT @HarryStebbings: Will we end up with a model landscape that has just two to three providers?\n\n“If we end up in a world where all compani…",
+                "url": "https://x.com/ylecun/status/2120144057607315784",
+                "source": "@ylecun",
+                "date": "Tue Nov 10 13:18:28 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 6,
+                  "views": "3079"
+                }
+              },
+              {
+                "title": "RT @simplifyinAI: Yann LeCun was right the entire time. And generative AI might be a dead end.",
+                "summary": "RT @simplifyinAI: Yann LeCun was right the entire time. And generative AI might be a dead end.\n\nLeCun has argued that generating every pixe…",
+                "url": "https://x.com/ylecun/status/2120132325782503899",
+                "source": "@ylecun",
+                "date": "Tue Nov 10 12:31:51 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 36,
+                  "views": "3416"
+                }
+              },
+              {
+                "title": "RT @KenRoth: Elon Musk’s $500 million couldn’t swing the midterms for Republicans in Congress when all they did was sit ",
+                "summary": "RT @KenRoth: Elon Musk’s $500 million couldn’t swing the midterms for Republicans in Congress when all they did was sit in their hands as T…",
+                "url": "https://x.com/ylecun/status/2120128207659618368",
+                "source": "@ylecun",
+                "date": "Tue Nov 10 12:15:29 +0000 2026",
+                "metrics": {
+                  "favorites": 0,
+                  "retweets": 21,
+                  "views": "3442"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "G04_out_of_scope_booking",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "out_of_scope_transaction",
+        "difficulty": "easy",
+        "what_it_tests": "Yêu cầu giao dịch ngoài phạm vi research → không gọi tool nào (kể cả send/reading_list)."
+      },
+      "input": "Đặt giúp mình vé máy bay Hà Nội – Đà Nẵng sáng mai nhé",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [],
+        "actual_text": "Xin lỗi, nhưng việc đặt vé máy bay không nằm trong phạm vi công việc của tôi. Tôi có thể giúp bạn tìm thông tin về chuyến bay, giá vé hoặc các dịch vụ liên quan nếu bạn cần.",
+        "case_failure_type": "out_of_scope",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G05_reading_list_missing_url",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "clarify_missing_url_new_tool",
+        "difficulty": "medium",
+        "what_it_tests": "Muốn lưu bài nhưng không có link → clarify hỏi URL, KHÔNG bịa url để gọi reading_list."
+      },
+      "input": "Lưu bài đó vào danh sách đọc giúp mình",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn vui lòng cung cấp URL của bài viết mà bạn muốn lưu vào danh sách đọc?",
+              "response_type": "text"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "missing_info",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Bạn vui lòng cung cấp URL của bài viết mà bạn muốn lưu vào danh sách đọc?",
+            "response_type": "text"
+          },
+          "result": {
+            "tool": "ask_user",
+            "question": "Bạn vui lòng cung cấp URL của bài viết mà bạn muốn lưu vào danh sách đọc?",
+            "response_type": "text",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "GM01_dedupe_by_title",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "routing_new_tool_dedupe",
+        "difficulty": "hard",
+        "what_it_tests": "Danh sách đã có, user muốn bỏ trùng theo tiêu đề → dedupe key=title (không phải mặc định url), không tìm lại."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tìm tin AI hôm nay"
+        },
+        {
+          "role": "assistant",
+          "content": "Kết quả: 1) \"OpenAI ra mắt mô hình mới\" — https://techcrunch.com/openai-new-model  2) \"OpenAI ra mắt mô hình mới\" — https://www.reuters.com/tech/openai-model  3) \"Google công bố Gemini cập nhật\" — https://www.theverge.com/google-gemini-update"
+        },
+        {
+          "role": "user",
+          "content": "Bài 1 và 2 trùng tiêu đề kìa, bỏ các bài trùng theo tiêu đề giúp mình"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "dedupe",
+            "args": {
+              "key": "title"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "dedupe",
+            "args": {
+              "items": [
+                {
+                  "title": "OpenAI ra mắt mô hình mới",
+                  "url": "https://techcrunch.com/openai-new-model",
+                  "source": "TechCrunch"
+                },
+                {
+                  "title": "OpenAI ra mắt mô hình mới",
+                  "url": "https://www.reuters.com/tech/openai-model",
+                  "source": "Reuters"
+                },
+                {
+                  "title": "Google công bố Gemini cập nhật",
+                  "url": "https://www.theverge.com/google-gemini-update",
+                  "source": "The Verge"
+                }
+              ],
+              "key": "title"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "dedupe",
+          "args": {
+            "items": [
+              {
+                "title": "OpenAI ra mắt mô hình mới",
+                "url": "https://techcrunch.com/openai-new-model",
+                "source": "TechCrunch"
+              },
+              {
+                "title": "OpenAI ra mắt mô hình mới",
+                "url": "https://www.reuters.com/tech/openai-model",
+                "source": "Reuters"
+              },
+              {
+                "title": "Google công bố Gemini cập nhật",
+                "url": "https://www.theverge.com/google-gemini-update",
+                "source": "The Verge"
+              }
+            ],
+            "key": "title"
+          },
+          "result": {
+            "tool": "dedupe_items",
+            "key": "title",
+            "items": [
+              {
+                "title": "OpenAI ra mắt mô hình mới",
+                "url": "https://techcrunch.com/openai-new-model",
+                "source": "TechCrunch"
+              },
+              {
+                "title": "Google công bố Gemini cập nhật",
+                "url": "https://www.theverge.com/google-gemini-update",
+                "source": "The Verge"
+              }
+            ],
+            "input_count": 3,
+            "item_count": 2,
+            "skipped": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "GM02_filter_recent_days",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "routing_new_tool_filter_results",
+        "difficulty": "hard",
+        "what_it_tests": "Lọc danh sách ĐÃ CÓ theo N ngày → filter_results days=3, không gọi lại lookup (timeframe không có 3 ngày)."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tìm tin về chip AI"
+        },
+        {
+          "role": "assistant",
+          "content": "Kết quả: 1) \"Nvidia tăng sản lượng\" — Reuters — 2026-11-09 — https://www.reuters.com/a  2) \"AMD ra chip mới\" — The Verge — 2026-11-01 — https://www.theverge.com/b  3) \"Intel cắt giảm\" — CNBC — 2026-10-20 — https://www.cnbc.com/c  4) \"TSMC mở nhà máy\" — Reuters — 2026-11-08 — https://www.reuters.com/d"
+        },
+        {
+          "role": "user",
+          "content": "Chỉ giữ các bài trong 3 ngày gần đây thôi"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "filter_results",
+            "args": {
+              "days": 3
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "filter_results",
+            "args": {
+              "items": [
+                {
+                  "title": "Nvidia tăng sản lượng",
+                  "url": "https://www.reuters.com/a",
+                  "source": "Reuters",
+                  "date": "2026-11-09"
+                },
+                {
+                  "title": "AMD ra chip mới",
+                  "url": "https://www.theverge.com/b",
+                  "source": "The Verge",
+                  "date": "2026-11-01"
+                },
+                {
+                  "title": "Intel cắt giảm",
+                  "url": "https://www.cnbc.com/c",
+                  "source": "CNBC",
+                  "date": "2026-10-20"
+                },
+                {
+                  "title": "TSMC mở nhà máy",
+                  "url": "https://www.reuters.com/d",
+                  "source": "Reuters",
+                  "date": "2026-11-08"
+                }
+              ],
+              "days": 3
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "filter_results",
+          "args": {
+            "items": [
+              {
+                "title": "Nvidia tăng sản lượng",
+                "url": "https://www.reuters.com/a",
+                "source": "Reuters",
+                "date": "2026-11-09"
+              },
+              {
+                "title": "AMD ra chip mới",
+                "url": "https://www.theverge.com/b",
+                "source": "The Verge",
+                "date": "2026-11-01"
+              },
+              {
+                "title": "Intel cắt giảm",
+                "url": "https://www.cnbc.com/c",
+                "source": "CNBC",
+                "date": "2026-10-20"
+              },
+              {
+                "title": "TSMC mở nhà máy",
+                "url": "https://www.reuters.com/d",
+                "source": "Reuters",
+                "date": "2026-11-08"
+              }
+            ],
+            "days": 3
+          },
+          "result": {
+            "tool": "filter_items",
+            "sources": [],
+            "days": 3,
+            "items": [
+              {
+                "title": "Nvidia tăng sản lượng",
+                "url": "https://www.reuters.com/a",
+                "source": "Reuters",
+                "date": "2026-11-09"
+              },
+              {
+                "title": "TSMC mở nhà máy",
+                "url": "https://www.reuters.com/d",
+                "source": "Reuters",
+                "date": "2026-11-08"
+              }
+            ],
+            "input_count": 4,
+            "item_count": 2,
+            "removed_by_source": 0,
+            "removed_by_date": 2,
+            "removed_undated": 0,
+            "skipped": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "GM03_topic_stats_top_n",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "routing_new_tool_topic_stats",
+        "difficulty": "hard",
+        "what_it_tests": "Hỏi chủ đề nổi bật trên danh sách đã có → topic_stats top_n=3, không tóm tắt thủ công, không tìm lại."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tìm tin AI tuần này"
+        },
+        {
+          "role": "assistant",
+          "content": "Kết quả: 1) \"AI agents vào doanh nghiệp\" 2) \"EU siết luật AI\" 3) \"AI agents viết code\" 4) \"Nvidia chip AI mới\" 5) \"Luật AI ở Mỹ\" 6) \"Startup AI agents gọi vốn\""
+        },
+        {
+          "role": "user",
+          "content": "Thống kê giúp mình 3 chủ đề được nhắc nhiều nhất trong đống này"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "topic_stats",
+            "args": {
+              "top_n": 3
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "topic_stats",
+            "args": {
+              "items": [
+                {
+                  "title": "AI agents vào doanh nghiệp",
+                  "source": "",
+                  "summary": ""
+                },
+                {
+                  "title": "EU siết luật AI",
+                  "source": "",
+                  "summary": ""
+                },
+                {
+                  "title": "AI agents viết code",
+                  "source": "",
+                  "summary": ""
+                },
+                {
+                  "title": "Nvidia chip AI mới",
+                  "source": "",
+                  "summary": ""
+                },
+                {
+                  "title": "Luật AI ở Mỹ",
+                  "source": "",
+                  "summary": ""
+                },
+                {
+                  "title": "Startup AI agents gọi vốn",
+                  "source": "",
+                  "summary": ""
+                }
+              ],
+              "top_n": 3
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "topic_stats",
+          "args": {
+            "items": [
+              {
+                "title": "AI agents vào doanh nghiệp",
+                "source": "",
+                "summary": ""
+              },
+              {
+                "title": "EU siết luật AI",
+                "source": "",
+                "summary": ""
+              },
+              {
+                "title": "AI agents viết code",
+                "source": "",
+                "summary": ""
+              },
+              {
+                "title": "Nvidia chip AI mới",
+                "source": "",
+                "summary": ""
+              },
+              {
+                "title": "Luật AI ở Mỹ",
+                "source": "",
+                "summary": ""
+              },
+              {
+                "title": "Startup AI agents gọi vốn",
+                "source": "",
+                "summary": ""
+              }
+            ],
+            "top_n": 3
+          },
+          "result": {
+            "tool": "analyze_topics",
+            "mode": "auto",
+            "total_articles": 6,
+            "topics": [
+              {
+                "topic": "agents",
+                "article_count": 3,
+                "share_pct": 50.0,
+                "sources": [
+                  "unknown"
+                ],
+                "example_title": "AI agents vào doanh nghiệp"
+              },
+              {
+                "topic": "luat",
+                "article_count": 2,
+                "share_pct": 33.3,
+                "sources": [
+                  "unknown"
+                ],
+                "example_title": "EU siết luật AI"
+              }
+            ],
+            "skipped": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "GM04_confirm_before_clear_reading_list",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "confirm_before_destructive_new_tool",
+        "difficulty": "medium",
+        "what_it_tests": "Xoá toàn bộ danh sách là hành động không hoàn tác → hỏi xác nhận yes_no trước, chưa gọi reading_list clear."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Cho mình xem danh sách đọc"
+        },
+        {
+          "role": "assistant",
+          "content": "Danh sách đọc của bạn có 3 bài: Nvidia Blackwell review, EU AI Act update, Gemini roadmap."
+        },
+        {
+          "role": "user",
+          "content": "Xoá sạch danh sách đọc đi"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "reading_list",
+            "args": {
+              "action": "clear",
+              "confirmed": true
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_boundary",
+        "failures": [
+          "missing tool call clarify",
+          "extra tool call reading_list"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "reading_list",
+          "args": {
+            "action": "clear",
+            "confirmed": true
+          },
+          "result": {
+            "tool": "reading_list",
+            "action": "clear",
+            "status": "cleared",
+            "removed": 1,
+            "count": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "GM05_answer_from_context_no_tool",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "no_tool_answer_from_context",
+        "difficulty": "medium",
+        "what_it_tests": "Thông tin đã có trong hội thoại → trả lời thẳng (Anthropic), không gọi lookup/fetch lại."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tin AI hôm nay có gì?"
+        },
+        {
+          "role": "assistant",
+          "content": "Có 3 tin: 1) OpenAI cập nhật ChatGPT. 2) Anthropic ra mắt Claude bản mới. 3) Google mở rộng Gemini."
+        },
+        {
+          "role": "user",
+          "content": "Tin số 2 nói về công ty nào vậy?"
+        }
+      ],
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [],
+        "actual_text": "Tin số 2 nói về công ty Anthropic, họ vừa ra mắt phiên bản mới của Claude.",
+        "case_failure_type": "unnecessary_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": []
+    }
+  ]
+}

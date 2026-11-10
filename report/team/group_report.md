@@ -102,9 +102,26 @@ Baseline v0: [`starter_v0/runs/v0_B_base_openrouter_20261110T170619040358.json`]
 
 Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn + 5 multi turn).
 
+Run: [`starter_v0/runs/v3-int_B_group_openrouter_20261110T213256880386.json`](../../starter_v0/runs/v3-int_B_group_openrouter_20261110T213256880386.json) — bản tích hợp `v3-int` (prompt v3 + 14 tool, `v3-int+pdeb12896aba6+t57ae1ce08b35`), `openai/gpt-4o-mini`. **9/10 PASS** (case 0.90 · routing 0.90 · args 0.90 · multi-turn 0.80), 0 lỗi provider. Cùng bản này chạy base eval đạt 19/20 (`runs/v3-int_B_base_openrouter_20261110T213215560432.json`), bằng v3 → thêm 4 tool không làm giảm điểm bộ base.
+
 | Case ID | What It Tests | Expected Tool/Behavior | Result |
 | ------- | ------------- | ---------------------- | ------ |
-|         |               |                        |        |
+| G01_reading_list_add_url (single) | "Lưu để đọc sau" → route tới tool mới, không dùng `fetch` | `reading_list(action="add", url=…)` | PASS |
+| G02_lookup_news_year (single) | "năm nay" → `timeframe=year`, tin tức → `topic=news` | `lookup(topic="news", timeframe="year")` | PASS |
+| G03_timeline_name_to_handle_limit (single) | Map tên Yann LeCun → handle không có `@`, trích `limit` | `timeline(screenname="ylecun", limit=3)` | PASS |
+| G04_out_of_scope_booking (single) | Yêu cầu giao dịch ngoài phạm vi | Không gọi tool, từ chối | PASS |
+| G05_reading_list_missing_url (single) | Muốn lưu bài nhưng không có link → hỏi lại, không bịa URL | `clarify(response_type="text")` | PASS |
+| GM01_dedupe_by_title (multi) | Danh sách đã có, bỏ trùng theo tiêu đề, không tìm lại | `dedupe(key="title")` | PASS |
+| GM02_filter_recent_days (multi) | Lọc danh sách đã có theo 3 ngày, không gọi lại `lookup` | `filter_results(days=3)` | PASS |
+| GM03_topic_stats_top_n (multi) | Thống kê chủ đề trên danh sách đã có | `topic_stats(top_n=3)` | PASS |
+| GM04_confirm_before_clear_reading_list (multi) | Xoá toàn bộ danh sách đọc phải hỏi xác nhận trước | `clarify(response_type="yes_no")` | **FAIL** — model gọi thẳng `reading_list(action="clear", confirmed=true)`, không hỏi |
+| GM05_answer_from_context_no_tool (multi) | Thông tin đã có trong hội thoại → trả lời thẳng | Không gọi tool (trả lời "Anthropic") | PASS |
+
+**Nhận xét:**
+
+- Cả 4 tool mới của nhóm (`dedupe`, `filter_results`, `topic_stats`, `reading_list`) đều được model route tới đúng lúc và đúng args.
+- GM04 là lỗi guardrail thật: tool `reading_list` chỉ chặn `clear` khi `confirmed=false`, nhưng model **tự điền `confirmed=true`** dù người dùng chưa đồng ý, nên lớp chặn trong tool bị vượt qua. Prompt v3 chỉ có rule xác nhận cho `send`, chưa có cho hành động xoá. Hướng sửa: thêm rule "xoá toàn bộ danh sách đọc phải `clarify` yes/no trước" vào prompt và chạy thành version mới.
+- Bộ base không có case nào đo hành động xoá của tool mới, nên lỗi này chỉ lộ ra nhờ eval nhóm.
 
 ### B4. Live Chat Evidence
 
