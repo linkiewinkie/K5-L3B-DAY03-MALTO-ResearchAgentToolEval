@@ -1,0 +1,125 @@
+# starter_v0 — tool declarations (intentionally vague).
+# Names and descriptions here are a rough first draft. Routing rules, name->handle
+# mapping, arg conventions (news/timeframe/Top), and the send-confirmation boundary
+# are NOT spelled out anywhere yet. Your job is to make these declarations + the
+# system prompt good enough that the agent routes correctly on the eval.
+#
+# If you rename a tool, keep the name in sync across:
+#   this file  ->  tools/__init__.py (TOOL_FUNCTIONS)  ->  data/eval_base.json + data/eval_research_extension.json
+# `pytest tests/test_tool_contract.py` checks this sync for you.
+#
+# TODO CP2 (student):
+#   - Rewrite every description: what it does, WHEN to use it, WHEN NOT to use it.
+#   - Spell out arg conventions in parameter descriptions (handle format, topic/timeframe, search_type).
+#   - Make the `send` confirmation boundary explicit.
+#   - Declare your new tool(s) at the end of this file.
+tools:
+  # ---------------- Core tools ----------------
+  - name: clarify
+    description: "Ask the user for a missing or ambiguous required detail, or explicit confirmation before an external action. Use response_type=text for missing information (such as whose posts or which URL), and yes_no to confirm an explicitly requested send/post. Do not guess missing details or use for ordinary answers."
+    parameters:
+      type: object
+      properties:
+        question: {type: string, default: "", description: "A concise question for the missing detail or confirmation; include the specific action/content when asking to confirm."}
+        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "Use text to ask for missing details; yes_no to confirm an external send/post request; choice when the user must select from options."}
+        options: {type: array, default: [], items: {type: string}, description: "Choices to present when response_type is choice; otherwise leave empty."}
+      required: [question]
+
+  - name: timeline
+    description: "Retrieve recent posts BY one named account. Use only when the account is identified; if the user asks for recent posts but gives no account, use clarify(response_type=text) to ask whose posts. Do not guess an account, use a placeholder, or route a missing account to social_search. For posts ABOUT a topic use social_search; for web/news use lookup."
+    parameters:
+      type: object
+      properties:
+        screenname: {type: string, default: "", description: "The account handle without the @ prefix (for example, Sam Altman's handle is sama). Do not use a placeholder or guess an uncertain handle."}
+        limit: {type: integer, default: 5, description: "Number of posts requested; use the user's number when specified, otherwise 5."}
+      required: [screenname]
+
+  - name: social_search
+    description: "Search social-media posts ABOUT a specified topic. Use for Twitter/X topic searches, not posts BY an account (use timeline) or web/news (use lookup). Do not call with an empty or missing query; ask with clarify when the needed topic or account is missing. Call alongside lookup only when the current request explicitly asks for both social and web sources; a later instruction switching sources replaces the earlier source."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "The topic or keywords to search for; omit generic source words such as 'tweets' or 'news' and keep the subject (for example, AI)."}
+        search_type: {type: string, enum: [Latest, Top], default: "Latest", description: "Use Latest for newest/recent posts; use Top when the user asks for popular, top, or most-engaged posts."}
+        limit: {type: integer, default: 5, description: "Number of posts requested; use the user's number when specified, otherwise 5."}
+      required: [query]
+
+  - name: lookup
+    description: "Search the web for information or current events. Use topic=news for news/current-event requests, including follow-ups that change the subject but retain the news-search context; use topic=general for other web research. Do not use for Twitter/X posts (use social_search or timeline) or to open a URL (use fetch). Call alongside social_search only when the current request explicitly asks for both web and social sources; when the user switches sources, use only the newly requested source."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Focused subject terms only (for example, AI); do not add 'news' to the query when it belongs in topic."}
+        topic: {type: string, enum: [general, news], default: "general", description: "Use news for news/current events and general for other web research. Explicitly set this field; do not omit it for a news request."}
+        timeframe: {type: string, enum: [day, week, month, year], default: "week", description: "For news recency: today=day, this week=week, this month=month, this year=year. Preserve the timeframe from context in follow-up turns."}
+        max_results: {type: integer, default: 5, description: "Maximum number of web results; use the default unless the user requests a count."}
+      required: [query]
+
+  - name: fetch
+    description: "Retrieve and read content at a specific URL provided by the user or returned by a search. Use to summarize or inspect that page; do not use when the URL is missing or vague (ask with clarify), and do not invent a URL or use this instead of searching."
+    parameters:
+      type: object
+      properties:
+        url: {type: string, default: "", description: "The exact complete URL to retrieve; use a supplied or previously found URL, never a guessed placeholder."}
+      required: [url]
+
+  - name: format
+    description: "Format research items already retrieved into the requested readable output. Use only when there are actual items to format; do not use to search for, invent, or fetch information."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Items already returned by research tools; preserve their factual content and source details."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+              section: {type: string}
+        template: {type: string, enum: [brief, sections, bullets, thread, daily_ai_vn], default: "sections", description: "Requested output format; use one of the listed values."}
+        headline: {type: string, default: "", description: "Optional title supplied or clearly implied by the user."}
+      required: [items, template]
+
+  # ---------------- Bonus tools ----------------
+  - name: send
+    description: "Send text to the configured Telegram destination. This has an external side effect: use only when the user explicitly requested sending/posting and then explicitly confirmed the specific content and action after being asked. Never call before that confirmation; set confirmed=true only after confirmation. Do not use to answer, summarize, or publish without authorization."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, default: "", description: "The exact content the user explicitly approved for sending."}
+        confirmed: {type: boolean, default: false, description: "Must be true only after the user explicitly confirms this specific send and content; otherwise do not call this tool."}
+      required: [text, confirmed]
+
+  - name: policy
+    description: "Search the provided internal company policies for applicable rules. Use for questions about internal AI research, privacy, citations, publishing, or tool usage; do not use for public web facts or general questions unrelated to these policies."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "The user's policy question or relevant terms."}
+        policy_area: {type: string, enum: [all, ai_research, source_citation, data_privacy, external_publishing, tool_usage], default: "all", description: "Choose the matching policy area when clear; otherwise use all."}
+        top_k: {type: integer, default: 3, description: "Maximum number of matching policy excerpts; default 3."}
+      required: [query]
+
+  - name: papers
+    description: "Search scholarly papers (including arXiv) for research literature. Use when the user asks for academic papers or studies; do not use for general web news (use lookup) or social-media posts."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Research topic, keywords, or question to find papers about."}
+        max_results: {type: integer, default: 5, description: "Maximum number of papers; default 5 unless the user requests a count."}
+        sort_by: {type: string, enum: [relevance, lastUpdatedDate, submittedDate], default: "relevance", description: "Use relevance by default; select lastUpdatedDate or submittedDate only when the user asks for the newest or recently submitted papers."}
+      required: [query]
+
+  - name: paper_text
+    description: "Extract text from a specific arXiv paper when the user wants its contents or a detailed summary. Use after the paper is identified; do not use to discover papers (use papers) or for non-arXiv URLs."
+    parameters:
+      type: object
+      properties:
+        arxiv_url: {type: string, default: "", description: "The specific arXiv ID or arXiv URL for the paper; do not guess it."}
+        max_pages: {type: integer, default: 5, description: "Maximum pages to extract; default 5."}
+        max_chars: {type: integer, default: 8000, description: "Maximum extracted characters; default 8000."}
+      required: [arxiv_url]

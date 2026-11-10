@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research Agent ✦</title>
+  <!-- Served by starter_v0/web_app.py — every answer comes from the real agent (chat.run_model_tool_loop). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pixelify+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #FFE4EC; --sidebar: #FFDAE7; --rose: #F7A8C4; --rose-soft: #F3C8D7;
+      --hot: #FF7EB6; --cream: #FFF9FB; --tint: #FFF4F8;
+      --ink: #493846; --muted: #876E7D; --plum: #713D60; --berry: #B54C82;
+      --mint: #BFF5E1; --lilac: #E8D5FF; --peach: #FFD3B6; --yellow: #FFF6B3; --error: #FF9AA2;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { margin: 0; min-height: 100%; }
+    body { background: var(--bg); color: var(--ink); font: 14px/1.45 "Nunito", sans-serif; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:disabled, input:disabled { opacity: .55; cursor: not-allowed; }
+    :is(button, input, a, summary):focus-visible { outline: 3px solid #79416B; outline-offset: 3px; }
+    a { color: var(--berry); }
+    .pixel { font-family: "Pixelify Sans", sans-serif; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    .app { display: flex; min-height: 100vh; max-width: 1600px; margin: auto; }
+
+    /* ---------- Sidebar ---------- */
+    .sidebar { width: 270px; min-width: 270px; height: 100vh; position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; padding: 26px 18px 22px; background: var(--sidebar); border-right: 2px solid var(--rose); overflow-y: auto; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+    .brand-mark { width: 42px; height: 42px; flex: none; display: grid; place-items: center; background: var(--yellow); border: 2px solid #A95C83; border-radius: 12px; box-shadow: 3px 3px 0 #F3A9C6; color: #9E4F79; }
+    .brand-mark svg { width: 22px; height: 22px; }
+    .brand-title { margin: 0; font-size: 22px; line-height: 1; color: var(--plum); }
+    .btn-primary { background: var(--hot); border: 2px solid #DF75A5; box-shadow: 3px 3px 0 #EFA9C5; }
+    .new-chat { width: 100%; padding: 12px; border-radius: 13px; text-align: left; font-weight: 900; }
+    .new-chat svg, .reading-toggle svg { width: 16px; height: 16px; vertical-align: -3px; margin-right: 6px; }
+
+    .metrics { margin-top: 16px; padding: 10px 11px; background: var(--cream); border: 1.5px dashed var(--rose); border-radius: 12px; box-shadow: 2px 2px 0 #F4BDCF; font-size: 11px; }
+    .metrics h4 { margin: 0 0 6px; font: 700 13px "Pixelify Sans", sans-serif; color: #9D4B78; }
+    .metrics dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; margin: 0; font-weight: 800; }
+    .metrics dd { margin: 0; text-align: right; color: var(--plum); }
+    .metrics p { margin: 6px 0 0; color: var(--muted); font-weight: 700; }
+
+    .tools { margin-top: 16px; padding: 0 3px; }
+    .tools h3 { margin: 0 0 6px; font: 700 15px "Pixelify Sans", sans-serif; color: #9D4B78; }
+    .tool-group { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; margin: 7px 0; font-size: 11px; font-weight: 900; color: #765467; }
+    .tool-group svg { width: 15px; height: 15px; color: #D4619B; }
+    .tool-group small { flex-basis: 100%; padding-left: 22px; font-size: 10px; font-weight: 700; color: #9B758A; }
+    .new-badge { background: var(--mint); border: 1px solid #84CFAD; border-radius: 5px; padding: 1px 4px; color: #386E5B; font: 700 10px "Pixelify Sans", sans-serif; }
+
+    .reading-toggle { width: 100%; margin-top: 16px; padding: 12px; display: flex; align-items: center; gap: 4px; background: var(--tint); border: 1.5px solid var(--rose); border-radius: 12px; text-align: left; font-size: 13px; font-weight: 900; }
+    .reading-toggle:hover { background: #fff; }
+    .reading-toggle .chevron { margin: 0 0 0 auto; transition: transform .2s; }
+    .reading-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+    .reading-panel { margin-top: 8px; padding: 9px; max-height: 300px; overflow: auto; background: var(--tint); border: 1.5px solid var(--rose); border-radius: 12px; }
+    .saved-item { display: flex; align-items: center; gap: 5px; padding: 7px 3px; border-bottom: 1px dashed var(--rose-soft); }
+    .saved-copy { flex: 1; min-width: 0; }
+    .saved-copy a { display: block; font-size: 11px; font-weight: 900; color: var(--ink); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .saved-copy small { display: block; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .icon-btn { width: 28px; height: 28px; flex: none; display: grid; place-items: center; background: #FFE8EE; border: 1px solid var(--rose); border-radius: 8px; color: #9F4F75; }
+    .icon-btn svg { width: 14px; height: 14px; }
+    .panel-actions { display: flex; gap: 6px; margin-top: 9px; }
+    .panel-btn { flex: 1; padding: 8px; background: #fff; border: 1.5px solid var(--rose); border-radius: 9px; color: #A14475; font-size: 11px; font-weight: 900; }
+    .empty { margin: 6px 2px; font-size: 11px; font-weight: 800; color: var(--muted); }
+
+    .sidebar-bottom { margin-top: auto; padding-top: 16px; }
+    .turns { display: inline-block; padding: 9px 14px; background: var(--tint); border: 1.5px solid var(--rose); border-radius: 999px; font-size: 12px; font-weight: 900; }
+    .turns.out { background: #FFE0E3; border-color: var(--error); }
+    .side-note { margin: 12px 3px 0; font-size: 11px; color: #9A6681; }
+
+    /* ---------- Main ---------- */
+    .main { position: relative; flex: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background-color: var(--bg);
+      background-image: radial-gradient(circle, #fff 0 2px, transparent 2.5px), radial-gradient(circle, var(--yellow) 0 2px, transparent 2.5px), radial-gradient(circle, var(--lilac) 0 2px, transparent 2.5px);
+      background-size: 137px 123px, 191px 157px, 223px 197px; background-position: 11px 25px, 74px 83px, 20px 118px; }
+    .sparkle { position: absolute; z-index: 0; pointer-events: none; font: 23px "Pixelify Sans", sans-serif; color: #fff; }
+    .sparkle.s1 { top: 145px; right: 8%; } .sparkle.s2 { top: 370px; left: 6%; color: var(--lilac); } .sparkle.s3 { bottom: 125px; right: 13%; color: var(--yellow); }
+
+    .chat-header { position: relative; z-index: 3; flex: none; min-height: 72px; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 36px; background: rgba(255, 249, 251, .82); border-bottom: 2px solid var(--rose); }
+    .pickers { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .picker { position: relative; }
+    .picker-button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; background: transparent; border: 1.5px solid transparent; border-radius: 12px; font: 700 21px "Pixelify Sans", sans-serif; color: var(--plum); }
+    .picker-button.small { font-size: 16px; color: var(--berry); }
+    .picker-button:hover, .picker-button[aria-expanded="true"] { background: var(--tint); border-color: var(--rose); }
+    .picker-button svg { width: 17px; height: 17px; }
+    .menu { position: absolute; top: calc(100% + 6px); left: 0; width: 320px; padding: 6px; background: #fff; border: 2px solid var(--rose); border-radius: 14px; box-shadow: 4px 5px 0 rgba(218, 127, 164, .25); }
+    .menu-option { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; background: transparent; border: 0; border-radius: 9px; text-align: left; }
+    .menu-option:hover { background: var(--tint); }
+    .menu-option strong { display: block; font-size: 13px; }
+    .menu-option small { display: block; font-size: 10px; color: var(--muted); font-weight: 700; }
+    .menu-option .score { font: 700 13px "Pixelify Sans", sans-serif; color: var(--berry); white-space: nowrap; }
+    .menu-note { margin: 4px 10px; padding-top: 6px; border-top: 1px dashed var(--rose-soft); font-size: 10px; font-weight: 700; color: var(--muted); }
+
+    .header-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 7px; }
+    .pill { padding: 7px 10px; border-radius: 999px; font-size: 10px; font-weight: 900; white-space: nowrap; }
+    .pill.version { background: var(--tint); border: 1px solid var(--rose); color: #885572; }
+    .pill.status { background: #EAFFF5; border: 1px solid #9DDEC5; }
+    .pill.status::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; background: #66BF98; border-radius: 50%; }
+    .pill.status.busy { background: #FFF1D9; border-color: #F2CF9E; }
+    .pill.status.busy::before { background: #E3A64F; }
+    .header-btn { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1px solid var(--rose); }
+    .header-btn svg { width: 14px; height: 14px; }
+    .header-btn.icon-only { width: 31px; height: 31px; justify-content: center; padding: 0; }
+
+    .chat-scroll { position: relative; z-index: 1; flex: 1; min-height: 0; overflow: auto; padding: 22px 36px 28px; scrollbar-color: #EAAAC4 transparent; }
+    .conversation { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 17px; }
+    .message { display: flex; gap: 10px; align-items: flex-start; }
+    .message.user { justify-content: flex-end; }
+    .avatar { width: 35px; height: 35px; flex: none; display: grid; place-items: center; background: var(--yellow); border: 2px solid var(--rose); border-radius: 11px; box-shadow: 2px 2px 0 #EFC1D1; color: #B25384; }
+    .avatar svg { width: 19px; height: 19px; }
+    .bubble { min-width: 0; max-width: 740px; padding: 13px 16px; background: var(--cream); border: 2px solid var(--rose); border-radius: 17px 17px 17px 5px; box-shadow: 3px 4px 0 rgba(218, 127, 164, .19); overflow-wrap: anywhere; }
+    .user .bubble { max-width: 75%; padding: 11px 16px; background: var(--hot); border-color: #DA6E9E; border-radius: 17px 17px 5px 17px; font-weight: 900; color: #442B3A; white-space: pre-wrap; }
+    .answer { margin: 0; }
+    .bubble > * + * { margin-top: 9px; }
+
+    .step-tracker { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px; background: #FFF0F6; border: 1px dashed var(--rose); border-radius: 10px; font-size: 10px; font-weight: 900; color: #86516F; }
+    .step-tracker span { padding: 4px 7px; background: #fff; border: 1px solid var(--rose-soft); border-radius: 7px; }
+    .step-tracker b { color: #C15C91; }
+
+    .headlines { margin: 0; padding: 0; list-style: none; }
+    .headline { display: flex; align-items: center; gap: 9px; padding: 6px 0; border-bottom: 1px dashed var(--rose-soft); }
+    .headline:last-child { border: 0; }
+    .number { width: 19px; flex: none; font: 700 15px "Pixelify Sans", sans-serif; color: #C05C8B; }
+    .headline-text { flex: 1; min-width: 0; }
+    .headline-title { font-size: 12px; font-weight: 900; }
+    .headline-meta { font-size: 10px; font-weight: 700; color: var(--muted); }
+    .headline-summary { margin-top: 2px; font-size: 10px; color: #765D6B; }
+    .headline-link, .bookmark { display: grid; place-items: center; padding: 5px; border-radius: 7px; color: var(--berry); background: transparent; border: 0; }
+    .headline-link svg, .bookmark svg { width: 15px; height: 15px; }
+    .headline-link:hover, .bookmark:hover { background: #FFE3EE; color: #D34188; }
+
+    .tool-details { padding: 7px 9px; background: #FFF1F6; border: 1px solid var(--rose-soft); border-radius: 9px; }
+    .tool-details summary { cursor: pointer; font-size: 11px; font-weight: 900; color: #985777; }
+    .tool-call { margin-top: 7px; }
+    .tool-call code { display: block; font-size: 10px; font-weight: 800; color: #67475A; overflow-wrap: anywhere; }
+    .tool-call pre { max-height: 220px; overflow: auto; margin: 4px 0 0; padding: 6px 8px; background: #fff; border: 1px solid var(--rose-soft); border-radius: 7px; font-size: 10px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .bubble-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 8px; border-top: 1px dashed var(--rose-soft); font-size: 10px; font-weight: 800; color: #92818B; }
+    .link-btn { padding: 3px; background: transparent; border: 0; color: var(--berry); text-decoration: underline; font-size: 10px; font-weight: 900; white-space: nowrap; }
+
+    .bars { max-width: 420px; }
+    .bar-row { display: flex; align-items: center; gap: 9px; margin: 6px 0; font-size: 11px; font-weight: 800; }
+    .bar-label { width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-track { flex: 1; height: 12px; background: #FFF0F5; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-value { width: 22px; text-align: right; color: #856A79; }
+    .topic-table { width: 100%; max-width: 420px; border-collapse: collapse; font-size: 10px; }
+    .topic-table th, .topic-table td { padding: 5px 8px; text-align: left; border-bottom: 1px dashed var(--rose-soft); }
+    .topic-table th { background: #FFF0F6; color: #9A547B; }
+
+    .confirm-box { padding: 10px 12px; background: #FFF3E8; border: 1.5px solid var(--peach); border-radius: 12px; }
+    .confirm-box p { margin: 0 0 6px; font-weight: 900; }
+    .telegram-preview { padding: 10px 12px; background: #fff; border: 1.5px solid var(--rose-soft); border-radius: 11px; font-size: 11px; white-space: pre-wrap; }
+    .confirm-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .confirm-actions button { padding: 7px 12px; border: 1.5px solid #AD8E99; border-radius: 9px; font-size: 11px; font-weight: 900; }
+    .btn-yes { background: var(--mint); } .btn-cancel { background: #FFB5BB; }
+    .confirm-result { margin: 8px 0 0; font-weight: 800; color: #765568; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { display: inline-block; padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 900; }
+    .chip.error { background: #FFE0E3; border: 1px solid var(--error); color: #9B4354; border-radius: 10px; }
+    .chip.waiting { background: #FFF1D9; border: 1px solid #F2CF9E; color: #875F3A; }
+    .chip.ok { background: #EAFFF5; border: 1px solid #9DDEC5; color: #386E5B; }
+    .chip.info { background: var(--tint); border: 1px solid var(--rose); color: #885572; }
+    .chip.notool { background: #F3F0F7; border: 1px dashed #B9A7C9; color: #6E5A80; font-size: 10px; cursor: help; }
+
+    .thinking { display: flex; align-items: center; gap: 9px; font-weight: 900; color: #945277; }
+    .thinking span { display: inline-block; color: #D65E9D; animation: twinkle 1.15s ease-in-out infinite alternate; }
+    @keyframes twinkle { from { opacity: .4; transform: scale(.8) rotate(-10deg); } to { opacity: 1; transform: scale(1.2) rotate(12deg); } }
+
+    .composer { position: relative; z-index: 1; flex: none; padding: 13px 36px 18px; background: rgba(255, 249, 251, .86); border-top: 2px solid var(--rose); }
+    .composer-inner { max-width: 860px; margin: auto; }
+    .input-shell { display: flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; background: #fff; border: 2px solid var(--rose); border-radius: 18px; box-shadow: 3px 3px 0 #EFB8CD; }
+    .input-shell:focus-within { outline: 3px solid #B75B89; outline-offset: 2px; }
+    .input-shell input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 14px; font-weight: 700; }
+    .send-button { width: 39px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 11px; }
+    .send-button svg { width: 18px; height: 18px; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .suggestion { padding: 5px 10px; background: var(--tint); border: 1.5px solid var(--rose); border-radius: 999px; font-size: 10px; font-weight: 900; color: #995576; }
+    .suggestion:hover { background: #fff; }
+    .composer-meta { min-height: 21px; display: flex; justify-content: space-between; gap: 10px; padding: 6px 4px 0; font-size: 10px; font-weight: 800; color: #936C81; }
+    #notice { color: #A14475; }
+
+    /* ---------- Tool tooltip ---------- */
+    [data-tool] { cursor: help; }
+    .tool-name { text-decoration: underline dotted #D4619B; text-underline-offset: 2px; }
+    .tooltip { position: fixed; z-index: 50; max-width: 290px; padding: 9px 11px; background: #fff; border: 2px solid var(--rose); border-radius: 12px; box-shadow: 3px 4px 0 rgba(218, 127, 164, .28); font-size: 11px; line-height: 1.45; pointer-events: none; }
+    .tooltip strong { display: block; margin-bottom: 3px; font: 700 13px "Pixelify Sans", sans-serif; color: var(--plum); }
+    .tooltip p { margin: 2px 0 0; }
+    .tooltip b { color: var(--berry); }
+    .tooltip .limit { color: var(--muted); }
+
+    /* ---------- Compare mode ---------- */
+    .header-btn[aria-pressed="true"] { background: var(--hot); border-color: #DF75A5; }
+    .compare { max-width: 1240px; margin: 0 auto; }
+    .compare-head { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; padding: 4px 0 10px; background: rgba(255, 228, 236, .95); border-bottom: 1.5px dashed var(--rose); }
+    .col-head { padding: 9px 11px; background: var(--cream); border: 2px solid var(--rose); border-radius: 13px; box-shadow: 2px 3px 0 rgba(218, 127, 164, .19); }
+    .col-head h4 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 0 7px; font: 700 14px "Pixelify Sans", sans-serif; color: var(--plum); }
+    .col-head h4 small { font: 800 10px "Nunito", sans-serif; color: var(--muted); text-align: right; }
+    .seg { display: flex; flex-wrap: wrap; gap: 5px; }
+    .seg button { padding: 4px 10px; background: var(--tint); border: 1.5px solid var(--rose); border-radius: 999px; font-size: 11px; font-weight: 900; color: #995576; }
+    .seg button[aria-pressed="true"] { background: var(--hot); border-color: #DF75A5; color: #442B3A; }
+    .compare-log { display: flex; flex-direction: column; gap: 14px; }
+    .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+    .compare-row .cell { min-width: 0; }
+    .compare-row .message.agent .bubble { flex: 1; max-width: 100%; }
+    .compare-row .avatar { width: 28px; height: 28px; border-radius: 9px; }
+    .compare-row .avatar svg { width: 15px; height: 15px; }
+    .side-tag { display: none; margin: 0 0 4px 38px; font: 700 11px "Pixelify Sans", sans-serif; color: var(--berry); }
+    .compare .user .bubble { max-width: 60%; }
+
+    @media (max-width: 1100px) {
+      .chat-header, .chat-scroll, .composer { padding-left: 20px; padding-right: 20px; }
+      .pill.version { display: none; }
+    }
+    @media (max-width: 900px) {
+      .compare-head, .compare-row { grid-template-columns: 1fr; }
+      .compare-head { position: static; }
+      .side-tag { display: block; }
+      .compare .user .bubble { max-width: 85%; }
+    }
+    @media (max-width: 760px) {
+      .app { display: block; }
+      .sidebar { position: relative; width: 100%; min-width: 0; height: auto; padding: 15px; }
+      .tools, .side-note { display: none; }
+      .main { height: 85vh; min-height: 620px; }
+      .chat-header, .chat-scroll, .composer { padding-left: 14px; padding-right: 14px; }
+      .picker-button { font-size: 17px; } .picker-button.small { font-size: 14px; }
+      .menu { width: 280px; }
+      .header-btn .label { display: none; }
+      .user .bubble { max-width: 85%; }
+    }
+    @media (prefers-reduced-motion: reduce) { .thinking span { animation: none; } .reading-toggle .chevron { transition: none; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><i data-lucide="search-check"></i></div>
+        <h2 class="brand-title pixel">Research<br>Agent ✦</h2>
+      </div>
+      <button id="new-chat" class="new-chat btn-primary" type="button"><i data-lucide="plus"></i>New chat</button>
+
+      <section id="metrics" class="metrics" aria-label="Eval metrics of the selected version"></section>
+
+      <section class="tools" aria-label="Tools of the selected version">
+        <h3>✧ Tools</h3>
+        <div id="tool-groups"></div>
+      </section>
+
+      <button id="reading-toggle" class="reading-toggle" type="button" aria-expanded="false" aria-controls="reading-panel">
+        <i data-lucide="bookmark"></i>Reading list (<span id="saved-count">?</span>)
+        <i data-lucide="chevron-down" class="chevron"></i>
+      </button>
+      <section id="reading-panel" class="reading-panel" aria-label="Saved articles" hidden>
+        <div id="reading-items"></div>
+        <div class="panel-actions">
+          <button class="panel-btn" type="button" data-action="reading-refresh">↻ Refresh</button>
+          <button class="panel-btn" type="button" data-action="reading-download">↓ .md</button>
+        </div>
+      </section>
+
+      <div class="sidebar-bottom">
+        <span id="turns" class="turns">–</span>
+        <p class="side-note">A little curiosity goes a long way ✦</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <span class="sparkle s1" aria-hidden="true">✦</span>
+      <span class="sparkle s2" aria-hidden="true">✧</span>
+      <span class="sparkle s3" aria-hidden="true">✦</span>
+
+      <header class="chat-header">
+        <div class="pickers">
+          <div class="picker">
+            <button id="model-button" class="picker-button" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="model-menu">
+              ✦ <span id="model-label">…</span> <i data-lucide="chevron-down"></i>
+            </button>
+            <div id="model-menu" class="menu" role="listbox" aria-label="Choose model" hidden></div>
+          </div>
+          <div class="picker">
+            <button id="version-button" class="picker-button small" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="version-menu">
+              <span id="version-label">…</span> <i data-lucide="chevron-down"></i>
+            </button>
+            <div id="version-menu" class="menu" role="listbox" aria-label="Choose prompt/tools version" hidden></div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span id="version-pill" class="pill version" title="artifact_version (prompt + tools hash)"></span>
+          <button id="compare-toggle" class="pill header-btn" type="button" aria-pressed="false" title="So sánh 2 version cạnh nhau (mỗi câu tính 2 lượt)"><i data-lucide="columns-2"></i><span class="label">Compare</span></button>
+          <button id="capabilities" class="pill header-btn" type="button"><i data-lucide="info"></i><span class="label">What can I do?</span></button>
+          <button id="download-transcript" class="pill header-btn icon-only" type="button" aria-label="Download transcript JSON" title="Download transcript JSON"><i data-lucide="download"></i></button>
+          <span id="status" class="pill status">Ready</span>
+        </div>
+      </header>
+
+      <div id="chat-scroll" class="chat-scroll">
+        <div id="conversation" class="conversation" aria-live="polite"></div>
+        <div id="compare" class="compare" hidden>
+          <div id="compare-head" class="compare-head"></div>
+          <div id="compare-log" class="compare-log" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <form id="composer" class="composer">
+        <div class="composer-inner">
+          <div class="input-shell">
+            <label for="chat-input" class="sr-only">Ask the agent</label>
+            <input id="chat-input" type="text" maxlength="500" placeholder="Ask the agent..." autocomplete="off">
+            <button id="send-button" class="send-button btn-primary" type="submit" aria-label="Send message"><i data-lucide="send"></i></button>
+          </div>
+          <div class="suggestions" aria-label="Suggested prompts">
+            <button class="suggestion" type="button" data-suggestion="Tin tức AI hôm nay có gì nổi bật?">✦ Tin AI hôm nay</button>
+            <button class="suggestion" type="button" data-suggestion="Tìm 5 tin về Nvidia tuần này và cho biết chủ đề nào được nhắc nhiều nhất">📊 5 tin Nvidia + chủ đề</button>
+            <button class="suggestion" type="button" data-suggestion="Tóm tắt bài viết này hộ mình">🔗 Tóm tắt bài này</button>
+            <button class="suggestion" type="button" data-suggestion="Cho mình xem danh sách đọc">🔖 Danh sách đọc</button>
+            <button class="suggestion" type="button" data-suggestion="Đăng bản tin này lên Telegram giúp mình">📨 Đăng Telegram</button>
+          </div>
+          <div class="composer-meta">
+            <span id="notice" role="status"></span>
+            <span id="char-count">0 / 500</span>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+
+  <script>
+    /* ================= Constants ================= */
+    const NEW_TOOLS = new Set(["dedupe", "filter_results", "topic_stats", "reading_list"]);
+    const TOOL_GROUPS = [
+      ["Search", "search", ["lookup", "social_search", "timeline", "papers"]],
+      ["Read", "book-open", ["fetch", "paper_text", "policy"]],
+      ["Process results", "filter", ["dedupe", "filter_results", "topic_stats", "format"]],
+      ["Actions", "sparkles", ["clarify", "send", "reading_list"]],
+    ];
+    const TOOL_ICON = { lookup: "🔎", social_search: "💬", timeline: "🐦", papers: "📚", fetch: "📄", paper_text: "📑", policy: "📋",
+      dedupe: "🧹", filter_results: "🔍", topic_stats: "📊", format: "📝", clarify: "❓", send: "📨", reading_list: "🔖" };
+    const BAR_COLORS = ["#FF7EB6", "#E8D5FF", "#BFF5E1", "#FFD3B6", "#FFF6B3", "#F7A8C4"];
+    // [tên ngắn, làm gì, giúp gì cho người dùng, lưu ý (chỉ tool mới)]
+    const TOOL_INFO = {
+      lookup: ["Tìm trên web", "Tìm bài viết, tin tức theo từ khoá; lọc hôm nay / tuần / tháng / năm.", "Cập nhật tin mới, có nguồn dẫn."],
+      social_search: ["Tìm trên X", "Tìm bài đăng theo chủ đề, mới nhất hoặc nổi bật.", "Biết cộng đồng đang bàn gì."],
+      timeline: ["Bài đăng của một tài khoản", "Lấy các bài mới nhất của một người trên X.", "Theo dõi nhanh người có ảnh hưởng."],
+      fetch: ["Đọc một link", "Mở URL và lấy nội dung bài viết.", "Tóm tắt bài mà không cần tự đọc."],
+      format: ["Định dạng bản tin", "Gom các bài thành bản tin markdown.", "Có bản tin gọn để chia sẻ, tải về."],
+      clarify: ["Hỏi lại", "Hỏi bạn khi thiếu thông tin (link, tài khoản…).", "Không đoán bừa, kết quả đúng ý hơn."],
+      send: ["Gửi Telegram", "Đăng bản tin lên kênh Telegram, chỉ sau khi bạn xác nhận.", "Chia sẻ kết quả mà không lo agent tự ý đăng."],
+      policy: ["Tra chính sách nội bộ", "Tìm trong bộ policy của công ty.", "Trả lời đúng quy định, có trích dẫn."],
+      papers: ["Tìm paper arXiv", "Tìm bài nghiên cứu khoa học theo chủ đề.", "Có nguồn học thuật cho báo cáo."],
+      paper_text: ["Đọc paper", "Tải PDF arXiv và trích nội dung.", "Nắm nhanh paper dài."],
+      dedupe: ["Loại kết quả trùng", "Bỏ các bài trùng URL hoặc tiêu đề trong danh sách đã tìm.", "Danh sách gọn, không phải đọc lại bài giống nhau.", "Chưa nhận ra hai bài khác tiêu đề nói cùng một sự kiện."],
+      filter_results: ["Lọc theo nguồn & thời gian", "Chỉ giữ bài từ nguồn bạn chọn và trong N ngày gần đây.", "Kết quả đúng phạm vi bạn quan tâm, khỏi lọc tay.", "Chỉ lọc danh sách đã có; lọc theo ngày sẽ bỏ bài không có ngày đăng."],
+      topic_stats: ["Thống kê chủ đề", "Đếm chủ đề được nhắc nhiều nhất, tỉ lệ và nguồn tiêu biểu.", "Thấy bức tranh tổng quan thay vì đọc từng bài.", "Đếm theo từ khoá, chưa phân tích ngữ nghĩa sâu."],
+      reading_list: ["Danh sách đọc sau", "Lưu, xem, xoá bài muốn đọc lại; xoá hết phải xác nhận.", "Quay lại nghiên cứu tiếp, không phải tìm lại bài.", "Lưu chung một file trên server, chưa tách theo người dùng."],
+    };
+    const toolTag = (name, text = name, cls = "") => `<span class="${cls}" data-tool="${esc(name)}" tabindex="0">${text}</span>`;
+
+    /* ================= State ================= */
+    const state = {
+      config: null, version: null, model: null,
+      session: null, transcriptId: null,
+      turnsLeft: 0, maxTurns: 0, busy: false,
+      reading: { count: null, entries: null },
+      lastDigest: null,
+      sessionModel: null,
+      // Compare mode: two independent sessions (left/right), same model, same question.
+      compare: { on: false, L: { version: "v0" }, R: { version: "v3" } },
+    };
+    const SIDES = ["L", "R"];
+    const SIDE_NAME = { L: "Left", R: "Right" };
+
+    /* ================= Helpers ================= */
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const icons = () => window.lucide && lucide.createIcons();
+    const notice = (text) => { $("notice").textContent = text || ""; };
+    const scrollBottom = () => { $("chat-scroll").scrollTop = $("chat-scroll").scrollHeight; };
+    const pct = (x) => (x == null ? "–" : `${Math.round(x * 100)}%`);
+    const findVersion = (name) => state.config.versions.find((v) => v.version === name);
+    const currentVersion = () => findVersion(state.version);
+    const sideVersion = (side) => findVersion(state.compare[side].version);
+    const activeLog = () => (state.compare.on ? $("compare-log") : $("conversation"));
+    const turnsLeft = () => (state.compare.on ? Math.min(state.compare.L.turnsLeft ?? 0, state.compare.R.turnsLeft ?? 0) : state.turnsLeft);
+    const currentModel = () => state.config.models.find((m) => m.id === state.model);
+    const safeUrl = (u) => (/^https?:\/\//i.test(String(u || "")) ? String(u) : "");
+
+    async function api(path, body) {
+      const res = await fetch(path, body === undefined ? {} : {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({ error: "bad_response", message: `HTTP ${res.status}` }));
+      if (!res.ok && !data.error) data.error = `HTTP ${res.status}`;
+      return data;
+    }
+
+    function download(filename, text, type = "text/markdown;charset=utf-8") {
+      const url = URL.createObjectURL(new Blob([text], { type }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: filename });
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    /** Tiny, safe markdown: escape first, then links / bold / headings / line breaks. */
+    function md(text) {
+      let h = esc(text);
+      h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      h = h.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>');
+      h = h.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      h = h.replace(/^#{1,4}\s*(.+)$/gm, "<strong>$1</strong>");
+      return h.replace(/\n/g, "<br>");
+    }
+
+    /* ================= Message templates ================= */
+    const userMsg = (text) => `<div class="message user"><div class="bubble">${esc(text)}</div></div>`;
+    const agentMsg = (html) => `<div class="message agent"><div class="avatar" aria-hidden="true"><i data-lucide="bot"></i></div><div class="bubble">${html}</div></div>`;
+    const thinkingMsg = () => agentMsg('<div class="thinking"><span aria-hidden="true">✦ ✧</span> Agent is working… ✦</div>');
+
+    function itemsHtml(items) {
+      return `<ol class="headlines">${items.slice(0, 10).map((it, i) => {
+        const url = safeUrl(it.url);
+        const meta = [it.source, it.date].filter(Boolean).map(esc).join(" · ");
+        const summary = it.summary && it.summary !== it.title ? String(it.summary).slice(0, 180) : "";
+        return `<li class="headline">
+          <span class="number">${i + 1}.</span>
+          <div class="headline-text">
+            <div class="headline-title">${esc(it.title || url || "(no title)")}</div>
+            ${meta ? `<div class="headline-meta">${meta}</div>` : ""}
+            ${summary ? `<div class="headline-summary">${esc(summary)}</div>` : ""}
+          </div>
+          ${url ? `<a class="headline-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Open source"><i data-lucide="external-link"></i></a>
+          <button class="bookmark" type="button" data-save-url="${esc(url)}" data-save-title="${esc(it.title || "")}" aria-label="Ask the agent to save this article"><i data-lucide="bookmark"></i></button>` : ""}
+        </li>`;
+      }).join("")}</ol>`;
+    }
+
+    function topicsHtml(result) {
+      const rows = result.topics || [];
+      if (!rows.length) return '<span class="chip info">📊 topic_stats: không đủ dữ liệu để tìm chủ đề</span>';
+      const max = Math.max(...rows.map((r) => r.article_count || 0), 1);
+      const bars = rows.map((r, i) => `<div class="bar-row"><span class="bar-label" title="${esc(r.topic)}">${esc(r.topic)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round((r.article_count / max) * 100)}%;background:${BAR_COLORS[i % BAR_COLORS.length]}"></div></div><span class="bar-value">${esc(r.article_count)}</span></div>`).join("");
+      const table = rows.map((r) => `<tr><td>${esc(r.topic)}</td><td>${esc(r.article_count)}</td><td>${esc(r.share_pct)}%</td><td>${esc((r.sources || []).join(", "))}</td></tr>`).join("");
+      return `<div class="bars" role="img" aria-label="Top topics">${bars}</div>
+        <table class="topic-table"><thead><tr><th>Topic</th><th>Articles</th><th>Share</th><th>Sources</th></tr></thead><tbody>${table}</tbody></table>`;
+    }
+
+    function stepLabel(ev) {
+      const r = ev.result || {};
+      let detail = "";
+      if (r.error) detail = " ⚠";
+      else if (ev.tool === "dedupe" && r.input_count != null) detail = `: ${r.input_count} → ${r.item_count}`;
+      else if (ev.tool === "filter_results" && r.input_count != null) detail = `: ${r.input_count} → ${r.item_count}`;
+      else if (ev.tool === "topic_stats" && r.topics) detail = `: ${r.topics.length} topics`;
+      else if (ev.tool === "reading_list") detail = `: ${r.status || r.action || ""}`;
+      else if (Array.isArray(r.items)) detail = `: ${r.items.length}`;
+      return `${TOOL_ICON[ev.tool] || "🔧"} ${esc(ev.tool)}${esc(detail)}`;
+    }
+
+    function renderTurn(res, sessionId = state.session) {
+      if (res.error && !res.rounds) {
+        return agentMsg(`<span class="chip error">⚠ ${esc(res.message || res.error)}</span>`);
+      }
+      const events = (res.rounds || []).flatMap((r) => r.tool_results || []);
+      const calls = (res.rounds || []).flatMap((r) => r.tool_calls || []);
+      const parts = [];
+
+      const steps = events.filter((e) => e.tool !== "clarify");
+      if (steps.length) parts.push(`<div class="step-tracker">${steps.map((e, i) => `${i ? "<b>→</b>" : ""}${toolTag(e.tool, stepLabel(e))}`).join("")}</div>`);
+
+      if (!calls.length && res.status === "answered") {
+        parts.push('<span class="chip notool" title="Agent không gọi tool nào: nội dung do model tự viết, không lấy từ dữ liệu tool thật.">💬 Không dùng tool · model tự trả lời</span>');
+      }
+      if (res.status === "provider_error") parts.push(`<span class="chip error">⚠ Provider error: ${esc(res.error)}</span>`);
+      if (res.assistant_text) parts.push(`<p class="answer">${md(res.assistant_text)}</p>`);
+
+      const chips = [];
+      if (res.status === "waiting_for_user") chips.push('<span class="chip waiting">waiting for your reply</span>');
+      if (res.status === "max_tool_rounds") chips.push('<span class="chip error">⚠ Agent dừng sau số vòng tool tối đa</span>');
+      for (const ev of events) {
+        const r = ev.result || {};
+        if (r.error) chips.push(`<span class="chip error" data-tool="${esc(ev.tool)}" tabindex="0">⚠ ${esc(ev.tool)} failed: ${esc(r.error)}${r.message ? ` — ${esc(String(r.message).slice(0, 160))}` : ""}</span>`);
+        if (ev.tool === "reading_list" && !r.error) {
+          const text = { saved: "✅ Đã lưu vào danh sách đọc", already_saved: "ℹ Bài này đã có trong danh sách", removed: "🗑 Đã xoá khỏi danh sách", not_found: "Không tìm thấy bài để xoá", cleared: "🗑 Đã xoá toàn bộ danh sách", needs_confirmation: "Cần xác nhận trước khi xoá hết" }[r.status];
+          if (text) chips.push(toolTag("reading_list", text, `chip ${r.status === "saved" || r.status === "removed" || r.status === "cleared" ? "ok" : "info"}`));
+          updateReading(r);
+        }
+        if (ev.tool === "send" && r.status === "needs_confirmation") chips.push(toolTag("send", "📨 send bị chặn: chưa có xác nhận", "chip info"));
+      }
+      if (chips.length) parts.push(`<div class="chips">${chips.join("")}</div>`);
+
+      const withItems = [...events].reverse().find((e) => Array.isArray(e.result?.items) && e.result.items.length && e.tool !== "fetch");
+      if (withItems) parts.push(itemsHtml(withItems.result.items));
+      const topic = [...events].reverse().find((e) => e.tool === "topic_stats" && e.result && !e.result.error);
+      if (topic) parts.push(topicsHtml(topic.result));
+      const listed = [...events].reverse().find((e) => e.tool === "reading_list" && Array.isArray(e.result?.entries));
+      if (listed) parts.push(listed.result.entries.length ? itemsHtml(listed.result.entries.map((x) => ({ ...x, source: x.note, date: (x.saved_at || "").slice(0, 10) }))) : '<span class="chip info">Danh sách đọc đang trống</span>');
+
+      const formatted = [...events].reverse().find((e) => e.tool === "format" && e.result?.markdown);
+      const digest = formatted ? formatted.result.markdown : (withItems ? itemsMarkdown(withItems.result.items) : null);
+      if (digest) state.lastDigest = digest;
+
+      if (res.pending_send != null) {
+        parts.push(`<div class="confirm-box" data-session="${esc(sessionId)}"><p>Agent muốn gửi nội dung này lên Telegram:</p>
+          <div class="telegram-preview">${esc(res.pending_send)}</div>
+          <div class="confirm-actions"><button class="btn-yes" type="button" data-send="confirm">Yes, send</button><button class="btn-cancel" type="button" data-send="cancel">Cancel</button></div>
+          <p class="confirm-result" role="status"></p></div>`);
+      }
+
+      if (calls.length) {
+        const detail = (res.rounds || []).flatMap((r) => (r.tool_calls || []).map((c, i) => {
+          const ev = (r.tool_results || [])[i];
+          return `<div class="tool-call"><code data-tool="${esc(c.name)}" tabindex="0">${esc(c.name)}(${esc(JSON.stringify(c.args))})</code>${ev ? `<pre>${esc(JSON.stringify(ev.result, null, 2))}</pre>` : ""}</div>`;
+        })).join("");
+        parts.push(`<details class="tool-details"><summary>Tool details (${calls.length})</summary>${detail}</details>`);
+      }
+      if (digest) parts.push(`<div class="bubble-footer"><span>${steps.length} tool step(s)</span><button class="link-btn" type="button" data-action="download-digest">↓ Download .md</button></div>`);
+      if (!parts.length) parts.push('<p class="answer">(Agent không trả lời nội dung nào.)</p>');
+      return agentMsg(parts.join(""));
+    }
+
+    function itemsMarkdown(items) {
+      return `# Digest\n\n${items.map((it, i) => `${i + 1}. **${it.title || it.url}**${it.source ? ` — ${it.source}` : ""}${it.date ? ` (${it.date})` : ""}\n   ${it.url || ""}`).join("\n\n")}\n`;
+    }
+
+    /* ================= Sidebar / header rendering ================= */
+    function renderHeader() {
+      const v = currentVersion(), m = currentModel();
+      const cmp = state.compare.on;
+      $("model-label").textContent = m.label;
+      $("version-label").textContent = v.version;
+      $("version-button").closest(".picker").hidden = cmp;
+      $("compare-toggle").setAttribute("aria-pressed", String(cmp));
+      $("version-pill").textContent = cmp
+        ? `${m.label} · ${state.compare.L.version} ⇆ ${state.compare.R.version}`
+        : `${m.label} · ${v.artifact_version}`;
+      $("model-menu").innerHTML = state.config.models.map((x) => `
+        <button class="menu-option" type="button" role="option" aria-selected="${x.id === state.model}" data-model="${esc(x.id)}">
+          <span><strong>${esc(x.label)}</strong><small>${esc(x.note)}</small></span><span class="score">${x.id === state.model ? "✓" : ""}</span>
+        </button>`).join("") + '<p class="menu-note">Đổi model sẽ bắt đầu chat mới</p>';
+      $("version-menu").innerHTML = state.config.versions.map((x) => `
+        <button class="menu-option" type="button" role="option" aria-selected="${x.version === state.version}" data-version="${esc(x.version)}">
+          <span><strong>${esc(x.version)}${x.version === state.version ? " ✓" : ""}</strong><small>${esc(x.label)}${x.verified === false ? " · ⚠ hash lệch run" : ""}</small></span>
+          <span class="score">${x.metrics ? pct(x.metrics.case_accuracy) : "—"}</span>
+        </button>`).join("") + '<p class="menu-note">% = case accuracy của base eval · đổi version sẽ bắt đầu chat mới</p>';
+    }
+
+    function renderMetrics() {
+      if (state.compare.on) {
+        const a = sideVersion("L"), b = sideVersion("R");
+        const row = (name, key) => `<dt>${name}</dt><dd>${pct(a.metrics?.[key])} ⇆ ${pct(b.metrics?.[key])}</dd>`;
+        $("metrics").innerHTML = `<h4>${esc(a.version)} ⇆ ${esc(b.version)} ✦</h4><dl>
+            ${row("Case accuracy", "case_accuracy")}${row("Routing", "tool_routing_accuracy")}
+            ${row("Arguments", "argument_accuracy")}${row("Multi-turn", "multiturn_accuracy")}</dl>
+          <p>Base eval (${esc(a.eval_model || b.eval_model || "—")}) · mỗi câu tính 2 lượt</p>`;
+        return;
+      }
+      const v = currentVersion();
+      const m = v.metrics;
+      $("metrics").innerHTML = m
+        ? `<h4>Eval ${esc(v.version)} ✦</h4><dl>
+            <dt>Case accuracy</dt><dd>${pct(m.case_accuracy)}</dd>
+            <dt>Routing</dt><dd>${pct(m.tool_routing_accuracy)}</dd>
+            <dt>Arguments</dt><dd>${pct(m.argument_accuracy)}</dd>
+            <dt>Multi-turn</dt><dd>${pct(m.multiturn_accuracy)}</dd></dl>
+           <p>${esc(m.passed_cases)}/${esc(m.total_cases)} case · ${esc(v.eval_model)}${v.verified ? " · hash ✓" : v.verified === false ? " · ⚠ hash lệch" : ""}</p>
+           ${state.model !== v.eval_model ? `<p>⚠ Số liệu đo bằng ${esc(v.eval_model)}, đang chat bằng ${esc(currentModel().label)}</p>` : ""}`
+        : `<h4>${esc(v.version)} ✦</h4><p>${esc(v.label)} — chưa có run eval.</p>`;
+    }
+
+    function renderTools() {
+      const names = new Set(state.compare.on ? [...sideVersion("L").tools, ...sideVersion("R").tools] : currentVersion().tools);
+      const known = new Set(TOOL_GROUPS.flatMap((g) => g[2]));
+      const groups = TOOL_GROUPS.map(([label, icon, list]) => [label, icon, list.filter((t) => names.has(t))]);
+      const other = [...names].filter((t) => !known.has(t));
+      if (other.length) groups.push(["Other", "wrench", other]);
+      $("tool-groups").innerHTML = groups.filter((g) => g[2].length).map(([label, icon, list]) => `
+        <div class="tool-group"><i data-lucide="${icon}"></i>${esc(label)}${list.some((t) => NEW_TOOLS.has(t)) ? ' <span class="new-badge">NEW</span>' : ""}
+          <small>${list.map((t) => toolTag(t, esc(t), "tool-name")).join(" · ")}</small></div>`).join("");
+      icons();
+    }
+
+    function renderTurns() {
+      const left = turnsLeft();
+      const max = state.compare.on ? state.compare.L.maxTurns : state.maxTurns;
+      $("turns").textContent = `${left}/${max} turns left${state.compare.on ? " · compare" : ""}`;
+      $("turns").classList.toggle("out", left === 0);
+      $("chat-input").disabled = left === 0;
+      $("chat-input").placeholder = left === 0 ? "Hết lượt dùng thử — bấm New chat"
+        : state.compare.on ? `Hỏi cả ${state.compare.L.version} và ${state.compare.R.version}...` : "Ask the agent...";
+    }
+
+    function renderCompareHead() {
+      $("compare-head").innerHTML = SIDES.map((side) => {
+        const v = sideVersion(side);
+        const score = v.metrics ? `${pct(v.metrics.case_accuracy)} case acc · ${pct(v.metrics.tool_routing_accuracy)} routing` : "chưa có run eval";
+        return `<div class="col-head">
+          <h4>${SIDE_NAME[side]} · ${esc(v.version)}<small>${esc(score)}</small></h4>
+          <div class="seg" role="group" aria-label="${SIDE_NAME[side]} version">
+            ${state.config.versions.map((x) => `<button type="button" data-cmp-side="${side}" data-cmp-version="${esc(x.version)}" aria-pressed="${x.version === v.version}">${esc(x.version)}</button>`).join("")}
+          </div></div>`;
+      }).join("");
+    }
+
+    function renderAll() {
+      renderHeader(); renderMetrics(); renderTools(); renderTurns();
+      if (state.compare.on) renderCompareHead();
+    }
+
+    function setBusy(busy) {
+      state.busy = busy;
+      $("send-button").disabled = busy;
+      $("status").textContent = busy ? "Working…" : "Ready";
+      $("status").classList.toggle("busy", busy);
+    }
+
+    function updateReading(r) {
+      if (typeof r.count === "number") state.reading.count = r.count;
+      if (Array.isArray(r.entries)) state.reading.entries = r.entries;
+      else if (state.reading.entries) {
+        if (r.status === "saved" && r.entry) state.reading.entries = [...state.reading.entries, r.entry];
+        if ((r.status === "removed") && r.entry) state.reading.entries = state.reading.entries.filter((e) => e.url !== r.entry.url);
+        if (r.status === "cleared") state.reading.entries = [];
+      }
+      renderReading();
+    }
+
+    function renderReading() {
+      $("saved-count").textContent = state.reading.count ?? "?";
+      const entries = state.reading.entries;
+      $("reading-items").innerHTML = entries == null
+        ? '<p class="empty">Bấm Refresh để agent đọc danh sách.</p>'
+        : entries.length
+          ? entries.map((e) => `<div class="saved-item">
+              <div class="saved-copy"><a href="${esc(safeUrl(e.url))}" target="_blank" rel="noopener noreferrer" title="${esc(e.title || e.url)}">${esc(e.title || e.url)}</a>
+              <small>${esc((e.saved_at || "").slice(0, 10))}${e.note ? " · " + esc(e.note) : ""}</small></div>
+              <button class="icon-btn" type="button" data-remove-url="${esc(e.url)}" aria-label="Ask the agent to remove this article"><i data-lucide="trash-2"></i></button>
+            </div>`).join("")
+          : '<p class="empty">Danh sách đọc đang trống.</p>';
+      icons();
+    }
+
+    /* ================= Actions ================= */
+    async function startCompare(message) {
+      const results = await Promise.all(SIDES.map((side) => api("/api/session", { version: state.compare[side].version, model: state.model })));
+      const failed = results.find((r) => r.error);
+      if (failed) { notice(failed.message || failed.error); return; }
+      SIDES.forEach((side, i) => Object.assign(state.compare[side], {
+        session: results[i].session_id, transcriptId: results[i].transcript_id,
+        turnsLeft: results[i].turns_left, maxTurns: results[i].max_turns,
+      }));
+      state.lastDigest = null;
+      $("compare-log").innerHTML = "";
+      renderAll();
+      notice(message || "");
+    }
+
+    async function compareSend(text) {
+      const log = $("compare-log");
+      log.insertAdjacentHTML("beforeend", userMsg(text) + `<div class="compare-row">${SIDES.map((side) =>
+        `<div class="cell" data-side="${side}"><div class="side-tag">${SIDE_NAME[side]} · ${esc(state.compare[side].version)}</div>${thinkingMsg()}</div>`).join("")}</div>`);
+      const row = log.lastElementChild;
+      icons(); scrollBottom(); setBusy(true); notice("");
+      await Promise.all(SIDES.map(async (side) => {
+        const cell = row.querySelector(`[data-side="${side}"]`);
+        const target = cell.lastElementChild;
+        const s = state.compare[side];
+        try {
+          const res = await api("/api/chat", { session_id: s.session, message: text });
+          if (typeof res.turns_left === "number") s.turnsLeft = res.turns_left;
+          target.outerHTML = res.error && !res.rounds
+            ? agentMsg(`<span class="chip error">⚠ ${esc(res.message || res.error)}</span>`)
+            : renderTurn(res, s.session);
+        } catch (err) {
+          target.outerHTML = agentMsg(`<span class="chip error">⚠ Không kết nối được server: ${esc(err.message)}</span>`);
+        }
+      }));
+      setBusy(false); renderTurns(); icons(); scrollBottom();
+    }
+
+    async function newChat(message) {
+      if (state.compare.on) { await startCompare(message); return; }
+      const res = await api("/api/session", { version: state.version, model: state.model });
+      if (res.error) { notice(res.message || res.error); return; }
+      state.session = res.session_id;
+      state.transcriptId = res.transcript_id;
+      state.sessionModel = state.model;
+      state.turnsLeft = res.turns_left; state.maxTurns = res.max_turns;
+      state.lastDigest = null;
+      renderAll();
+      const v = currentVersion();
+      $("conversation").innerHTML = agentMsg(`<p class="answer">Hi! Mình là Research Agent ✦ — đang chạy <strong>${esc(v.version)}</strong> với <strong>${esc(currentModel().label)}</strong>. Bạn muốn tìm hiểu gì hôm nay?</p>`);
+      icons();
+      $("chat-input").value = ""; $("char-count").textContent = `0 / ${state.config.max_chars}`;
+      notice(message || "");
+    }
+
+    async function sendMessage(text) {
+      text = text.trim();
+      if (!text) { notice("Nhập câu hỏi trước nhé."); return; }
+      if (state.busy) { notice("Agent đang chạy, đợi chút nhé."); return; }
+      if (turnsLeft() === 0) { notice("Hết lượt dùng thử — bấm New chat."); return; }
+      if (state.compare.on) { await compareSend(text); return; }
+      const conv = $("conversation");
+      conv.insertAdjacentHTML("beforeend", userMsg(text) + thinkingMsg());
+      const thinking = conv.lastElementChild;
+      icons(); scrollBottom(); setBusy(true); notice("");
+      try {
+        const res = await api("/api/chat", { session_id: state.session, message: text });
+        if (typeof res.turns_left === "number") { state.turnsLeft = res.turns_left; renderTurns(); }
+        if (res.error === "unknown_session") { thinking.outerHTML = agentMsg(`<span class="chip error">⚠ ${esc(res.message)}</span>`); return; }
+        thinking.outerHTML = renderTurn(res);
+      } catch (err) {
+        thinking.outerHTML = agentMsg(`<span class="chip error">⚠ Không kết nối được server: ${esc(err.message)}</span>`);
+      } finally {
+        setBusy(false); icons(); scrollBottom();
+      }
+    }
+
+    async function decideSend(button) {
+      const box = button.closest(".confirm-box");
+      box.querySelectorAll("button").forEach((b) => { b.disabled = true; });
+      const res = await api("/api/send", { session_id: box.dataset.session || state.session, decision: button.dataset.send });
+      const r = res.result || {};
+      box.querySelector(".confirm-result").textContent = res.error ? `⚠ ${res.message || res.error}`
+        : res.status === "ui_send_cancelled" ? "✕ Đã huỷ. Không gửi gì cả."
+        : r.status === "sent" ? "✓ Đã gửi lên Telegram."
+        : `⚠ Gửi không thành công: ${r.error || ""} ${r.message || ""}`;
+      box.querySelector(".confirm-actions").hidden = true;
+    }
+
+    function closeMenus(except) {
+      for (const [btn, menu] of [["model-button", "model-menu"], ["version-button", "version-menu"]]) {
+        if (btn === except) continue;
+        $(menu).hidden = true; $(btn).setAttribute("aria-expanded", "false");
+      }
+    }
+
+    /* ================= Events ================= */
+    document.addEventListener("click", async (e) => {
+      const t = e.target;
+      const menuBtn = t.closest("#model-button, #version-button");
+      if (menuBtn) {
+        closeMenus(menuBtn.id);
+        const menu = $(menuBtn.getAttribute("aria-controls"));
+        const open = menuBtn.getAttribute("aria-expanded") === "true";
+        menuBtn.setAttribute("aria-expanded", String(!open)); menu.hidden = open;
+        return;
+      }
+      const modelOpt = t.closest("[data-model]");
+      if (modelOpt) { closeMenus(); if (modelOpt.dataset.model !== state.model) { state.model = modelOpt.dataset.model; await newChat(`Đã chuyển sang ${currentModel().label}.`); } return; }
+      const versionOpt = t.closest("[data-version]");
+      if (versionOpt) { closeMenus(); if (versionOpt.dataset.version !== state.version) { state.version = versionOpt.dataset.version; await newChat(`Đã chuyển sang ${state.version}.`); } return; }
+      if (!t.closest(".picker")) closeMenus();
+
+      if (t.closest("#new-chat")) { await newChat("Đã bắt đầu chat mới."); return; }
+      if (t.closest("#compare-toggle")) {
+        if (state.busy) { notice("Agent đang chạy, đợi chút nhé."); return; }
+        state.compare.on = !state.compare.on;
+        $("conversation").hidden = state.compare.on;
+        $("compare").hidden = !state.compare.on;
+        if (state.compare.on) {
+          await startCompare("Compare: mỗi câu được gửi cho cả 2 version cùng lúc (tính 2 lượt).");
+        } else if (state.sessionModel !== state.model) {
+          await newChat("Đã tắt Compare.");
+        } else {
+          renderAll(); notice("Đã tắt Compare.");
+        }
+        return;
+      }
+      const cmpBtn = t.closest("[data-cmp-version]");
+      if (cmpBtn) {
+        const side = cmpBtn.dataset.cmpSide;
+        if (state.busy) { notice("Agent đang chạy, đợi chút nhé."); return; }
+        if (state.compare[side].version !== cmpBtn.dataset.cmpVersion) {
+          state.compare[side].version = cmpBtn.dataset.cmpVersion;
+          await startCompare(`Cột ${side === "L" ? "trái" : "phải"} → ${cmpBtn.dataset.cmpVersion}. Bắt đầu so sánh mới.`);
+        }
+        return;
+      }
+      if (t.closest("#reading-toggle")) {
+        const btn = $("reading-toggle"), open = btn.getAttribute("aria-expanded") === "true";
+        btn.setAttribute("aria-expanded", String(!open)); $("reading-panel").hidden = open; return;
+      }
+      if (t.closest('[data-action="reading-refresh"]')) { sendMessage("Cho mình xem danh sách đọc"); return; }
+      if (t.closest('[data-action="reading-download"]')) {
+        const entries = state.reading.entries || [];
+        download("reading-list.md", `# Reading list\n\n${entries.length ? entries.map((x, i) => `${i + 1}. **${x.title || x.url}**\n   ${x.url}${x.note ? `\n   ${x.note}` : ""}`).join("\n\n") : "_Empty_"}\n`);
+        return;
+      }
+      const removeBtn = t.closest("[data-remove-url]");
+      if (removeBtn) { sendMessage(`Xoá bài ${removeBtn.dataset.removeUrl} khỏi danh sách đọc`); return; }
+      const saveBtn = t.closest("[data-save-url]");
+      if (saveBtn) {
+        const title = saveBtn.dataset.saveTitle;
+        sendMessage(`Lưu bài ${title ? `"${title}" ` : ""}(${saveBtn.dataset.saveUrl}) vào danh sách đọc giúp mình`);
+        return;
+      }
+      if (t.closest('[data-action="download-digest"]')) { if (state.lastDigest) download("digest.md", state.lastDigest); return; }
+      const sendBtn = t.closest("[data-send]");
+      if (sendBtn) { await decideSend(sendBtn); return; }
+
+      if (t.closest("#capabilities")) {
+        const v = state.compare.on ? sideVersion("R") : currentVersion();
+        activeLog().insertAdjacentHTML("beforeend", agentMsg(`<p class="answer">Phiên bản <strong>${esc(v.version)}</strong> có ${v.tools.length} tool: ${v.tools.map((x) => `${TOOL_ICON[x] || "🔧"} ${toolTag(x, `<code>${esc(x)}</code>`, "tool-name")}`).join(", ")}.<br>Mình tìm tin trên web và X, đọc link, lọc trùng/lọc nguồn, thống kê chủ đề, lưu bài để đọc sau, và chỉ đăng Telegram khi bạn xác nhận.</p>`));
+        icons(); scrollBottom(); return;
+      }
+      if (t.closest("#download-transcript")) {
+        const targets = state.compare.on
+          ? SIDES.map((side) => [state.compare[side].session, state.compare[side].transcriptId])
+          : [[state.session, state.transcriptId]];
+        for (const [sid, tid] of targets) {
+          const data = await api(`/api/transcript?session_id=${encodeURIComponent(sid)}`);
+          if (data.error) { notice("Chưa có transcript cho cuộc chat này."); return; }
+          download(`${tid}.transcript.json`, JSON.stringify(data, null, 2), "application/json");
+        }
+        return;
+      }
+      const suggestion = t.closest("[data-suggestion]");
+      if (suggestion) { $("chat-input").value = suggestion.dataset.suggestion; $("char-count").textContent = `${$("chat-input").value.length} / ${state.config.max_chars}`; $("chat-input").focus(); }
+    });
+
+    /* ---------- Tool tooltip (hover / keyboard focus) ---------- */
+    function showTip(el) {
+      const name = el.dataset.tool, info = TOOL_INFO[name], tip = $("tooltip");
+      if (!info) return hideTip();
+      const [title, does, helps, limit] = info;
+      tip.innerHTML = `<strong>${TOOL_ICON[name] || "🔧"} ${esc(title)}${NEW_TOOLS.has(name) ? ' <span class="new-badge">NEW</span>' : ""}</strong>
+        <p><b>Làm gì:</b> ${esc(does)}</p><p><b>Giúp gì:</b> ${esc(helps)}</p>${limit ? `<p class="limit">Lưu ý: ${esc(limit)}</p>` : ""}`;
+      tip.hidden = false;
+      const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+      tip.style.left = `${Math.min(Math.max(8, r.left), innerWidth - w - 8)}px`;
+      tip.style.top = `${r.top - h - 8 >= 8 ? r.top - h - 8 : r.bottom + 8}px`;
+    }
+    function hideTip() { $("tooltip").hidden = true; }
+    document.addEventListener("mouseover", (e) => { const el = e.target.closest("[data-tool]"); el ? showTip(el) : hideTip(); });
+    document.addEventListener("focusin", (e) => { const el = e.target.closest("[data-tool]"); el ? showTip(el) : hideTip(); });
+    document.addEventListener("focusout", hideTip);
+    document.addEventListener("scroll", hideTip, true);
+
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeMenus(); hideTip(); } });
+    $("chat-input").addEventListener("input", (e) => { $("char-count").textContent = `${e.target.value.length} / ${state.config?.max_chars ?? 500}`; });
+    $("composer").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = $("chat-input").value;
+      $("chat-input").value = ""; $("char-count").textContent = `0 / ${state.config.max_chars}`;
+      sendMessage(text);
+    });
+
+    /* ================= Init ================= */
+    (async function init() {
+      icons();
+      try {
+        state.config = await api("/api/config");
+      } catch (err) {
+        $("conversation").innerHTML = agentMsg(`<span class="chip error">⚠ Không kết nối được server. Chạy <code>python web_app.py</code> trong starter_v0.</span>`);
+        icons(); return;
+      }
+      state.version = state.config.default_version;
+      state.model = state.config.models[0].id;
+      renderReading();
+      await newChat();
+    })();
+  </script>
+</body>
+</html>
