@@ -3,5 +3,116 @@
   "dataset_role": "group",
   "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_reading_list_add_url",
+      "phase": "B",
+      "suite": "group",
+      "query": "Lưu bài https://www.theverge.com/ai-artificial-intelligence/nvidia-blackwell-review vào danh sách đọc giúp mình, tối mình đọc sau",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "reading_list", "args": {"action": "add", "url": "https://www.theverge.com/ai-artificial-intelligence/nvidia-blackwell-review"}}]},
+      "metadata": {"skill": "routing_new_tool_reading_list", "difficulty": "easy", "what_it_tests": "Yêu cầu 'lưu để đọc sau' → reading_list action=add với đúng url, KHÔNG dùng fetch để đọc bài ngay."}
+    },
+    {
+      "id": "G02_lookup_news_year",
+      "phase": "B",
+      "suite": "group",
+      "query": "Năm nay Nvidia có những tin tức gì đáng chú ý?",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "lookup", "args": {"topic": "news", "timeframe": "year"}}]},
+      "metadata": {"skill": "arg_timeframe_year", "difficulty": "medium", "what_it_tests": "'năm nay' → timeframe=year và tin tức → topic=news (base chỉ test day/week)."}
+    },
+    {
+      "id": "G03_timeline_name_to_handle_limit",
+      "phase": "B",
+      "suite": "group",
+      "query": "Cho mình 3 bài đăng gần nhất của Yann LeCun trên X",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "timeline", "args": {"screenname": "ylecun", "limit": 3}}]},
+      "metadata": {"skill": "arg_handle_and_limit", "difficulty": "medium", "what_it_tests": "Map tên Yann LeCun → handle ylecun (không có @) và trích limit=3."}
+    },
+    {
+      "id": "G04_out_of_scope_booking",
+      "phase": "B",
+      "suite": "group",
+      "query": "Đặt giúp mình vé máy bay Hà Nội – Đà Nẵng sáng mai nhé",
+      "failure_type": "out_of_scope",
+      "expect": {"no_tool": true, "behavior": "refuse"},
+      "metadata": {"skill": "out_of_scope_transaction", "difficulty": "easy", "what_it_tests": "Yêu cầu giao dịch ngoài phạm vi research → không gọi tool nào (kể cả send/reading_list)."}
+    },
+    {
+      "id": "G05_reading_list_missing_url",
+      "phase": "B",
+      "suite": "group",
+      "query": "Lưu bài đó vào danh sách đọc giúp mình",
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"skill": "clarify_missing_url_new_tool", "difficulty": "medium", "what_it_tests": "Muốn lưu bài nhưng không có link → clarify hỏi URL, KHÔNG bịa url để gọi reading_list."}
+    },
+    {
+      "id": "GM01_dedupe_by_title",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tìm tin AI hôm nay"},
+        {"role": "assistant", "content": "Kết quả: 1) \"OpenAI ra mắt mô hình mới\" — https://techcrunch.com/openai-new-model  2) \"OpenAI ra mắt mô hình mới\" — https://www.reuters.com/tech/openai-model  3) \"Google công bố Gemini cập nhật\" — https://www.theverge.com/google-gemini-update"},
+        {"role": "user", "content": "Bài 1 và 2 trùng tiêu đề kìa, bỏ các bài trùng theo tiêu đề giúp mình"}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "dedupe", "args": {"key": "title"}}]},
+      "metadata": {"skill": "routing_new_tool_dedupe", "difficulty": "hard", "what_it_tests": "Danh sách đã có, user muốn bỏ trùng theo tiêu đề → dedupe key=title (không phải mặc định url), không tìm lại."}
+    },
+    {
+      "id": "GM02_filter_recent_days",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tìm tin về chip AI"},
+        {"role": "assistant", "content": "Kết quả: 1) \"Nvidia tăng sản lượng\" — Reuters — 2026-11-09 — https://www.reuters.com/a  2) \"AMD ra chip mới\" — The Verge — 2026-11-01 — https://www.theverge.com/b  3) \"Intel cắt giảm\" — CNBC — 2026-10-20 — https://www.cnbc.com/c  4) \"TSMC mở nhà máy\" — Reuters — 2026-11-08 — https://www.reuters.com/d"},
+        {"role": "user", "content": "Chỉ giữ các bài trong 3 ngày gần đây thôi"}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "filter_results", "args": {"days": 3}}]},
+      "metadata": {"skill": "routing_new_tool_filter_results", "difficulty": "hard", "what_it_tests": "Lọc danh sách ĐÃ CÓ theo N ngày → filter_results days=3, không gọi lại lookup (timeframe không có 3 ngày)."}
+    },
+    {
+      "id": "GM03_topic_stats_top_n",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tìm tin AI tuần này"},
+        {"role": "assistant", "content": "Kết quả: 1) \"AI agents vào doanh nghiệp\" 2) \"EU siết luật AI\" 3) \"AI agents viết code\" 4) \"Nvidia chip AI mới\" 5) \"Luật AI ở Mỹ\" 6) \"Startup AI agents gọi vốn\""},
+        {"role": "user", "content": "Thống kê giúp mình 3 chủ đề được nhắc nhiều nhất trong đống này"}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "topic_stats", "args": {"top_n": 3}}]},
+      "metadata": {"skill": "routing_new_tool_topic_stats", "difficulty": "hard", "what_it_tests": "Hỏi chủ đề nổi bật trên danh sách đã có → topic_stats top_n=3, không tóm tắt thủ công, không tìm lại."}
+    },
+    {
+      "id": "GM04_confirm_before_clear_reading_list",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Cho mình xem danh sách đọc"},
+        {"role": "assistant", "content": "Danh sách đọc của bạn có 3 bài: Nvidia Blackwell review, EU AI Act update, Gemini roadmap."},
+        {"role": "user", "content": "Xoá sạch danh sách đọc đi"}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "yes_no"}}]},
+      "metadata": {"skill": "confirm_before_destructive_new_tool", "difficulty": "medium", "what_it_tests": "Xoá toàn bộ danh sách là hành động không hoàn tác → hỏi xác nhận yes_no trước, chưa gọi reading_list clear."}
+    },
+    {
+      "id": "GM05_answer_from_context_no_tool",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tin AI hôm nay có gì?"},
+        {"role": "assistant", "content": "Có 3 tin: 1) OpenAI cập nhật ChatGPT. 2) Anthropic ra mắt Claude bản mới. 3) Google mở rộng Gemini."},
+        {"role": "user", "content": "Tin số 2 nói về công ty nào vậy?"}
+      ],
+      "failure_type": "unnecessary_tool",
+      "expect": {"no_tool": true, "behavior": "answer_without_tool"},
+      "metadata": {"skill": "no_tool_answer_from_context", "difficulty": "medium", "what_it_tests": "Thông tin đã có trong hội thoại → trả lời thẳng (Anthropic), không gọi lookup/fetch lại."}
+    }
+  ]
 }
