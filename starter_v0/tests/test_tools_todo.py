@@ -10,6 +10,9 @@ Rules:
 """
 from __future__ import annotations
 
+import json
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from conftest import FakeResponse  # noqa: F401  (you will need it)
@@ -164,207 +167,247 @@ def test_dedupe_non_list_items_returns_error_dict() -> None:
     assert result["error"] == "TypeError"
 
 
-# ---------------- rank ----------------
+# ---------------- filter_results ----------------
 
-rank_tool = TOOL_FUNCTIONS["rank"]
+filter_tool = TOOL_FUNCTIONS["filter_results"]
+
+
+def _days_ago(days: float) -> str:
+    return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
 
 
 # 1. happy path
-def test_rank_by_score_desc_keeps_top_n() -> None:
+def test_filter_keeps_only_requested_sources_matching_name_or_domain_case_insensitive() -> None:
     items = [
-        {"title": "low", "score": 0.2},
-        {"title": "high", "score": 0.9},
-        {"title": "mid", "score": 0.5},
+        {"title": "r", "source": "Reuters"},
+        {"title": "t", "url": "https://www.techcrunch.com/2026/11/ai"},
+        {"title": "b", "source": "bbc.com"},
     ]
-    result = rank_tool(items=items, by="score", limit=2)
+    result = filter_tool(items=items, sources=["reuters", "TechCrunch"])
 
-    assert [i["title"] for i in result["items"]] == ["high", "mid"]
-    assert result["input_count"] == 3
+    assert [i["title"] for i in result["items"]] == ["r", "t"]
+    assert result["removed_by_source"] == 1
+
+
+def test_filter_days_keeps_only_recent_items() -> None:
+    items = [
+        {"title": "recent", "date": _days_ago(2)},
+        {"title": "old", "date": _days_ago(10)},
+    ]
+    result = filter_tool(items=items, days=7)
+
+    assert [i["title"] for i in result["items"]] == ["recent"]
+    assert result["removed_by_date"] == 1
+
+
+def test_filter_combines_sources_and_days() -> None:
+    items = [
+        {"title": "ok", "source": "Reuters", "date": _days_ago(1)},
+        {"title": "old reuters", "source": "Reuters", "date": _days_ago(30)},
+        {"title": "recent other", "source": "CNN", "date": _days_ago(1)},
+    ]
+    result = filter_tool(items=items, sources=["Reuters", "TechCrunch"], days=7)
+
+    assert [i["title"] for i in result["items"]] == ["ok"]
+    assert (result["removed_by_source"], result["removed_by_date"]) == (1, 1)
+
+
+# 2. input xấu từ model
+def test_filter_drops_undated_items_only_when_days_is_set() -> None:
+    items = [{"title": "no date"}, {"title": "bad date", "date": "yesterday-ish"}]
+
+    assert filter_tool(items=items, days=7)["removed_undated"] == 2
+    assert filter_tool(items=items, days=7)["item_count"] == 0
+    assert filter_tool(items=items)["item_count"] == 2
+
+
+def test_filter_accepts_sources_as_comma_separated_string() -> None:
+    items = [{"source": "Reuters"}, {"source": "CNN"}, {"source": "TechCrunch"}]
+    assert filter_tool(items=items, sources="Reuters, TechCrunch")["item_count"] == 2
+
+
+def test_filter_without_criteria_returns_everything_and_skips_junk() -> None:
+    result = filter_tool(items=[{"title": "a"}, "junk", 7, {"title": "b"}])
     assert result["item_count"] == 2
-
-
-def test_rank_by_date_handles_tweet_and_iso_formats_newest_first() -> None:
-    items = [
-        {"title": "tweet", "date": "Thu Nov 05 22:34:04 +0000 2026"},
-        {"title": "iso", "date": "2026-11-08"},
-        {"title": "newest", "date": "Tue Nov 10 10:21:49 +0000 2026"},
-    ]
-    result = rank_tool(items=items, by="date")
-    assert [i["title"] for i in result["items"]] == ["newest", "iso", "tweet"]
-
-
-def test_rank_by_title_ascending_ignores_case() -> None:
-    items = [{"title": "banana"}, {"title": "Apple"}, {"title": "cherry"}]
-    result = rank_tool(items=items, by="title", order="asc")
-    assert [i["title"] for i in result["items"]] == ["Apple", "banana", "cherry"]
-
-
-# 2. input xấu từ model
-def test_rank_items_without_sort_field_go_last_even_in_ascending_order() -> None:
-    items = [{"title": "no score"}, {"title": "b", "score": 2}, {"title": "a", "score": 1}, {"title": "bad", "score": "n/a"}]
-    result = rank_tool(items=items, by="score", order="asc")
-
-    assert [i["title"] for i in result["items"]] == ["a", "b", "no score", "bad"]
-    assert result["unranked"] == 2
-
-
-def test_rank_drops_non_dict_items_and_accepts_limit_as_string() -> None:
-    items = ["junk", {"title": "x", "score": 1}, {"title": "y", "score": 2}, 42]
-    result = rank_tool(items=items, limit="1")
-
     assert result["skipped"] == 2
-    assert [i["title"] for i in result["items"]] == ["y"]
-
-
-def test_rank_none_items_returns_empty_result() -> None:
-    result = rank_tool(items=None)
-    assert result["item_count"] == 0
-    assert "error" not in result
+    assert filter_tool(items=None)["item_count"] == 0
 
 
 # 3. nhánh lỗi: trả error dict, không raise
-def test_rank_invalid_by_returns_error_dict() -> None:
-    result = rank_tool(items=[{"score": 1}], by="popularity")
+def test_filter_negative_days_returns_error_dict() -> None:
+    result = filter_tool(items=[], days=-3)
     assert result["error"] == "ValueError"
-    assert "by must be one of" in result["message"]
+    assert "days must be >= 0" in result["message"]
 
 
-def test_rank_invalid_order_and_negative_limit_return_error_dict() -> None:
-    assert rank_tool(items=[], order="sideways")["error"] == "ValueError"
-    assert rank_tool(items=[], limit=-1)["error"] == "ValueError"
+def test_filter_non_list_items_returns_error_dict() -> None:
+    assert filter_tool(items="abc")["error"] == "TypeError"
 
 
-def test_rank_non_list_items_returns_error_dict() -> None:
-    assert rank_tool(items="not a list")["error"] == "TypeError"
+def test_filter_sources_of_wrong_type_return_error_dict() -> None:
+    assert filter_tool(items=[], sources=123)["error"] == "TypeError"
+    assert filter_tool(items=[], sources=["Reuters", 5])["error"] == "TypeError"
 
 
-# ---------------- extract_links ----------------
+# ---------------- topic_stats ----------------
 
-extract_links_tool = TOOL_FUNCTIONS["extract_links"]
+topic_tool = TOOL_FUNCTIONS["topic_stats"]
 
-
-# 1. happy path
-def test_extract_links_returns_links_in_order_with_count() -> None:
-    text = "Xem https://example.com/a và http://news.org/b/c?x=1 nhé."
-    result = extract_links_tool(text=text)
-
-    assert result["links"] == ["https://example.com/a", "http://news.org/b/c?x=1"]
-    assert result["count"] == 2
-
-
-def test_extract_links_strips_trailing_punctuation_and_markdown_parenthesis() -> None:
-    text = "Đọc (https://example.com/a), rồi [bài này](https://example.com/b)! Cuối: https://example.com/c."
-    result = extract_links_tool(text=text)
-    assert result["links"] == ["https://example.com/a", "https://example.com/b", "https://example.com/c"]
-
-
-def test_extract_links_keeps_balanced_parenthesis_inside_url() -> None:
-    text = "Wiki: https://en.wikipedia.org/wiki/Python_(programming_language)"
-    assert extract_links_tool(text=text)["links"] == ["https://en.wikipedia.org/wiki/Python_(programming_language)"]
-
-
-# 2. input xấu từ model
-def test_extract_links_removes_duplicates_by_default_and_can_keep_them() -> None:
-    text = "https://a.com/x và lại https://a.com/x"
-    default = extract_links_tool(text=text)
-    keep_all = extract_links_tool(text=text, unique=False)
-
-    assert default["count"] == 1 and default["total_found"] == 2
-    assert keep_all["count"] == 2
-
-
-def test_extract_links_empty_none_and_no_link_text_return_zero_without_error() -> None:
-    for text in ("", None, "chỉ có chữ, không có link, ftp://x.com cũng không tính"):
-        result = extract_links_tool(text=text)
-        assert result["count"] == 0
-        assert "error" not in result
-
-
-def test_extract_links_treats_string_false_as_false_for_unique() -> None:
-    text = "https://a.com/x https://a.com/x"
-    assert extract_links_tool(text=text, unique="false")["count"] == 2
-
-
-# 3. nhánh lỗi: trả error dict, không raise
-def test_extract_links_non_string_text_returns_error_dict() -> None:
-    result = extract_links_tool(text=["https://a.com"])
-    assert result["error"] == "TypeError"
-    assert "text must be a string" in result["message"]
-
-
-# ---------------- summarize_stats ----------------
-
-summarize_stats_tool = TOOL_FUNCTIONS["summarize_stats"]
+ARTICLES = [
+    {"title": "OpenAI launches new agent platform", "source": "reuters.com"},
+    {"title": "OpenAI agent update said to boost coding", "source": "techcrunch.com"},
+    {"title": "EU regulation of AI draws criticism", "source": "reuters.com"},
+    {"title": "New regulation pushes OpenAI to disclose data", "source": "bbc.com"},
+    {"title": "Gardening tips for spring", "source": "garden.org"},
+]
 
 
 # 1. happy path
-def test_summarize_stats_counts_items_per_source_sorted_by_count() -> None:
-    items = [
-        {"source": "bbc.com"}, {"source": "dw.com"}, {"source": "bbc.com"},
-        {"source": "bbc.com"}, {"source": "dw.com"}, {"source": "cnn.com"},
-    ]
-    result = summarize_stats_tool(items=items)
+def test_topic_stats_auto_ranks_topics_by_number_of_articles() -> None:
+    result = topic_tool(items=ARTICLES)
+    counts = {row["topic"]: row["article_count"] for row in result["topics"]}
 
-    assert result["total_items"] == 6
-    assert result["source_count"] == 3
-    assert result["sources"] == [
-        {"source": "bbc.com", "count": 3},
-        {"source": "dw.com", "count": 2},
-        {"source": "cnn.com", "count": 1},
-    ]
+    assert result["mode"] == "auto"
+    assert result["total_articles"] == 5
+    assert counts["openai"] == 3
+    assert counts["regulation"] == 2
+    assert result["topics"][0]["topic"] == "openai"
 
 
-def test_summarize_stats_reports_oldest_newest_and_span_days() -> None:
-    items = [
-        {"source": "a", "date": "2026-11-10"},
-        {"source": "a", "date": "Sun Nov 01 08:00:00 +0000 2026"},
-        {"source": "a", "date": "2026-11-05T12:00:00Z"},
-    ]
-    result = summarize_stats_tool(items=items)
+def test_topic_stats_reports_share_sources_and_example_title() -> None:
+    row = next(r for r in topic_tool(items=ARTICLES)["topics"] if r["topic"] == "openai")
 
-    assert result["oldest"].startswith("2026-11-01T08:00:00")
-    assert result["newest"].startswith("2026-11-10T00:00:00")
-    assert result["span_days"] == 8.67
+    assert row["share_pct"] == 60.0
+    assert set(row["sources"]) == {"reuters.com", "techcrunch.com", "bbc.com"}
+    assert row["example_title"] == "OpenAI launches new agent platform"
+
+
+def test_topic_stats_custom_topics_use_whole_word_match_and_keep_zero_counts() -> None:
+    items = ARTICLES + [{"title": "He said it was fine", "source": "x.com"}]
+    result = topic_tool(items=items, topics=["AI", "agent", "blockchain"])
+    counts = {row["topic"]: row["article_count"] for row in result["topics"]}
+
+    assert result["mode"] == "custom"
+    assert counts == {"ai": 1, "agent": 2, "blockchain": 0}  # "said" must not count as "ai"
 
 
 # 2. input xấu từ model
-def test_summarize_stats_handles_missing_source_missing_date_and_junk() -> None:
-    items = [
-        {"url": "https://www.example.com/x"},
-        {"title": "no source no url", "date": "not a date"},
-        "junk",
-        {"source": "  ", "date": "2026-11-02"},
-    ]
-    result = summarize_stats_tool(items=items)
+def test_topic_stats_min_articles_and_top_n_limit_the_result() -> None:
+    assert [r["topic"] for r in topic_tool(items=ARTICLES, top_n=1)["topics"]] == ["openai"]
+    singles = topic_tool(items=ARTICLES, min_articles=1)["topics"]
+    assert any(r["article_count"] == 1 for r in singles)
 
-    assert result["total_items"] == 3
+
+def test_topic_stats_empty_none_and_junk_items_do_not_crash() -> None:
+    assert topic_tool(items=[])["topics"] == []
+    assert topic_tool(items=None)["total_articles"] == 0
+    result = topic_tool(items=["junk", {"title": "OpenAI OpenAI"}, {"title": "OpenAI again"}])
     assert result["skipped"] == 1
-    assert result["undated"] == 2
-    assert {s["source"]: s["count"] for s in result["sources"]} == {"example.com": 1, "unknown": 2}
+    assert result["topics"][0]["article_count"] == 2  # one vote per article, not per mention
 
 
-def test_summarize_stats_top_sources_truncates_list_but_keeps_source_count() -> None:
-    items = [{"source": "a"}, {"source": "a"}, {"source": "b"}, {"source": "c"}]
-    result = summarize_stats_tool(items=items, top_sources="1")
-
-    assert result["sources"] == [{"source": "a", "count": 2}]
-    assert result["source_count"] == 3
-
-
-def test_summarize_stats_empty_items_returns_zero_totals_and_no_dates() -> None:
-    result = summarize_stats_tool(items=[])
-    assert result["total_items"] == 0
-    assert result["oldest"] is None and result["newest"] is None and result["span_days"] is None
-    assert "error" not in result
+def test_topic_stats_accepts_topics_as_comma_separated_string() -> None:
+    result = topic_tool(items=ARTICLES, topics="OpenAI, regulation")
+    assert {r["topic"] for r in result["topics"]} == {"openai", "regulation"}
 
 
 # 3. nhánh lỗi: trả error dict, không raise
-def test_summarize_stats_non_list_items_returns_error_dict() -> None:
-    assert summarize_stats_tool(items="abc")["error"] == "TypeError"
+def test_topic_stats_invalid_numbers_return_error_dict() -> None:
+    assert topic_tool(items=[], top_n=-1)["error"] == "ValueError"
+    assert topic_tool(items=[], min_articles=-2)["error"] == "ValueError"
 
 
-def test_summarize_stats_negative_top_sources_returns_error_dict() -> None:
-    result = summarize_stats_tool(items=[], top_sources=-2)
+def test_topic_stats_wrong_types_return_error_dict() -> None:
+    assert topic_tool(items="abc")["error"] == "TypeError"
+    assert topic_tool(items=[], topics=99)["error"] == "TypeError"
+
+
+# ---------------- reading_list ----------------
+
+reading_list_tool = TOOL_FUNCTIONS["reading_list"]
+
+
+@pytest.fixture
+def list_file(tmp_path, monkeypatch):
+    """Point the tool at a temp file so tests never touch the real reading_list.json."""
+    path = tmp_path / "reading_list.json"
+    monkeypatch.setenv("READING_LIST_PATH", str(path))
+    return path
+
+
+# 1. happy path
+def test_reading_list_add_saves_entry_to_file_and_list_returns_it(list_file) -> None:
+    saved = reading_list_tool(action="add", url="https://example.com/a", title="Bài A", note="đọc cuối tuần")
+
+    assert saved["status"] == "saved"
+    assert saved["entry"]["title"] == "Bài A"
+    assert datetime.fromisoformat(saved["entry"]["saved_at"])
+    assert json.loads(list_file.read_text(encoding="utf-8"))[0]["url"] == "https://example.com/a"
+
+    listed = reading_list_tool(action="list")
+    assert listed["count"] == 1
+    assert listed["entries"][0]["note"] == "đọc cuối tuần"
+
+
+def test_reading_list_remove_deletes_entry_and_reports_not_found(list_file) -> None:
+    reading_list_tool(action="add", url="https://example.com/a")
+    reading_list_tool(action="add", url="https://example.com/b")
+
+    removed = reading_list_tool(action="remove", url="https://example.com/a")
+    missing = reading_list_tool(action="remove", url="https://example.com/zzz")
+
+    assert removed["status"] == "removed" and removed["count"] == 1
+    assert missing["status"] == "not_found"
+    assert [e["url"] for e in reading_list_tool(action="list")["entries"]] == ["https://example.com/b"]
+
+
+# 2. input xấu từ model / guardrail
+def test_reading_list_add_same_url_in_different_form_is_not_duplicated(list_file) -> None:
+    reading_list_tool(action="add", url="https://example.com/a")
+    again = reading_list_tool(action="add", url="https://www.Example.com/a/")
+
+    assert again["status"] == "already_saved"
+    assert reading_list_tool(action="list")["count"] == 1
+
+
+def test_reading_list_clear_without_confirmation_keeps_everything(list_file) -> None:
+    reading_list_tool(action="add", url="https://example.com/a")
+
+    blocked = reading_list_tool(action="clear")
+    assert blocked["status"] == "needs_confirmation"
+    assert reading_list_tool(action="list")["count"] == 1
+
+    done = reading_list_tool(action="clear", confirmed=True)
+    assert done["status"] == "cleared" and done["removed"] == 1
+    assert reading_list_tool(action="list")["count"] == 0
+
+
+def test_reading_list_list_on_missing_file_returns_empty_without_error(list_file) -> None:
+    result = reading_list_tool()
+    assert result["count"] == 0
+    assert "error" not in result
+    assert not list_file.exists()  # listing must not create the file
+
+
+# 3. nhánh lỗi: trả error dict, không raise
+def test_reading_list_rejects_bad_url_and_does_not_write(list_file) -> None:
+    for bad in ("", "not a url", "ftp://example.com/a"):
+        result = reading_list_tool(action="add", url=bad)
+        assert result["error"] == "ValueError"
+    assert reading_list_tool(action="remove")["error"] == "ValueError"
+    assert not list_file.exists()
+
+
+def test_reading_list_unknown_action_returns_error_dict(list_file) -> None:
+    result = reading_list_tool(action="archive")
     assert result["error"] == "ValueError"
-    assert "top_sources must be >= 0" in result["message"]
+    assert "action must be one of" in result["message"]
 
+
+def test_reading_list_corrupted_file_returns_error_dict_and_is_not_overwritten(list_file) -> None:
+    list_file.write_text("{not json", encoding="utf-8")
+
+    result = reading_list_tool(action="add", url="https://example.com/a")
+
+    assert result["error"] == "JSONDecodeError"
+    assert list_file.read_text(encoding="utf-8") == "{not json"

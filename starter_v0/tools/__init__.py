@@ -18,9 +18,9 @@ from .social_search.tool import search_tweets
 from .send.tool import send_telegram
 from .lookup.tool import web_search
 from .dedupe.tool import dedupe_items
-from .rank.tool import rank_items
-from .extract_links.tool import extract_links
-from .summarize_stats.tool import summarize_stats
+from .filter_results.tool import filter_items
+from .topic_stats.tool import analyze_topics
+from .reading_list.tool import manage_reading_list
 
 
 
@@ -43,9 +43,9 @@ TOOL_FUNCTIONS = {
     # TODO CP3 (student): register your new tool here, e.g. "my_tool": my_tool_function,
     # then declare it in artifacts/tools.yaml and run `pytest tests/test_tool_contract.py`.
     "dedupe": dedupe_items,
-    "rank": rank_items,
-    "extract_links": extract_links,
-    "summarize_stats": summarize_stats,
+    "filter_results": filter_items,
+    "topic_stats": analyze_topics,
+    "reading_list": manage_reading_list,
 }
 
 

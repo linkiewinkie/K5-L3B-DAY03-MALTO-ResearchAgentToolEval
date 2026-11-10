@@ -6,3 +6,5 @@ __pycache__/
 .env.*
 !.env.example
 arxiv_papers/
+reading_list.json
+reading_list.json.tmp
