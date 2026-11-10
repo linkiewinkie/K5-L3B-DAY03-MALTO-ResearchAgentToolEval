@@ -19,7 +19,7 @@ def _bullet(item: dict[str, Any]) -> str:
 
 
 def render_digest(items: list[dict[str, Any]] | None = None, template: str = "sections", headline: str = "") -> dict[str, Any]:
-    items = items or []
+    items = [item for item in (items or []) if isinstance(item, dict)]  # model may send strings/None in the list
     if template == "brief":
         markdown = (f"**{headline}**\n\n" if headline else "") + "\n".join(_bullet(item) for item in items[:5])
     elif template == "bullets":

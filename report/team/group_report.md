@@ -95,11 +95,11 @@ Lấy từ `starter_v0/transcripts/*.transcript.json`.
 
 | Item | Evidence File | What Worked | Risk / Guardrail |
 |---|---|---|---|
-| Tool mới (`tools/<tên>/`) |  |  |  |
-| Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed) |  |  |
-| UI (lệnh chạy + link dùng thử) |  |  |  |
+| Tool mới (tools/<tên>/) | `starter_v0/tools/dedupe/`, `filter_results/`, `topic_stats/`, `reading_list/` (mỗi folder có `tool.py` + `TOOL.md`); đăng ký trong `tools/__init__.py`, khai báo trong `artifacts/tools.yaml` | 4 tool chạy local, không gọi mạng, nhận kết quả của `lookup/social_search` làm đầu vào. <br>• `dedupe`: gộp URL (bỏ `www`, `/` cuối, khác hoa thường). <br>• `filter_results`: lọc theo nguồn và theo ngày. <br>• `topic_stats`: đếm chủ đề (tự động hoặc theo danh sách người dùng nêu). <br>• `reading_list`: lưu bài vào file JSON local. | Tool lỗi đều trả error dict, không raise. <br>• `reading_list`: chỉ xoá toàn bộ khi `confirmed=true` và không ghi đè file JSON bị hỏng. <br>• `filter_results`: loại item không có ngày hợp lệ khi đặt `days`. |
+| Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed): `python -m pytest -q` → 131 passed, 0 skipped; `tests/test_tools_todo.py` | 33 test cho 4 tool mới (`dedupe` 8, `filter_results` 9, `topic_stats` 8, `reading_list` 8). Mỗi tool có happy path, input xấu (`None`, sai kiểu, `limit` dạng chuỗi) và nhánh lỗi. Tất cả chạy offline. | Test không gọi mạng thật (`block_network` chặn). `test_tool_contract.py` xanh (75 passed) nên khai báo, registry và code khớp nhau. |
+| UI (lệnh chạy + link dùng thử) | (nhóm trưởng điền) | | |
 
-Tool unit tests: số test đã viết, và một ví dụ lỗi mà unit test bắt được nhưng eval không bắt được.
+Tool unit tests: đã viết 33 test cho 4 tool mới và điền toàn bộ 14 stub TODO của 8 tool có sẵn (tổng 131 test, 0 skipped). Ví dụ lỗi unit test bắt được mà eval không bắt được: reading_list khi file JSON bị hỏng phải trả error dict và không ghi đè file (test_reading_list_corrupted_file_returns_error_dict_and_is_not_overwritten). Eval chỉ đo model chọn tool nào và truyền args gì, nên không thấy được việc mất dữ liệu ở bước thực thi tool.
 
 ### B5. Bonus Evidence
 
@@ -108,11 +108,13 @@ Chỉ điền nếu nhóm làm bonus (ghi riêng, tối đa 10 điểm). Tool c�
 | Bonus | Evidence File | What Worked | Risk / Guardrail |
 |---|---|---|---|
 | Small Local Model | xem B7 |  |  |
-| Hơn 3 tool mới (≥ 4) |  |  |  |
-| `send` gửi thật lên Telegram sau xác nhận | transcript |  |  |
-| Test challenge (0 skipped / regression test) | `pytest` output |  |  |
+| Hơn 3 tool mới (≥ 4) | `starter_v0/tools/{dedupe,filter_results,topic_stats,reading_list}/`, `tests/test_tools_todo.py`, eval case: (điền id case sau khi nhóm trưởng thêm vào eval_group.json) | 4 tool tự viết, mỗi tool đủ `TOOL.md`, đăng ký, khai báo và 8–9 test. | Rubric đòi có eval case route tới mỗi tool, hiện chưa có case nào. Cần ≥ 4 case (hoặc case multi-turn gọi nhiều tool). || `send` gửi thật lên Telegram sau xác nhận | transcript |  |  |
+| Test challenge | `pytest` output: 131 passed, 0 skipped. Regression test trong `tests/test_tools_todo.py` | 0 skipped, và đã tìm ra 2 bug ở tool có sẵn, đều có test regression. | Xem mô tả dưới. |
 
-Test challenge: số bug tìm được trong tool có sẵn (nếu có), cách sửa, và test regression tương ứng.
+Tìm được 2 bug trong tool có sẵn.
+
+1. `timeline` và `social_search`: `limit=-1` làm `items[:-1]` bỏ mất tweet cuối. Đã sửa bằng cách limit âm dùng mặc định 5. Test: `test_regression_negative_limit_does_not_slice_from_the_end` (2 tham số).
+2. `format`: `items` chứa phần tử không phải dict (chuỗi, `None`, số) làm `AttributeError` thoát ra vòng lặp agent. Đã sửa bằng cách bỏ qua phần tử không phải dict. Test: `test_regression_format_skips_non_dict_items_instead_of_raising`. Cả 3 test fail trên code cũ và pass trên code đã sửa.
 
 ### B7. Small Local Model Challenge (bonus)
 
