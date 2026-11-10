@@ -123,3 +123,24 @@ tools:
         max_pages: {type: integer, default: 5, description: "Số trang"}
         max_chars: {type: integer, default: 8000, description: "Số ký tự"}
       required: [arxiv_url]
+
+  # ---------------- Team tools ----------------
+  - name: dedupe
+    description: "Loại bỏ item trùng lặp (cùng URL hoặc cùng tiêu đề) khỏi danh sách kết quả ĐÃ CÓ từ lookup/social_search. Dùng khi gộp nhiều nguồn trước khi format. KHÔNG dùng để tìm kiếm hay đọc nội dung mới; không dùng khi chưa có danh sách item."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Danh sách item đã có (mỗi item là object có url/title)"
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+        key: {type: string, enum: [url, title], default: "url", description: "Trường dùng để so trùng; mặc định url"}
+        limit: {type: integer, default: 0, description: "Giữ tối đa N item; 0 là không giới hạn"}
+      required: [items]

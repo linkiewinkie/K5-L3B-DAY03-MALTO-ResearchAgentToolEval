@@ -110,13 +110,56 @@ def test_policy_instruction_like_lines_go_to_untrusted_text() -> None:
 #   2. bad / missing input from the model (empty string, wrong type, out-of-enum value)
 #   3. failure path (missing key, HTTP error, timeout) -> returns error dict, does not raise
 
-def test_my_new_tool_happy_path() -> None:
-    pytest.skip(TODO)
+dedupe_tool = TOOL_FUNCTIONS["dedupe"]
 
 
-def test_my_new_tool_bad_input_from_model() -> None:
-    pytest.skip(TODO)
+# 1. happy path
+def test_dedupe_removes_duplicate_urls_keeps_first_occurrence() -> None:
+    items = [
+        {"title": "A", "url": "https://example.com/a"},
+        {"title": "B", "url": "https://example.com/b"},
+        {"title": "A2", "url": "https://example.com/a"},
+    ]
+    result = dedupe_tool(items=items)
+
+    assert result["item_count"] == 2
+    assert result["input_count"] == 3
+    assert [i["title"] for i in result["items"]] == ["A", "B"]
 
 
-def test_my_new_tool_failure_returns_error_dict() -> None:
-    pytest.skip(TODO)
+def test_dedupe_treats_www_trailing_slash_and_case_as_same_url() -> None:
+    items = [{"url": "https://www.Example.com/a/"}, {"url": "https://example.com/a"}]
+    assert dedupe_tool(items=items)["item_count"] == 1
+
+
+# 2. input xấu từ model
+def test_dedupe_skips_items_without_key_instead_of_crashing() -> None:
+    items = [{"title": "no url"}, "not a dict", {"url": ""}, {"url": "https://example.com/x"}]
+    result = dedupe_tool(items=items)
+
+    assert result["item_count"] == 1
+    assert result["skipped"] == 3
+
+
+def test_dedupe_accepts_limit_given_as_string() -> None:
+    items = [{"url": f"https://example.com/{i}"} for i in range(5)]
+    assert dedupe_tool(items=items, limit="2")["item_count"] == 2
+
+
+def test_dedupe_none_items_returns_empty_result() -> None:
+    result = dedupe_tool(items=None)
+    assert result["item_count"] == 0
+    assert "error" not in result
+
+
+# 3. nhánh lỗi: trả error dict, không raise
+def test_dedupe_invalid_key_returns_error_dict() -> None:
+    result = dedupe_tool(items=[{"url": "https://a.com"}], key="author")
+    assert result["error"] == "ValueError"
+    assert "key must be one of" in result["message"]
+
+
+def test_dedupe_non_list_items_returns_error_dict() -> None:
+    result = dedupe_tool(items="https://a.com")
+    assert result["error"] == "TypeError"
+
